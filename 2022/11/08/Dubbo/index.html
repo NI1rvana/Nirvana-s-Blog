@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Hexo | Dubbo | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/imgs/shortcut-icon.ico" type="image/x-icon">
+
+  
+    <link rel="stylesheet" href="/css/public.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/iconfont.css" />
+    <link rel="stylesheet" href="/css/APlayer.min.css" />
+    <script src="/js/APlayer.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.pjax.min.js"></script>
+  
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+  <script>
+    document.title = `Hexo | Dubbo`
+  </script>
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+<style>
+  .load {
+    width: 100%;
+    height: 100vh;
+    background-color: rgb(37, 35, 40);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 9999;
+  }
+  .load-circle {
+    width: 80px;
+    height: 80px;
+    border: 8px solid orange;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: rotate 1s linear infinite;
+    filter: drop-shadow(0 0 3px orange);
+  }
+  .load-circle-inner {
+    width: 40px;
+    height: 40px;
+    border: 8px solid orange;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: rotate-reverse .5s linear infinite;
+  }
+  .load-text {
+    margin-top: 20px;
+    font-size: 24px;
+    color: orange;
+    display: flex;
+  }
+  .load-text span {
+    margin: 0 5px;
+    text-shadow: 5px 5px 5px orange;
+    animation: move 1s linear infinite;
+  }
+  .load-text span:nth-child(1) {
+    animation-delay: -0.6s;
+  }
+  .load-text span:nth-child(2) {
+    animation-delay: -0.5s;
+  }
+  .load-text span:nth-child(3) {
+    animation-delay: -0.4s;
+  }
+  .load-text span:nth-child(4) {
+    animation-delay: -0.3s;
+  }
+  .load-text span:nth-child(5) {
+    animation-delay: -0.2s;
+  }
+  .load-text span:nth-child(6) {
+    animation-delay: -0.1s;
+  }
+  @keyframes rotate {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes rotate-reverse {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(-360deg); }
+  }
+  @keyframes move {
+    0% { transform: translateY(0%) rotate(0) scale(1); }
+    20% { transform: translateY(20%) rotate(10deg) scale(1.2); }
+    80% { transform: translateY(-10%) rotate(-20deg) scale(.8);}
+    100% { transform: translateY(0) rotate(0) scale(1); }
+  }
+
+  .progress {
+    position: fixed;
+    left: 0; top: 0;
+    width: 0;
+    height: 3px;
+    background-color: green;
+    transition: all cubic-bezier(0.215, 0.610, 0.355, 1) .1s;
+    z-index: 9999;
+  }
+
+  .to-up {
+    animation: toUp .5s 1;
+  }
+  @keyframes toUp {
+    from { transform: translateY(15px); opacity: 0; }
+    to { transform: translateY(0) ; opacity: 1; }
+  }
+</style>
+<body>
+  <div id="load" class="load">
+    <div class="load-circle">
+      <div class="load-circle-inner"></div>
+    </div>
+    <p class="load-text">
+      <span>L</span>
+      <span>O</span>
+      <span>A</span>
+      <span>D</span>
+      <span>I</span>
+      <span>N</span>
+      <span>G</span>
+    </p>
+  </div>
+  <div id="container" class="container w-100 vh-100" style="display: none;">
+    <header class="header">
+  <div class="header-wrapper">
+    <div class="header-left">
+      <div class="header-search">
+        <input id="search-input" type="text" class="header-search--input" placeholder="请输入要检索的文章标题" />
+        <span id="search-btn" class="header-search--icon"><i class="iconfont icon-sousuo"></i></span>
+      </div>
+      <div id="search-layer" class="header-search--layer hidden">
+        <p class="title">
+          <span>以下是搜索内容：</span>
+          <span id="close-layer-btn">关闭</span>
+        </p>
+        <ul>
+        </ul>
+      </div>
+    </div>
+    <div class="header-right">
+      <ul class="header-menu">
+        <li>
+          <a href="/">
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+            <span class="header-menu--span">首页</span>
+          </a>
+        </li>
+        <li>
+          <a href="/log">
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+            <span class="header-menu--span">日志</span>
+          </a>
+        </li>
+        <li>
+          <a href="/link">
+            <i class="header-menu--icon iconfont icon-youqinglianjie"></i>
+            <span class="header-menu--span">友情链接</span>
+          </a>
+        </li>
+        <li>
+          <a href="/about">
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+            <span class="header-menu--span">关于我</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<script>
+  const ipt = document.querySelector('#search-input')
+  const btn = document.querySelector('#search-btn')
+  const layer = document.querySelector('#search-layer')
+  const posts = JSON.parse(`[{"title":"CSS学习(一)","path":"2022/03/20/CSS学习-一/"},{"title":"Docker","path":"2022/11/09/Docker/"},{"title":"CSS学习(二)","path":"2022/03/27/CSS学习-二/"},{"title":"Dubbo","cover":"imgs/cover5.webp","path":"2022/11/08/Dubbo/"},{"title":"HTML学习(二)","path":"2022/03/14/HTML学习-二/"},{"title":"HTML学习(一)","path":"2022/03/14/HTML学习-一/"},{"title":"Linux Nginx学习","path":"2022/10/25/Linux Nginx/"},{"title":"Maven学习","path":"2022/10/14/Maven学习/"},{"title":"RabbitMQ","path":"2022/11/09/RabbitMQ/"},{"title":"SQL，jdbc，MybatisPlus","path":"2022/10/22/SQL/"},{"title":"SpringMVC+SpringBoot学习","cover":"imgs/cover3.webp","path":"2022/10/15/SpringMSV学习/"},{"title":"Spring Franework","cover":"imgs/cover3.webp","path":"2022/10/13/Spring学习/"},{"title":"Git学习","path":"2022/10/16/git学习/"},{"title":"Zookeeper","cover":"imgs/cover5.webp","path":"2022/11/09/zookeeper/"},{"title":"个人对于前端岗位的理解","path":"2022/02/27/个人对于前端岗位的理解/"},{"title":"数据库系统概论","cover":"imgs/cover3.webp","path":"2022/11/05/数据库系统概论/"},{"title":"小知识","path":"2022/10/26/杂文/"},{"title":"计算机网络(一)","cover":"imgs/cover1.webp","path":"2022/10/30/计算机网络-一/"},{"title":"Mango学习(二)","cover":"imgs/cover2.webp","path":"2022/10/30/Mango学习-二/"},{"title":"Mango学习(一)","cover":"imgs/cover2.webp","path":"2022/10/30/MongoDB/"},{"title":"Redis学习","path":"2022/10/26/Redis学习/"},{"title":"Tomcat核心原理","cover":"imgs/cover4.webp","path":"2022/11/06/Tomcat核心原理/"},{"title":"微服务技术栈(一)","path":"2022/11/20/微服务技术栈(一)/"},{"title":"设计模式(一)","path":"2022/12/02/设计模式(一)/"},{"title":"微服务技术栈(二)","path":"2022/12/02/微服务技术栈-二/"},{"title":"设计模式(二)","path":"2022/12/03/设计模式-二/"}]`)
+  ipt.addEventListener('keyup', e => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  })
+  btn.addEventListener('click', () => {
+    handleSearch()
+  })
+
+  document.querySelector('#close-layer-btn').addEventListener('click', () => {
+    layer.classList.toggle('hidden')
+  })
+
+  function handleSearch() {
+    if (ipt.value.trim() === '') {
+      return
+    }
+    let html = ''
+    const targetPosts = posts.filter(post => post.title.includes(ipt.value))
+    targetPosts.forEach(post => {
+      html += `
+        <li>
+          <div>
+            <a href="/${post.path}">${post.title.replace(new RegExp(ipt.value), `<span>${ipt.value}</span>`)}</a>
+          </div>
+          <img src="${post.cover || '/imgs/default-cover.webp' }" />
+        </li>
+      `
+    })
+    if (html.trim () === '') {
+      html += '<p class="empty">没有搜索到内容</p>'
+    }
+    layer.querySelector('ul').innerHTML = html
+    layer.classList.remove('hidden')
+  }
+</script> 
+    <section id="main" class="main">
+      <div class="main-left-wrapper">
+<div class="main-left">
+  <div class="main-left--block">
+    <div class="main-left--info">
+      <img src="/imgs/avatar.jpg"" class="main-left--avatar" />
+      <div class="main-left--intro">
+        <p class="main-left--name">Nirvana</p>
+        <div class="main-left--tags">
+          <span class="main-left--tag">学习</span>
+          <span class="main-left--tag">摆烂</span>
+        </div>
+      </div>
+    </div>
+  
+    <div>
+      <div class="main-left--motto">
+        <p>“花有重开日，人无再少年”</p>
+        <p>“一个简单普通的男孩”</p>
+      </div>
+      <div class="main-left--github">
+        <span class="line"></span>
+        <a href=""><i class="logo iconfont icon-github-fill"></i></a>
+        <span class="line"></span>
+      </div>
+      <div class="main-left--statics">
+        <a href="/categories">
+          <div>
+            <span>15</span>
+            <span>分类</span>
+          </div>
+        </a>
+        <a href="/tags">
+          <div>
+            <span>10</span>
+            <span>标签</span>
+          </div>
+        </a>
+        <a href="/archives">
+          <div>
+            <span>5 </span>
+            <span>归档</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-left--block">
+    <ul class="main-left--menu">
+      
+        <li>
+          <a href="/">
+            <span class="header-menu--span">小站首页</span>
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/log">
+            <span class="header-menu--span">个人日志</span>
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/about">
+            <span class="header-menu--span">关于自己</span>
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/tools">
+            <span class="header-menu--span">我的工具</span>
+            <i class="header-menu--icon iconfont icon-gongju"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="main-left--block">
+    <div class="main-left--site">
+      <h5 class="main-left--title">
+        <span>站点信息</span>
+        <i class="iconfont icon-zhandian"></i>
+      </h5>
+      <p class="main-left--subtitle">
+        <span>文章数目：</span>
+        <span>26 篇</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>最近动态：</span>
+        <span>今天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>上线时间：</span>
+        <span>267天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>当前版本：</span>
+        <span>v1.0.2</span>
+      </p>
+    </div>
+  </div>
+</div></div>
+      <div id="main-container" class="main-container">
+
+
+  <style>
+pre::-webkit-scrollbar {
+  width: 5px;
+  height: 10px;
+  background-color:#F5F5F5;
+}
+/*定义滚动条轨道
+内阴影+圆角*/
+pre::-webkit-scrollbar-track {
+  background-color:#F5F5F5;
+}
+/*定义滑块
+内阴影+圆角*/
+pre::-webkit-scrollbar-thumb {
+  background-color: rgb(69, 83, 100);
+}
+
+pre:active {
+  background-color: rgb(81, 95, 116);
+}
+</style>
+
+<div class="article-container">
+  <div class="article">
+    <h1 class="article-title">Dubbo</h1>
+    <div class="article-info">
+      <div class="article-info--item">
+        <div class="article-info--info">
+          
+          <div class="article-info--categories">
+            <span>分类：</span>
+            <a class="category-link" href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a>
+          </div>
+          
+          
+          <div class="article-info--tags">
+            <span>标签：</span>
+            <a class="tag-link" href="/tags/Dubbo/" rel="tag">Dubbo</a>
+          </div>
+          
+          <p class="article-info--date">日期：2022-11-08 20:26:08</p>
+        </div>
+        <img src="/imgs/cover5.webp" alt="" class="article-cover">
+      </div>
+    </div>
+    <article class="article-content">
+      <h1 id="相关概念"><a href="#相关概念" class="headerlink" title="相关概念"></a>相关概念</h1><h2 id="分布式系统中的相关概念"><a href="#分布式系统中的相关概念" class="headerlink" title="分布式系统中的相关概念"></a>分布式系统中的相关概念</h2><h3 id=""><a href="#" class="headerlink" title=""></a><img src="/images/image-20221108203750808.png" alt="image-20221108203750808"></h3><h3 id="集群和分布式"><a href="#集群和分布式" class="headerlink" title="集群和分布式"></a>集群和分布式</h3><p>集群:多台机器做一个工作</p>
+<p>分布式:多台机器共同完成</p>
+<p><img src="/images/image-20221108204308117.png" alt="image-20221108204308117"></p>
+<h3 id="架构演进"><a href="#架构演进" class="headerlink" title="架构演进"></a>架构演进</h3><p><img src="/images/image-20221108204635592.png" alt="image-20221108204635592"></p>
+<h4 id="单体架构"><a href="#单体架构" class="headerlink" title="单体架构"></a>单体架构</h4><p>多模块放在一起</p>
+<h5 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h5><ul>
+<li>方便开发部署</li>
+</ul>
+<h5 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h5><ul>
+<li>启动慢</li>
+<li>可靠性差</li>
+<li>可伸缩性差</li>
+<li>…</li>
+</ul>
+<h4 id="垂直架构"><a href="#垂直架构" class="headerlink" title="垂直架构"></a>垂直架构</h4><p>单体架构中的多个应用进行拆分,形成多个单体架构</p>
+<h5 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h5><ul>
+<li>重复功能多</li>
+</ul>
+<h4 id="分布式"><a href="#分布式" class="headerlink" title="分布式"></a>分布式</h4><p>在垂直架构基础上,将公共部分抽离出来</p>
+<p><img src="/images/image-20221108205149925.png" alt="image-20221108205149925"></p>
+<h5 id="缺点-2"><a href="#缺点-2" class="headerlink" title="缺点"></a>缺点</h5><ul>
+<li>服务方发生改变,所有消费方都需要变更</li>
+</ul>
+<h4 id="SOA架构"><a href="#SOA架构" class="headerlink" title="SOA架构"></a>SOA架构</h4><p>是一个组件模型,将应用程序的不同功能单元进行拆分,并定义接口和契约以连接</p>
+<p><img src="/images/image-20221108205750542.png" alt="image-20221108205750542"></p>
+<h3 id="微服务架构"><a href="#微服务架构" class="headerlink" title="微服务架构"></a>微服务架构</h3><p><img src="/images/image-20221108210009354.png" alt="image-20221108210009354"></p>
+<p><img src="/images/image-20221108210038125.png" alt="image-20221108210038125"></p>
+<h4 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h4><ul>
+<li>服务实现组件化</li>
+<li>服务之间的交互一般使用REST API</li>
+<li>去中心化</li>
+<li>自动化部署</li>
+</ul>
+<h2 id="Dubbo概述"><a href="#Dubbo概述" class="headerlink" title="Dubbo概述"></a>Dubbo概述</h2><h3 id="Dubbo概念"><a href="#Dubbo概念" class="headerlink" title="Dubbo概念"></a>Dubbo概念</h3><ul>
+<li>高性能,轻量级的javaRPC框架</li>
+<li>提供高性能和透明化的RPC远程服务调用方案,以及SOA服务治理方案</li>
+</ul>
+<p><img src="/images/image-20221108211102022.png" alt="image-20221108211102022"></p>
+<h3 id="Dubbo高级特性"><a href="#Dubbo高级特性" class="headerlink" title="Dubbo高级特性"></a>Dubbo高级特性</h3><h4 id="dubbo高级特性"><a href="#dubbo高级特性" class="headerlink" title="dubbo高级特性"></a>dubbo高级特性</h4><h5 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h5><ul>
+<li>dubbo内部已经将序列化和反序列化的过程内部封装了</li>
+<li>只需要在定义pojo类时实现serializable接口即可</li>
+</ul>
+<h5 id="注册缓存"><a href="#注册缓存" class="headerlink" title="注册缓存"></a>注册缓存</h5><ul>
+<li>dubbo服务消费者在第一次调用时，会将服务方地址缓存到本地，以后调用不会访问注册中心</li>
+<li>当服务提供者地址发生变化时，注册中心会通知服务消费者</li>
+</ul>
+<h5 id="超时与重试"><a href="#超时与重试" class="headerlink" title="超时与重试"></a>超时与重试</h5><ul>
+<li>服务消费者在调用服务提供者时发生了阻塞、等待，这个时候会一直等待</li>
+<li>在某个峰值，线程大量堆积，势必造成雪崩</li>
+<li>dubbo利用超时机制，一段时间内无法访问自动断开连接</li>
+</ul>
+<h4 id="多版本"><a href="#多版本" class="headerlink" title="多版本"></a>多版本</h4><p><img src="/images/image-20221109110132201.png" alt="image-20221109110132201"></p>
+<h4 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h4><h5 id="策略"><a href="#策略" class="headerlink" title="策略"></a>策略</h5><ul>
+<li>Random：按权重随机</li>
+<li>RoundRobin：按权重轮询</li>
+<li>LeastActive：最少活跃调用数，相同活跃数的随机</li>
+<li>ConsistentHash：一致性hash，相同参数的请求总是发送到同一使用者</li>
+</ul>
+<h4 id="集群容错"><a href="#集群容错" class="headerlink" title="集群容错"></a>集群容错</h4><p><img src="/images/image-20221109112053397.png" alt="image-20221109112053397"></p>
+<h4 id="服务降级"><a href="#服务降级" class="headerlink" title="服务降级"></a>服务降级</h4><p><img src="/images/image-20221109112407697.png" alt="image-20221109112407697"></p>
+
+    </article>
+    
+    <div class="read-nums">
+      <!-- id 将作为查询条件 -->
+      <span id="2022/11/08/Dubbo/" class="leancloud_visitors" data-flag-title="Your Article Title">
+        <em class="post-meta-item-text">浏览量</em>
+        <i class="leancloud-visitors-count"></i>
+      </span>
+    </div>
+    <div class="comments-intro">
+      <h2>评论区</h2>
+      <p>欢迎你留下宝贵的意见，昵称输入QQ号会显示QQ头像哦~</p>
+    </div>
+    <div id="vcomments" class="vcomments"></div>
+    
+  </div>
+  <div class="article-catelogue">
+    <div class="article-catelogue--wrapper">
+      <div class="catelogue catelogue-1">
+        <h3>目录</h3>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="toc-number">1.</span> <span class="toc-text">相关概念</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="toc-number">1.1.</span> <span class="toc-text">分布式系统中的相关概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.1.1.</span> <span class="toc-text"></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E5%92%8C%E5%88%86%E5%B8%83%E5%BC%8F"><span class="toc-number">1.1.2.</span> <span class="toc-text">集群和分布式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B"><span class="toc-number">1.1.3.</span> <span class="toc-text">架构演进</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%95%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">单体架构</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BC%98%E7%82%B9"><span class="toc-number">1.1.3.1.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9"><span class="toc-number">1.1.3.1.2.</span> <span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9E%82%E7%9B%B4%E6%9E%B6%E6%9E%84"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">垂直架构</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9-1"><span class="toc-number">1.1.3.2.1.</span> <span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">分布式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9-2"><span class="toc-number">1.1.3.3.1.</span> <span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SOA%E6%9E%B6%E6%9E%84"><span class="toc-number">1.1.3.4.</span> <span class="toc-text">SOA架构</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84"><span class="toc-number">1.1.4.</span> <span class="toc-text">微服务架构</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%89%B9%E7%82%B9"><span class="toc-number">1.1.4.1.</span> <span class="toc-text">特点</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dubbo%E6%A6%82%E8%BF%B0"><span class="toc-number">1.2.</span> <span class="toc-text">Dubbo概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Dubbo%E6%A6%82%E5%BF%B5"><span class="toc-number">1.2.1.</span> <span class="toc-text">Dubbo概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Dubbo%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7"><span class="toc-number">1.2.2.</span> <span class="toc-text">Dubbo高级特性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#dubbo%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">dubbo高级特性</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.2.2.1.1.</span> <span class="toc-text">序列化</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C%E7%BC%93%E5%AD%98"><span class="toc-number">1.2.2.1.2.</span> <span class="toc-text">注册缓存</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%B6%85%E6%97%B6%E4%B8%8E%E9%87%8D%E8%AF%95"><span class="toc-number">1.2.2.1.3.</span> <span class="toc-text">超时与重试</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9A%E7%89%88%E6%9C%AC"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">多版本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="toc-number">1.2.2.3.</span> <span class="toc-text">负载均衡</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%AD%96%E7%95%A5"><span class="toc-number">1.2.2.3.1.</span> <span class="toc-text">策略</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99"><span class="toc-number">1.2.2.4.</span> <span class="toc-text">集群容错</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E9%99%8D%E7%BA%A7"><span class="toc-number">1.2.2.5.</span> <span class="toc-text">服务降级</span></a></li></ol></li></ol></li></ol></li></ol>
+      </div>
+      
+        <div class="catelogue catelogue-2">
+          
+            <p>
+              <span>上一篇：</span>
+              <a href="/2022/11/09/zookeeper/">Zookeeper</a>
+            </p>
+           
+          
+            <p>
+              <span>下一篇</span>
+              <a href="/2022/11/06/Tomcat核心原理/">Tomcat核心原理</a>
+            </p>
+          
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+<script src="/js/prism.js"></script>
+
+<script>
+  // var定义，避免pjax重新进来造成的重复声明错误
+  var config = JSON.parse('{"enable":true,"appId":"Pf8zCXGEH1qsprnWfikVVujL-gzGzoHsz","appKey":"qOqoiUHhH1TGtLRUYURkLRQX","placeholder":"请留下你宝贵的意见吧~","meta":["nick"],"recordIP":true,"visitor":true,"enableQQ":true}')
+  new Valine({
+    el: '#vcomments',
+    appId: config.appId,
+    appKey: config.appKey,
+    placeholder: config.placeholder,
+    meta: config.meta,
+    recordIP: config.recordIP,
+    visitor: config.visitor,
+    enableQQ: config.enableQQ,
+    path: '2022/11/08/Dubbo/'
+  })
+</script>
+
+
+<script>
+  $(document).on('pjax:complete', function() {
+    const tocs = document.querySelector('.toc')
+    const as = tocs ? tocs.querySelectorAll('a') : []
+    as.forEach(a => {
+      a.addEventListener('click', e => {
+        const href = decodeURIComponent(a.href)
+        href.search(/#(.*)/)
+        const id = RegExp.$1
+        const target = document.querySelector('#' + id)
+        const top = target.offsetTop
+        document.documentElement.scrollTo({
+          top: top - 100,
+          behavior: 'smooth'
+        })
+        e.preventDefault()
+      })
+    })
+  })
+</script> 
+
+</div>
+      <div class="main-right-wrapper"><div class="main-right">
+  <div class="main-right--board">
+    <div class="main-right--title">
+      <h5>公告栏</h5>
+      <i class="iconfont icon-gonggao"></i>
+    </div>
+    <div class="main-right--content">
+      欢迎来到我的博客捏，记录着一些自己学习的知识内容，期待和大家的交流 
+    </div>
+  </div>
+
+  <div id="aplayer" class="main-right--music"></div>
+
+  <div class="operate-items">
+    <div class="operate-item backtop">
+      <i class="iconfont icon-huidaodingbu"></i>
+      <span>回到顶部</span>
+    </div>
+    
+    <div class="operate-item turn-comment hidden">
+      <i class="iconfont icon-pinglun"></i>
+      <span>查看评论</span>
+    </div>
+    
+  </div>
+
+  <div class="main-right--site">
+    <div class="main-right--power">
+      <p>Power By <a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">Hexo</a>.</p>
+      <p>Theme：<a target="_blank" rel="noopener" href="https://github.com/Aizener/hexo-theme-cola">Cola.</a></p>
+    </div>
+    <p class="main-right--refer">By Nirvana. </p>
+  </div>
+</div>
+
+<script>
+  function setOperateItem () {
+    const reg = /\d{4}\/\d{2}\/\d{2}\/.+/
+    const path = location.pathname
+    const commentDom = document.querySelector('.turn-comment')
+    if (commentDom) {
+      if (reg.test(path) || path.match(/\/log\/.+/)) {
+        commentDom.classList.remove('hidden')
+      } else {
+        commentDom.classList.add('hidden')
+      }
+    }
+  }
+
+  setOperateItem()
+  const musics = JSON.parse(`[{"name":"卡布达","artist":"暂无","url":"/music/kabuda.mp3","cover":"https://img2.baidu.com/it/u=705831265,2862720033&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500"}]`)
+  const ap = new APlayer({
+    container: document.querySelector('#aplayer'),
+    audio: musics,
+  })
+
+  $(document).on('pjax:complete', function() {
+    setOperateItem()
+  })
+
+  document.querySelector('.backtop').addEventListener('click', () => {
+    document.documentElement.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  })
+  const dom = document.querySelector('.turn-comment')
+  dom && dom.addEventListener('click', () => {
+    const commentDom = document.querySelector('.comments-intro')
+    if (!commentDom) return
+    const top = commentDom.offsetTop, height = commentDom.offsetHeight
+    document.documentElement.scrollTo({
+      top: top - 2 * height,
+      behavior: 'smooth'
+    })
+  })
+</script></div>
+    </section>
+  </div>
+  <div id="progress" class="progress"></div>
+
+  <script>
+    function initScroll () {
+      document.addEventListener('scroll', () => {
+        const doc = document.documentElement
+        const scrollTop = doc.scrollTop
+        const pageHeight = doc.offsetHeight
+        const clientHeight = doc.clientHeight
+        const ratio = scrollTop / (pageHeight - clientHeight)
+        const progress = document.querySelector('#progress')
+        const avatarImg = document.querySelector('.main-left--avatar')
+        progress.style.width = (100 * ratio) + '%'
+        avatarImg.style.transform = `rotate(${360 * ratio}deg)`
+      })
+    }
+
+
+    window.onload = function () {
+      setTimeout(() => {
+        $('#load').slideUp()
+        $('#container').slideToggle()
+        setTimeout(() => {
+          initScroll()
+          if (['/', '/log/', '/link/', '/about/', '/tools/'].includes(location.pathname) && window.innerWidth > 1200) {
+            init && init('container') // 水波纹动画
+          }
+        }, 500)
+      }, 500)
+    }
+    
+    // 对所有链接跳转事件绑定pjax容器container
+    $(document).pjax('a[target!=_blank]', '#main-container', {fragment:'#main-container', timeout:8000})
+
+    $(document).on('pjax:start', function() {
+      // $('.main-container').hide()
+    })
+    $(document).on('pjax:complete', function() {
+      $('.main-container').addClass('to-up').on('animationend', function() {
+        $(this).removeClass('to-up')
+      })
+    })
+    $(document).on('pjax:popstate', function() {
+      // $('.main-container').fadeIn()
+    })
+  </script>
+  
+</body>
+</html>

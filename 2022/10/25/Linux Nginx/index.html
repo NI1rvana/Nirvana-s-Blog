@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Hexo | Linux Nginx学习 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/imgs/shortcut-icon.ico" type="image/x-icon">
+
+  
+    <link rel="stylesheet" href="/css/public.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/iconfont.css" />
+    <link rel="stylesheet" href="/css/APlayer.min.css" />
+    <script src="/js/APlayer.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.pjax.min.js"></script>
+  
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+  <script>
+    document.title = `Hexo | Linux Nginx学习`
+  </script>
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+<style>
+  .load {
+    width: 100%;
+    height: 100vh;
+    background-color: rgb(37, 35, 40);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 9999;
+  }
+  .load-circle {
+    width: 80px;
+    height: 80px;
+    border: 8px solid orange;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: rotate 1s linear infinite;
+    filter: drop-shadow(0 0 3px orange);
+  }
+  .load-circle-inner {
+    width: 40px;
+    height: 40px;
+    border: 8px solid orange;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: rotate-reverse .5s linear infinite;
+  }
+  .load-text {
+    margin-top: 20px;
+    font-size: 24px;
+    color: orange;
+    display: flex;
+  }
+  .load-text span {
+    margin: 0 5px;
+    text-shadow: 5px 5px 5px orange;
+    animation: move 1s linear infinite;
+  }
+  .load-text span:nth-child(1) {
+    animation-delay: -0.6s;
+  }
+  .load-text span:nth-child(2) {
+    animation-delay: -0.5s;
+  }
+  .load-text span:nth-child(3) {
+    animation-delay: -0.4s;
+  }
+  .load-text span:nth-child(4) {
+    animation-delay: -0.3s;
+  }
+  .load-text span:nth-child(5) {
+    animation-delay: -0.2s;
+  }
+  .load-text span:nth-child(6) {
+    animation-delay: -0.1s;
+  }
+  @keyframes rotate {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes rotate-reverse {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(-360deg); }
+  }
+  @keyframes move {
+    0% { transform: translateY(0%) rotate(0) scale(1); }
+    20% { transform: translateY(20%) rotate(10deg) scale(1.2); }
+    80% { transform: translateY(-10%) rotate(-20deg) scale(.8);}
+    100% { transform: translateY(0) rotate(0) scale(1); }
+  }
+
+  .progress {
+    position: fixed;
+    left: 0; top: 0;
+    width: 0;
+    height: 3px;
+    background-color: green;
+    transition: all cubic-bezier(0.215, 0.610, 0.355, 1) .1s;
+    z-index: 9999;
+  }
+
+  .to-up {
+    animation: toUp .5s 1;
+  }
+  @keyframes toUp {
+    from { transform: translateY(15px); opacity: 0; }
+    to { transform: translateY(0) ; opacity: 1; }
+  }
+</style>
+<body>
+  <div id="load" class="load">
+    <div class="load-circle">
+      <div class="load-circle-inner"></div>
+    </div>
+    <p class="load-text">
+      <span>L</span>
+      <span>O</span>
+      <span>A</span>
+      <span>D</span>
+      <span>I</span>
+      <span>N</span>
+      <span>G</span>
+    </p>
+  </div>
+  <div id="container" class="container w-100 vh-100" style="display: none;">
+    <header class="header">
+  <div class="header-wrapper">
+    <div class="header-left">
+      <div class="header-search">
+        <input id="search-input" type="text" class="header-search--input" placeholder="请输入要检索的文章标题" />
+        <span id="search-btn" class="header-search--icon"><i class="iconfont icon-sousuo"></i></span>
+      </div>
+      <div id="search-layer" class="header-search--layer hidden">
+        <p class="title">
+          <span>以下是搜索内容：</span>
+          <span id="close-layer-btn">关闭</span>
+        </p>
+        <ul>
+        </ul>
+      </div>
+    </div>
+    <div class="header-right">
+      <ul class="header-menu">
+        <li>
+          <a href="/">
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+            <span class="header-menu--span">首页</span>
+          </a>
+        </li>
+        <li>
+          <a href="/log">
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+            <span class="header-menu--span">日志</span>
+          </a>
+        </li>
+        <li>
+          <a href="/link">
+            <i class="header-menu--icon iconfont icon-youqinglianjie"></i>
+            <span class="header-menu--span">友情链接</span>
+          </a>
+        </li>
+        <li>
+          <a href="/about">
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+            <span class="header-menu--span">关于我</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<script>
+  const ipt = document.querySelector('#search-input')
+  const btn = document.querySelector('#search-btn')
+  const layer = document.querySelector('#search-layer')
+  const posts = JSON.parse(`[{"title":"CSS学习(一)","path":"2022/03/20/CSS学习-一/"},{"title":"Docker","path":"2022/11/09/Docker/"},{"title":"CSS学习(二)","path":"2022/03/27/CSS学习-二/"},{"title":"Dubbo","cover":"imgs/cover5.webp","path":"2022/11/08/Dubbo/"},{"title":"HTML学习(二)","path":"2022/03/14/HTML学习-二/"},{"title":"HTML学习(一)","path":"2022/03/14/HTML学习-一/"},{"title":"Linux Nginx学习","path":"2022/10/25/Linux Nginx/"},{"title":"Maven学习","path":"2022/10/14/Maven学习/"},{"title":"RabbitMQ","path":"2022/11/09/RabbitMQ/"},{"title":"SQL，jdbc，MybatisPlus","path":"2022/10/22/SQL/"},{"title":"SpringMVC+SpringBoot学习","cover":"imgs/cover3.webp","path":"2022/10/15/SpringMSV学习/"},{"title":"Spring Franework","cover":"imgs/cover3.webp","path":"2022/10/13/Spring学习/"},{"title":"Git学习","path":"2022/10/16/git学习/"},{"title":"Zookeeper","cover":"imgs/cover5.webp","path":"2022/11/09/zookeeper/"},{"title":"个人对于前端岗位的理解","path":"2022/02/27/个人对于前端岗位的理解/"},{"title":"数据库系统概论","cover":"imgs/cover3.webp","path":"2022/11/05/数据库系统概论/"},{"title":"小知识","path":"2022/10/26/杂文/"},{"title":"计算机网络(一)","cover":"imgs/cover1.webp","path":"2022/10/30/计算机网络-一/"},{"title":"Mango学习(二)","cover":"imgs/cover2.webp","path":"2022/10/30/Mango学习-二/"},{"title":"Mango学习(一)","cover":"imgs/cover2.webp","path":"2022/10/30/MongoDB/"},{"title":"Redis学习","path":"2022/10/26/Redis学习/"},{"title":"Tomcat核心原理","cover":"imgs/cover4.webp","path":"2022/11/06/Tomcat核心原理/"},{"title":"微服务技术栈(一)","path":"2022/11/20/微服务技术栈(一)/"},{"title":"设计模式(一)","path":"2022/12/02/设计模式(一)/"},{"title":"微服务技术栈(二)","path":"2022/12/02/微服务技术栈-二/"},{"title":"设计模式(二)","path":"2022/12/03/设计模式-二/"}]`)
+  ipt.addEventListener('keyup', e => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  })
+  btn.addEventListener('click', () => {
+    handleSearch()
+  })
+
+  document.querySelector('#close-layer-btn').addEventListener('click', () => {
+    layer.classList.toggle('hidden')
+  })
+
+  function handleSearch() {
+    if (ipt.value.trim() === '') {
+      return
+    }
+    let html = ''
+    const targetPosts = posts.filter(post => post.title.includes(ipt.value))
+    targetPosts.forEach(post => {
+      html += `
+        <li>
+          <div>
+            <a href="/${post.path}">${post.title.replace(new RegExp(ipt.value), `<span>${ipt.value}</span>`)}</a>
+          </div>
+          <img src="${post.cover || '/imgs/default-cover.webp' }" />
+        </li>
+      `
+    })
+    if (html.trim () === '') {
+      html += '<p class="empty">没有搜索到内容</p>'
+    }
+    layer.querySelector('ul').innerHTML = html
+    layer.classList.remove('hidden')
+  }
+</script> 
+    <section id="main" class="main">
+      <div class="main-left-wrapper">
+<div class="main-left">
+  <div class="main-left--block">
+    <div class="main-left--info">
+      <img src="/imgs/avatar.jpg"" class="main-left--avatar" />
+      <div class="main-left--intro">
+        <p class="main-left--name">Nirvana</p>
+        <div class="main-left--tags">
+          <span class="main-left--tag">学习</span>
+          <span class="main-left--tag">摆烂</span>
+        </div>
+      </div>
+    </div>
+  
+    <div>
+      <div class="main-left--motto">
+        <p>“花有重开日，人无再少年”</p>
+        <p>“一个简单普通的男孩”</p>
+      </div>
+      <div class="main-left--github">
+        <span class="line"></span>
+        <a href=""><i class="logo iconfont icon-github-fill"></i></a>
+        <span class="line"></span>
+      </div>
+      <div class="main-left--statics">
+        <a href="/categories">
+          <div>
+            <span>15</span>
+            <span>分类</span>
+          </div>
+        </a>
+        <a href="/tags">
+          <div>
+            <span>10</span>
+            <span>标签</span>
+          </div>
+        </a>
+        <a href="/archives">
+          <div>
+            <span>5 </span>
+            <span>归档</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-left--block">
+    <ul class="main-left--menu">
+      
+        <li>
+          <a href="/">
+            <span class="header-menu--span">小站首页</span>
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/log">
+            <span class="header-menu--span">个人日志</span>
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/about">
+            <span class="header-menu--span">关于自己</span>
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/tools">
+            <span class="header-menu--span">我的工具</span>
+            <i class="header-menu--icon iconfont icon-gongju"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="main-left--block">
+    <div class="main-left--site">
+      <h5 class="main-left--title">
+        <span>站点信息</span>
+        <i class="iconfont icon-zhandian"></i>
+      </h5>
+      <p class="main-left--subtitle">
+        <span>文章数目：</span>
+        <span>26 篇</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>最近动态：</span>
+        <span>今天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>上线时间：</span>
+        <span>267天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>当前版本：</span>
+        <span>v1.0.2</span>
+      </p>
+    </div>
+  </div>
+</div></div>
+      <div id="main-container" class="main-container">
+
+
+  <style>
+pre::-webkit-scrollbar {
+  width: 5px;
+  height: 10px;
+  background-color:#F5F5F5;
+}
+/*定义滚动条轨道
+内阴影+圆角*/
+pre::-webkit-scrollbar-track {
+  background-color:#F5F5F5;
+}
+/*定义滑块
+内阴影+圆角*/
+pre::-webkit-scrollbar-thumb {
+  background-color: rgb(69, 83, 100);
+}
+
+pre:active {
+  background-color: rgb(81, 95, 116);
+}
+</style>
+
+<div class="article-container">
+  <div class="article">
+    <h1 class="article-title">Linux Nginx学习</h1>
+    <div class="article-info">
+      <div class="article-info--item">
+        <div class="article-info--info">
+          
+          <div class="article-info--categories">
+            <span>分类：</span>
+            <a class="category-link" href="/categories/Linux-Nginx/">Linux&Nginx</a>
+          </div>
+          
+          
+          <div class="article-info--tags">
+            <span>标签：</span>
+            <a class="tag-link" href="/tags/Linux/" rel="tag">Linux</a>
+          </div>
+          
+          <p class="article-info--date">日期：2022-10-25 16:12:11</p>
+        </div>
+        <img src="/imgs/default-cover.webp" alt="" class="article-cover">
+      </div>
+    </div>
+    <article class="article-content">
+      <h1 id="Linux入门"><a href="#Linux入门" class="headerlink" title="Linux入门"></a>Linux入门</h1><h2 id="Linux结构目录"><a href="#Linux结构目录" class="headerlink" title="Linux结构目录"></a>Linux结构目录</h2><ul>
+<li>bin (binaries)存放二进制可执行文件</li>
+<li>sbin (super user binaries)存放二进制可执行文件，只有root能访问</li>
+<li>etc (etcetera)存放系统配置文件</li>
+<li>usr (unix shared resources)用于存放共享的系统资源</li>
+<li>home 存放用户文件的跟目录</li>
+<li>root 超级用户目录</li>
+<li>dev (devices)用于存放设备文件</li>
+<li>lib (library)存放跟文件系统中的程序运行所需要的共享库以及内核模块</li>
+<li>mnt (mount)系统管理员安装临时文件的安装点</li>
+<li>boot 存放用于系统引导时使用的各种文件</li>
+<li>tmp 用于存放临时文件</li>
+<li>var (variable)用于存放运行时需要改变数据的文件</li>
+</ul>
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><ul>
+<li><p>切换目录命令 cd</p>
+</li>
+<li><p>列出文件列表 ls ll</p>
+<pre class="line-numbers language-cmd" data-language="cmd"><code class="language-cmd">格式：ls[参数] [路径或文件名]
+ls
+ls -a 显示所有文件或目录（包含隐藏）
+ls -l 缩写成ll 显示详细信息<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></li>
+<li><p>创建目录和移除目录 mkdir rmdir</p>
+</li>
+<li><p>浏览文件</p>
+<ul>
+<li><p>cat 用于显示文件的内容</p>
+<pre class="line-numbers language-none"><code class="language-none">格式：cat [参数]&lt;文件名&gt;
+cat xx.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></li>
+<li><p>more 一般用于显示内容会超过一个画面长度的情况，按空格显示下一个画面，回车显示下一行，按q退出</p>
+</li>
+<li><p>less用法和more类似，但是可以用pgup和pgdn来控制</p>
+<pre class="line-numbers language-none"><code class="language-none">more xx.conf<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+<li><p>tail 使用很多 显示文件后几行</p>
+<pre class="line-numbers language-none"><code class="language-none">tail -10 &#x2F;ect&#x2F;passwd 查看后10行数据
+tail -f xx.log 动态查看日志
+ctrl + c 结束查看<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></li>
+</ul>
+</li>
+<li><p>文件操作</p>
+<ul>
+<li><p>rm 删除文件</p>
+<pre class="line-numbers language-none"><code class="language-none">rm a.txt
+rm -f 不询问 直接删除
+rm -r a 询问递归删除
+rm -rf a 不询问递归删除
+rm -rf * 删除所有文件
+rm -rf &#x2F;* Nooooo~<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+<li><p>cp mv</p>
+<pre class="line-numbers language-none"><code class="language-none">cp a.txt b.txt 将a复制为b
+cp a.txt ..&#x2F; 将a复制到上一层目录
+mv a.txt ..&#x2F; 将a移动到上一层
+mv a.txt b.txt 将a重命名为b<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></li>
+<li><p>tar 将指定文件或目录打包为一个文件，但不压缩。</p>
+<pre class="line-numbers language-none"><code class="language-none">-c 创建一个新tar
+-v 显示运行过程信息
+-f 指定文件名
+-z 调用gzip压缩
+-t 查看压缩文件的内容
+-x 解开tar
+打包 tar -cvf xxx.tar .&#x2F;*
+打包并压缩 tar -zcvf xxx.tar.gz .&#x2F;*
+解压 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+</ul>
+</li>
+<li><p>查找文件、内容</p>
+<ul>
+<li><p>find</p>
+<pre class="line-numbers language-none"><code class="language-none">find &#x2F; -name &quot;ins*&quot; 查找开头为ins的文件
+find &#x2F; -name &quot;ins*&quot; -ls
+find &#x2F; -user itcast -ls 查找用户itcast的文件
+find &#x2F; -user itcast -type d -ls 查找用户itcast的目录
+find &#x2F;-perm -777 -type d-ls 查找权限是777的文件<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+<li><p>grep 查找文件中符合条件的字符串</p>
+<pre class="line-numbers language-none"><code class="language-none">grep lang xxx.cfg 在文件里查找lang
+grep lang xxx.cfg -color 高亮显示<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></li>
+</ul>
+</li>
+<li><p>pwd显示当前目录</p>
+</li>
+<li><p>touch创建一个空文件</p>
+</li>
+<li><p>clear清屏</p>
+</li>
+</ul>
+<h2 id="Vi-Vim"><a href="#Vi-Vim" class="headerlink" title="Vi/Vim"></a>Vi/Vim</h2><h3 id="三种模式"><a href="#三种模式" class="headerlink" title="三种模式"></a>三种模式</h3><p>命令行模式：按esc</p>
+<p>插入模式：按i，o，a</p>
+<p>底行模式：按冒号 (退出:q 保存并退出:wq)</p>
+<h3 id="重定向输出"><a href="#重定向输出" class="headerlink" title="重定向输出"></a>重定向输出</h3><pre class="line-numbers language-none"><code class="language-none">cat &#x2F;etc&#x2F;passwd &gt; a.txt 输出定向到a.txt
+cat &#x2F;ect&#x2F;passwd &gt;&gt; a.txt 输出并追加<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
+
+<h3 id="系统管理命令"><a href="#系统管理命令" class="headerlink" title="系统管理命令"></a>系统管理命令</h3><pre class="line-numbers language-none"><code class="language-none">ps 正在运行的某个进程状态
+ps -ef 查看所有进程
+ps -ef | grep ssh 查找某一进程
+kill 2868 杀掉2868编号进程
+kill -9 2868 强制杀死<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<h3 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h3><p>将一个命令输出作为另一个命令输入</p>
+<pre class="line-numbers language-none"><code class="language-none">ls --help | more 分页查询帮助信息
+ps -ef | grep java 查询名称中包含java的进程<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
+
+<h2 id="Linux权限"><a href="#Linux权限" class="headerlink" title="Linux权限"></a>Linux权限</h2><p>组成 1- 2 —3  —4 —</p>
+<p>例： -rwxrwxr–</p>
+<p>1文件类型 </p>
+<ul>
+<li>“-“ 表示文件</li>
+<li>“d” 表示文件夹</li>
+<li>“l” 表示连接</li>
+</ul>
+<p>2属主权限</p>
+<p>3属组权限</p>
+<p>4其他用户权限</p>
+<p>对于2，3，4  r为读取权，w为写入权，x为执行权 -为无操作权限</p>
+<h3 id="修改权限"><a href="#修改权限" class="headerlink" title="修改权限"></a>修改权限</h3><pre class="line-numbers language-none"><code class="language-none">chmod u&#x3D;rwx,g&#x3D;r,o&#x3D;rwx aa,txt<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+
+<h3 id="修改IP"><a href="#修改IP" class="headerlink" title="修改IP"></a>修改IP</h3><p><img src="/images/image-20221026163554514.png" alt="image-20221026163554514"></p>
+<h2 id="Nginx"><a href="#Nginx" class="headerlink" title="Nginx"></a>Nginx</h2><p>Nginx是一款高性能的http服务器/反向代理服务器及电子邮件代理服务器</p>
+<h5 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h5><ol>
+<li>http服务器。可以做网页静态服务器</li>
+<li>虚拟主机。实现再一台服务器虚拟出多个网站。</li>
+<li>反向代理，负载均衡。令多台服务器可以平均分担负载</li>
+</ol>
+<h3 id="Nginx静态资源部署"><a href="#Nginx静态资源部署" class="headerlink" title="Nginx静态资源部署"></a>Nginx静态资源部署</h3><h4 id="端口绑定"><a href="#端口绑定" class="headerlink" title="端口绑定"></a>端口绑定</h4><ol>
+<li><p>​    上传静态网站</p>
+</li>
+<li><p>修改Nginx配置文件/usr/local/nginx/conf/nginx.conf</p>
+<pre class="line-numbers language-none"><code class="language-none">
+server &#123;
+        listen       81; # 监听的端口
+        server_name  localhost; # 域名或ip
+        location &#x2F; &#123;	# 访问路径配置
+            root   index;# 根目录
+            index  index.html index.htm; # 默认首页
+        &#125;
+        error_page   500 502 503 504  &#x2F;50x.html;	# 错误页面
+        location &#x3D; &#x2F;50x.html &#123;
+            root   html;
+        &#125;
+    &#125;
+
+     server &#123;
+        listen       82; # 监听的端口
+        server_name  localhost; # 域名或ip
+        location &#x2F; &#123;	# 访问路径配置
+            root   regist;# 根目录
+            index  regist.html; # 默认首页
+        &#125;
+        error_page   500 502 503 504  &#x2F;50x.html;	# 错误页面
+        location &#x3D; &#x2F;50x.html &#123;
+            root   html;
+        &#125; 
+  	&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+</ol>
+<h4 id="域名绑定"><a href="#域名绑定" class="headerlink" title="域名绑定"></a>域名绑定</h4><p>一个域名对应一个 ip 地址，一个 ip 地址可以被多个域名绑定。</p>
+<h3 id="Nginx反向代理"><a href="#Nginx反向代理" class="headerlink" title="Nginx反向代理"></a>Nginx反向代理</h3><p>反向代理（Reverse Proxy）方式是指以代理服务器来接受internet上的连接请求，然后将请求转发给内部网络上的服务器，并将从服务器上得到的结果返回给internet上请求连接的客户端，此时代理服务器对外就表现为一个反向代理服务器。</p>
+<h4 id="配置反向代理"><a href="#配置反向代理" class="headerlink" title="配置反向代理"></a>配置反向代理</h4><p>在Nginx主机修改 Nginx配置文件</p>
+<pre class="line-numbers language-none"><code class="language-none"> upstream tomcat-travel&#123;
+	   server 192.168.177.129:8080;
+    &#125;
+
+    server &#123;
+        listen       80; # 监听的端口
+        server_name  www.hmtravel.com; # 域名或ip
+        location &#x2F; &#123;	# 访问路径配置
+            # root   index;# 根目录
+	    proxy_pass http:&#x2F;&#x2F;tomcat-travel;
+            index  index.html index.htm; # 默认首页
+        &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h3><p>负载均衡 建立在现有网络结构之上，它提供了一种廉价有效透明的方法扩展网络设备和服务器的带宽、增加吞吐量、加强网络数据处理能力、提高网络的灵活性和可用性。</p>
+<p>负载均衡，英文名称为Load Balance，其意思就是分摊到多个操作单元上进行执行，例如Web服务器、FTP服务器、企业关键应用服务器和其它关键任务服务器等，从而共同完成工作任务。</p>
+<h4 id="配置负载均衡-准备工作"><a href="#配置负载均衡-准备工作" class="headerlink" title="配置负载均衡-准备工作"></a>配置负载均衡-准备工作</h4><ol>
+<li>将刚才的存放工程的tomcat复制三份，修改端口分别为8080 ，8081，8082 </li>
+<li>分别启动这三个tomcat服务</li>
+<li>为了能够区分是访问哪个服务器的网站，可以在首页标题加上标记以便区分</li>
+</ol>
+<h4 id="配置负载均衡"><a href="#配置负载均衡" class="headerlink" title="配置负载均衡"></a>配置负载均衡</h4><p>修改 Nginx配置文件：</p>
+<pre class="line-numbers language-none"><code class="language-none">upstream tomcat-travel &#123;
+	   server 192.168.177.129:8080;
+	   server 192.168.177.129:8081;
+	   server 192.168.177.129:8082;
+    &#125;
+
+    server &#123;
+        listen       80; # 监听的端口
+        server_name  www.hmtravel.com; # 域名或ip
+        location &#x2F; &#123;	# 访问路径配置
+            # root   index;# 根目录
+	    proxy_pass http:&#x2F;&#x2F;tomcat-travel;
+
+            index  index.html index.htm; # 默认首页
+        &#125;
+        error_page   500 502 503 504  &#x2F;50x.html;	# 错误页面
+        location &#x3D; &#x2F;50x.html &#123;
+            root   html;
+        &#125;
+    &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>如果其中一台服务器性能比较好，想让其承担更多的压力，可以设置权重。</p>
+<p>比如想让NO.1出现次数是其它服务器的2倍，则修改配置如下：</p>
+<pre class="line-numbers language-none"><code class="language-none">upstream tomcat-travel &#123;
+server 192.168.177.129:8080;
+server 192.168.177.129:8081 weight&#x3D;2;
+server 192.168.177.129:8082;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+    </article>
+    
+    <div class="read-nums">
+      <!-- id 将作为查询条件 -->
+      <span id="2022/10/25/Linux Nginx/" class="leancloud_visitors" data-flag-title="Your Article Title">
+        <em class="post-meta-item-text">浏览量</em>
+        <i class="leancloud-visitors-count"></i>
+      </span>
+    </div>
+    <div class="comments-intro">
+      <h2>评论区</h2>
+      <p>欢迎你留下宝贵的意见，昵称输入QQ号会显示QQ头像哦~</p>
+    </div>
+    <div id="vcomments" class="vcomments"></div>
+    
+  </div>
+  <div class="article-catelogue">
+    <div class="article-catelogue--wrapper">
+      <div class="catelogue catelogue-1">
+        <h3>目录</h3>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux%E5%85%A5%E9%97%A8"><span class="toc-number">1.</span> <span class="toc-text">Linux入门</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E7%BB%93%E6%9E%84%E7%9B%AE%E5%BD%95"><span class="toc-number">1.1.</span> <span class="toc-text">Linux结构目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="toc-number">1.2.</span> <span class="toc-text">常用命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Vi-Vim"><span class="toc-number">1.3.</span> <span class="toc-text">Vi&#x2F;Vim</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E7%A7%8D%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.3.1.</span> <span class="toc-text">三种模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E5%AE%9A%E5%90%91%E8%BE%93%E5%87%BA"><span class="toc-number">1.3.2.</span> <span class="toc-text">重定向输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86%E5%91%BD%E4%BB%A4"><span class="toc-number">1.3.3.</span> <span class="toc-text">系统管理命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%A1%E9%81%93"><span class="toc-number">1.3.4.</span> <span class="toc-text">管道</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E6%9D%83%E9%99%90"><span class="toc-number">1.4.</span> <span class="toc-text">Linux权限</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E6%9D%83%E9%99%90"><span class="toc-number">1.4.1.</span> <span class="toc-text">修改权限</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9IP"><span class="toc-number">1.4.2.</span> <span class="toc-text">修改IP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx"><span class="toc-number">1.5.</span> <span class="toc-text">Nginx</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">1.5.0.0.1.</span> <span class="toc-text">应用场景</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Nginx%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E9%83%A8%E7%BD%B2"><span class="toc-number">1.5.1.</span> <span class="toc-text">Nginx静态资源部署</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AB%AF%E5%8F%A3%E7%BB%91%E5%AE%9A"><span class="toc-number">1.5.1.1.</span> <span class="toc-text">端口绑定</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%9F%E5%90%8D%E7%BB%91%E5%AE%9A"><span class="toc-number">1.5.1.2.</span> <span class="toc-text">域名绑定</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86"><span class="toc-number">1.5.2.</span> <span class="toc-text">Nginx反向代理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86"><span class="toc-number">1.5.2.1.</span> <span class="toc-text">配置反向代理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="toc-number">1.5.3.</span> <span class="toc-text">负载均衡</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1-%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-number">1.5.3.1.</span> <span class="toc-text">配置负载均衡-准备工作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="toc-number">1.5.3.2.</span> <span class="toc-text">配置负载均衡</span></a></li></ol></li></ol></li></ol></li></ol>
+      </div>
+      
+        <div class="catelogue catelogue-2">
+          
+            <p>
+              <span>上一篇：</span>
+              <a href="/2022/10/26/Redis学习/">Redis学习</a>
+            </p>
+           
+          
+            <p>
+              <span>下一篇</span>
+              <a href="/2022/10/22/SQL/">SQL，jdbc，MybatisPlus</a>
+            </p>
+          
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+<script src="/js/prism.js"></script>
+
+<script>
+  // var定义，避免pjax重新进来造成的重复声明错误
+  var config = JSON.parse('{"enable":true,"appId":"Pf8zCXGEH1qsprnWfikVVujL-gzGzoHsz","appKey":"qOqoiUHhH1TGtLRUYURkLRQX","placeholder":"请留下你宝贵的意见吧~","meta":["nick"],"recordIP":true,"visitor":true,"enableQQ":true}')
+  new Valine({
+    el: '#vcomments',
+    appId: config.appId,
+    appKey: config.appKey,
+    placeholder: config.placeholder,
+    meta: config.meta,
+    recordIP: config.recordIP,
+    visitor: config.visitor,
+    enableQQ: config.enableQQ,
+    path: '2022/10/25/Linux Nginx/'
+  })
+</script>
+
+
+<script>
+  $(document).on('pjax:complete', function() {
+    const tocs = document.querySelector('.toc')
+    const as = tocs ? tocs.querySelectorAll('a') : []
+    as.forEach(a => {
+      a.addEventListener('click', e => {
+        const href = decodeURIComponent(a.href)
+        href.search(/#(.*)/)
+        const id = RegExp.$1
+        const target = document.querySelector('#' + id)
+        const top = target.offsetTop
+        document.documentElement.scrollTo({
+          top: top - 100,
+          behavior: 'smooth'
+        })
+        e.preventDefault()
+      })
+    })
+  })
+</script> 
+
+</div>
+      <div class="main-right-wrapper"><div class="main-right">
+  <div class="main-right--board">
+    <div class="main-right--title">
+      <h5>公告栏</h5>
+      <i class="iconfont icon-gonggao"></i>
+    </div>
+    <div class="main-right--content">
+      欢迎来到我的博客捏，记录着一些自己学习的知识内容，期待和大家的交流 
+    </div>
+  </div>
+
+  <div id="aplayer" class="main-right--music"></div>
+
+  <div class="operate-items">
+    <div class="operate-item backtop">
+      <i class="iconfont icon-huidaodingbu"></i>
+      <span>回到顶部</span>
+    </div>
+    
+    <div class="operate-item turn-comment hidden">
+      <i class="iconfont icon-pinglun"></i>
+      <span>查看评论</span>
+    </div>
+    
+  </div>
+
+  <div class="main-right--site">
+    <div class="main-right--power">
+      <p>Power By <a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">Hexo</a>.</p>
+      <p>Theme：<a target="_blank" rel="noopener" href="https://github.com/Aizener/hexo-theme-cola">Cola.</a></p>
+    </div>
+    <p class="main-right--refer">By Nirvana. </p>
+  </div>
+</div>
+
+<script>
+  function setOperateItem () {
+    const reg = /\d{4}\/\d{2}\/\d{2}\/.+/
+    const path = location.pathname
+    const commentDom = document.querySelector('.turn-comment')
+    if (commentDom) {
+      if (reg.test(path) || path.match(/\/log\/.+/)) {
+        commentDom.classList.remove('hidden')
+      } else {
+        commentDom.classList.add('hidden')
+      }
+    }
+  }
+
+  setOperateItem()
+  const musics = JSON.parse(`[{"name":"卡布达","artist":"暂无","url":"/music/kabuda.mp3","cover":"https://img2.baidu.com/it/u=705831265,2862720033&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500"}]`)
+  const ap = new APlayer({
+    container: document.querySelector('#aplayer'),
+    audio: musics,
+  })
+
+  $(document).on('pjax:complete', function() {
+    setOperateItem()
+  })
+
+  document.querySelector('.backtop').addEventListener('click', () => {
+    document.documentElement.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  })
+  const dom = document.querySelector('.turn-comment')
+  dom && dom.addEventListener('click', () => {
+    const commentDom = document.querySelector('.comments-intro')
+    if (!commentDom) return
+    const top = commentDom.offsetTop, height = commentDom.offsetHeight
+    document.documentElement.scrollTo({
+      top: top - 2 * height,
+      behavior: 'smooth'
+    })
+  })
+</script></div>
+    </section>
+  </div>
+  <div id="progress" class="progress"></div>
+
+  <script>
+    function initScroll () {
+      document.addEventListener('scroll', () => {
+        const doc = document.documentElement
+        const scrollTop = doc.scrollTop
+        const pageHeight = doc.offsetHeight
+        const clientHeight = doc.clientHeight
+        const ratio = scrollTop / (pageHeight - clientHeight)
+        const progress = document.querySelector('#progress')
+        const avatarImg = document.querySelector('.main-left--avatar')
+        progress.style.width = (100 * ratio) + '%'
+        avatarImg.style.transform = `rotate(${360 * ratio}deg)`
+      })
+    }
+
+
+    window.onload = function () {
+      setTimeout(() => {
+        $('#load').slideUp()
+        $('#container').slideToggle()
+        setTimeout(() => {
+          initScroll()
+          if (['/', '/log/', '/link/', '/about/', '/tools/'].includes(location.pathname) && window.innerWidth > 1200) {
+            init && init('container') // 水波纹动画
+          }
+        }, 500)
+      }, 500)
+    }
+    
+    // 对所有链接跳转事件绑定pjax容器container
+    $(document).pjax('a[target!=_blank]', '#main-container', {fragment:'#main-container', timeout:8000})
+
+    $(document).on('pjax:start', function() {
+      // $('.main-container').hide()
+    })
+    $(document).on('pjax:complete', function() {
+      $('.main-container').addClass('to-up').on('animationend', function() {
+        $(this).removeClass('to-up')
+      })
+    })
+    $(document).on('pjax:popstate', function() {
+      // $('.main-container').fadeIn()
+    })
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Hexo | Mango学习(二) | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/imgs/shortcut-icon.ico" type="image/x-icon">
+
+  
+    <link rel="stylesheet" href="/css/public.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/iconfont.css" />
+    <link rel="stylesheet" href="/css/APlayer.min.css" />
+    <script src="/js/APlayer.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.pjax.min.js"></script>
+  
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+  <script>
+    document.title = `Hexo | Mango学习(二)`
+  </script>
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+<style>
+  .load {
+    width: 100%;
+    height: 100vh;
+    background-color: rgb(37, 35, 40);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 9999;
+  }
+  .load-circle {
+    width: 80px;
+    height: 80px;
+    border: 8px solid orange;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: rotate 1s linear infinite;
+    filter: drop-shadow(0 0 3px orange);
+  }
+  .load-circle-inner {
+    width: 40px;
+    height: 40px;
+    border: 8px solid orange;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: rotate-reverse .5s linear infinite;
+  }
+  .load-text {
+    margin-top: 20px;
+    font-size: 24px;
+    color: orange;
+    display: flex;
+  }
+  .load-text span {
+    margin: 0 5px;
+    text-shadow: 5px 5px 5px orange;
+    animation: move 1s linear infinite;
+  }
+  .load-text span:nth-child(1) {
+    animation-delay: -0.6s;
+  }
+  .load-text span:nth-child(2) {
+    animation-delay: -0.5s;
+  }
+  .load-text span:nth-child(3) {
+    animation-delay: -0.4s;
+  }
+  .load-text span:nth-child(4) {
+    animation-delay: -0.3s;
+  }
+  .load-text span:nth-child(5) {
+    animation-delay: -0.2s;
+  }
+  .load-text span:nth-child(6) {
+    animation-delay: -0.1s;
+  }
+  @keyframes rotate {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes rotate-reverse {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(-360deg); }
+  }
+  @keyframes move {
+    0% { transform: translateY(0%) rotate(0) scale(1); }
+    20% { transform: translateY(20%) rotate(10deg) scale(1.2); }
+    80% { transform: translateY(-10%) rotate(-20deg) scale(.8);}
+    100% { transform: translateY(0) rotate(0) scale(1); }
+  }
+
+  .progress {
+    position: fixed;
+    left: 0; top: 0;
+    width: 0;
+    height: 3px;
+    background-color: green;
+    transition: all cubic-bezier(0.215, 0.610, 0.355, 1) .1s;
+    z-index: 9999;
+  }
+
+  .to-up {
+    animation: toUp .5s 1;
+  }
+  @keyframes toUp {
+    from { transform: translateY(15px); opacity: 0; }
+    to { transform: translateY(0) ; opacity: 1; }
+  }
+</style>
+<body>
+  <div id="load" class="load">
+    <div class="load-circle">
+      <div class="load-circle-inner"></div>
+    </div>
+    <p class="load-text">
+      <span>L</span>
+      <span>O</span>
+      <span>A</span>
+      <span>D</span>
+      <span>I</span>
+      <span>N</span>
+      <span>G</span>
+    </p>
+  </div>
+  <div id="container" class="container w-100 vh-100" style="display: none;">
+    <header class="header">
+  <div class="header-wrapper">
+    <div class="header-left">
+      <div class="header-search">
+        <input id="search-input" type="text" class="header-search--input" placeholder="请输入要检索的文章标题" />
+        <span id="search-btn" class="header-search--icon"><i class="iconfont icon-sousuo"></i></span>
+      </div>
+      <div id="search-layer" class="header-search--layer hidden">
+        <p class="title">
+          <span>以下是搜索内容：</span>
+          <span id="close-layer-btn">关闭</span>
+        </p>
+        <ul>
+        </ul>
+      </div>
+    </div>
+    <div class="header-right">
+      <ul class="header-menu">
+        <li>
+          <a href="/">
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+            <span class="header-menu--span">首页</span>
+          </a>
+        </li>
+        <li>
+          <a href="/log">
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+            <span class="header-menu--span">日志</span>
+          </a>
+        </li>
+        <li>
+          <a href="/link">
+            <i class="header-menu--icon iconfont icon-youqinglianjie"></i>
+            <span class="header-menu--span">友情链接</span>
+          </a>
+        </li>
+        <li>
+          <a href="/about">
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+            <span class="header-menu--span">关于我</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<script>
+  const ipt = document.querySelector('#search-input')
+  const btn = document.querySelector('#search-btn')
+  const layer = document.querySelector('#search-layer')
+  const posts = JSON.parse(`[{"title":"CSS学习(一)","path":"2022/03/20/CSS学习-一/"},{"title":"Docker","path":"2022/11/09/Docker/"},{"title":"CSS学习(二)","path":"2022/03/27/CSS学习-二/"},{"title":"Dubbo","cover":"imgs/cover5.webp","path":"2022/11/08/Dubbo/"},{"title":"HTML学习(二)","path":"2022/03/14/HTML学习-二/"},{"title":"HTML学习(一)","path":"2022/03/14/HTML学习-一/"},{"title":"Linux Nginx学习","path":"2022/10/25/Linux Nginx/"},{"title":"Maven学习","path":"2022/10/14/Maven学习/"},{"title":"RabbitMQ","path":"2022/11/09/RabbitMQ/"},{"title":"SQL，jdbc，MybatisPlus","path":"2022/10/22/SQL/"},{"title":"SpringMVC+SpringBoot学习","cover":"imgs/cover3.webp","path":"2022/10/15/SpringMSV学习/"},{"title":"Spring Franework","cover":"imgs/cover3.webp","path":"2022/10/13/Spring学习/"},{"title":"Git学习","path":"2022/10/16/git学习/"},{"title":"Zookeeper","cover":"imgs/cover5.webp","path":"2022/11/09/zookeeper/"},{"title":"个人对于前端岗位的理解","path":"2022/02/27/个人对于前端岗位的理解/"},{"title":"数据库系统概论","cover":"imgs/cover3.webp","path":"2022/11/05/数据库系统概论/"},{"title":"小知识","path":"2022/10/26/杂文/"},{"title":"计算机网络(一)","cover":"imgs/cover1.webp","path":"2022/10/30/计算机网络-一/"},{"title":"Mango学习(二)","cover":"imgs/cover2.webp","path":"2022/10/30/Mango学习-二/"},{"title":"Mango学习(一)","cover":"imgs/cover2.webp","path":"2022/10/30/MongoDB/"},{"title":"Redis学习","path":"2022/10/26/Redis学习/"},{"title":"Tomcat核心原理","cover":"imgs/cover4.webp","path":"2022/11/06/Tomcat核心原理/"},{"title":"微服务技术栈(一)","path":"2022/11/20/微服务技术栈(一)/"},{"title":"设计模式(一)","path":"2022/12/02/设计模式(一)/"},{"title":"微服务技术栈(二)","path":"2022/12/02/微服务技术栈-二/"},{"title":"设计模式(二)","path":"2022/12/03/设计模式-二/"}]`)
+  ipt.addEventListener('keyup', e => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  })
+  btn.addEventListener('click', () => {
+    handleSearch()
+  })
+
+  document.querySelector('#close-layer-btn').addEventListener('click', () => {
+    layer.classList.toggle('hidden')
+  })
+
+  function handleSearch() {
+    if (ipt.value.trim() === '') {
+      return
+    }
+    let html = ''
+    const targetPosts = posts.filter(post => post.title.includes(ipt.value))
+    targetPosts.forEach(post => {
+      html += `
+        <li>
+          <div>
+            <a href="/${post.path}">${post.title.replace(new RegExp(ipt.value), `<span>${ipt.value}</span>`)}</a>
+          </div>
+          <img src="${post.cover || '/imgs/default-cover.webp' }" />
+        </li>
+      `
+    })
+    if (html.trim () === '') {
+      html += '<p class="empty">没有搜索到内容</p>'
+    }
+    layer.querySelector('ul').innerHTML = html
+    layer.classList.remove('hidden')
+  }
+</script> 
+    <section id="main" class="main">
+      <div class="main-left-wrapper">
+<div class="main-left">
+  <div class="main-left--block">
+    <div class="main-left--info">
+      <img src="/imgs/avatar.jpg"" class="main-left--avatar" />
+      <div class="main-left--intro">
+        <p class="main-left--name">Nirvana</p>
+        <div class="main-left--tags">
+          <span class="main-left--tag">学习</span>
+          <span class="main-left--tag">摆烂</span>
+        </div>
+      </div>
+    </div>
+  
+    <div>
+      <div class="main-left--motto">
+        <p>“花有重开日，人无再少年”</p>
+        <p>“一个简单普通的男孩”</p>
+      </div>
+      <div class="main-left--github">
+        <span class="line"></span>
+        <a href=""><i class="logo iconfont icon-github-fill"></i></a>
+        <span class="line"></span>
+      </div>
+      <div class="main-left--statics">
+        <a href="/categories">
+          <div>
+            <span>15</span>
+            <span>分类</span>
+          </div>
+        </a>
+        <a href="/tags">
+          <div>
+            <span>10</span>
+            <span>标签</span>
+          </div>
+        </a>
+        <a href="/archives">
+          <div>
+            <span>5 </span>
+            <span>归档</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-left--block">
+    <ul class="main-left--menu">
+      
+        <li>
+          <a href="/">
+            <span class="header-menu--span">小站首页</span>
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/log">
+            <span class="header-menu--span">个人日志</span>
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/about">
+            <span class="header-menu--span">关于自己</span>
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/tools">
+            <span class="header-menu--span">我的工具</span>
+            <i class="header-menu--icon iconfont icon-gongju"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="main-left--block">
+    <div class="main-left--site">
+      <h5 class="main-left--title">
+        <span>站点信息</span>
+        <i class="iconfont icon-zhandian"></i>
+      </h5>
+      <p class="main-left--subtitle">
+        <span>文章数目：</span>
+        <span>26 篇</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>最近动态：</span>
+        <span>今天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>上线时间：</span>
+        <span>267天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>当前版本：</span>
+        <span>v1.0.2</span>
+      </p>
+    </div>
+  </div>
+</div></div>
+      <div id="main-container" class="main-container">
+
+
+  <style>
+pre::-webkit-scrollbar {
+  width: 5px;
+  height: 10px;
+  background-color:#F5F5F5;
+}
+/*定义滚动条轨道
+内阴影+圆角*/
+pre::-webkit-scrollbar-track {
+  background-color:#F5F5F5;
+}
+/*定义滑块
+内阴影+圆角*/
+pre::-webkit-scrollbar-thumb {
+  background-color: rgb(69, 83, 100);
+}
+
+pre:active {
+  background-color: rgb(81, 95, 116);
+}
+</style>
+
+<div class="article-container">
+  <div class="article">
+    <h1 class="article-title">Mango学习(二)</h1>
+    <div class="article-info">
+      <div class="article-info--item">
+        <div class="article-info--info">
+          
+          <div class="article-info--categories">
+            <span>分类：</span>
+            <a class="category-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+          </div>
+          
+          
+          <div class="article-info--tags">
+            <span>标签：</span>
+            
+          </div>
+          
+          <p class="article-info--date">日期：2022-10-30 17:16:58</p>
+        </div>
+        <img src="/imgs/cover2.webp" alt="" class="article-cover">
+      </div>
+    </div>
+    <article class="article-content">
+      <h1 id="MongoDB-数据库高级进阶-集群和安全"><a href="#MongoDB-数据库高级进阶-集群和安全" class="headerlink" title="MongoDB 数据库高级进阶 - 集群和安全"></a>MongoDB 数据库高级进阶 - 集群和安全</h1><p>课程目标</p>
+<ul>
+<li>MongoDB 的副本集：操作、主要概念、故障转移、选举规则</li>
+<li>MongoDB 的分片集群：概念、优点、操作、分片策略、故障转移</li>
+<li>MongoDB 的安全认证</li>
+</ul>
+<h2 id="MongoDB-副本集-Replica-Sets"><a href="#MongoDB-副本集-Replica-Sets" class="headerlink" title="MongoDB 副本集 - Replica Sets"></a>MongoDB 副本集 - Replica Sets</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>MongoDB 中的副本集（Replica Set）是一组维护相同数据集的 mongod 服务。 副本集可提供<strong>冗余和高可用性</strong>，是所有生产部署的基础。</p>
+<p>也可以说，副本集类似于有自动故障恢复功能的主从集群。通俗的讲就是用<em>多台机器进行同一数据的异步同步</em>，从而使多台机器拥有同一数据的多个副本，并且当主库当掉时在不需要用户干预的情况下自动切换其他备份服务器做主库。而且还可以<strong>利用副本服务器做只读服务器，实现读写分离，提高负载</strong>。</p>
+<h4 id="冗余和数据可用性"><a href="#冗余和数据可用性" class="headerlink" title="冗余和数据可用性"></a>冗余和数据可用性</h4><p>复制提供冗余并提高数据可用性。 通过在不同数据库服务器上提供多个数据副本，复制可提供一定级别的容错功能，以防止丢失单个数据库服务器。</p>
+<p>在某些情况下，复制可以提供增加的读取性能，因为客户端可以将读取操作发送到不同的服务上， 在不同数据中心维护数据副本可以增加分布式应用程序的数据位置和可用性。 还可以为专用目的维护其他副本，例如灾难恢复，报告或备份。</p>
+<h4 id="MongoDB-中的复制"><a href="#MongoDB-中的复制" class="headerlink" title="MongoDB 中的复制"></a>MongoDB 中的复制</h4><p>副本集是一组维护相同数据集的 mongod 实例。 副本集包含多个数据承载节点和可选的一个仲裁节点。 在承载数据的节点中，一个且仅一个成员被视为主节点，而其他节点被视为次要（从）节点。</p>
+<p>主节点接收所有写操作。 副本集只能有一个主要能够确认具有 <code>&#123;w：&quot;most&quot;&#125;</code> 写入关注的写入; 虽然在某些情况下，另一个 mongod 实例可能暂时认为自己也是主要的。主要记录其操作日志中的数据集的所有 更改，即 oplog。</p>
+<p>辅助(副本)节点复制主节点的oplog并将操作应用于其数据集，以使辅助节点的数据集反映主节点的数据集。 如果主要人员不在，则符合条件的中学将举行选举以选出新的主要人员。</p>
+<h4 id="主从复制和副本集区别"><a href="#主从复制和副本集区别" class="headerlink" title="主从复制和副本集区别"></a>主从复制和副本集区别</h4><p>主从集群和副本集最大的区别就是<strong>副本集没有固定的”主节点”</strong>；整个集群会选出一个”主节点”，当其挂掉后，又在剩下的从节点中选中其他节点为主节点，副本集总有一个活跃点 (主、primary) 和一个或多个备份节点 (从、secondary)</p>
+<h3 id="1-2-副本集的三个角色"><a href="#1-2-副本集的三个角色" class="headerlink" title="1.2 副本集的三个角色"></a>1.2 副本集的三个角色</h3><blockquote>
+<p>副本集有两种类型三种角色</p>
+</blockquote>
+<p>两种类型：</p>
+<ul>
+<li>主节点（Primary）类型：数据操作的主要连接点，<strong>可读写</strong></li>
+<li>次要（辅助、从）节点（Secondary）类型：数据冗余备份节点，可以<strong>读或选举</strong></li>
+</ul>
+<p>三种角色：</p>
+<ul>
+<li>主要成员（Primary）：主要接收所有写操作。就是主节点</li>
+<li>副本成员（Replicate）：从主节点通过复制操作以维护相同的数据集，即备份数据，<strong>不可写操作</strong>，但可以读操作（但需要配置）。是默认的一种从节点类型</li>
+<li>仲裁者（Arbiter）：<strong>不保留任何数据的副本，只具有投票选举作用</strong>。当然也可以将仲裁服务器维护为副本集的一部分，即副本成员同时也可以是仲裁者。也是一种从节点类型。</li>
+</ul>
+<p><img src="../images/image-20221030155354754.png" alt="image-20221030155354754"></p>
+<blockquote>
+<p>关于仲裁者的额外说明：</p>
+<p>您可以将额外的 mongod 实例添加到副本集作为仲裁者。 仲裁者不维护数据集。 仲裁者的目的是通过响应其他副本集成员的心跳和选举请求来维护副本集中的仲裁。 因为它们不存储数据集，所以仲裁器可以是提供副本集仲裁功能的好方法，其资源成本比具有数据集的全功能副本集成员更便宜。</p>
+<p>如果您的副本集具有偶数个成员，请添加仲裁者以获得主要选举中的<strong>大多数</strong>投票。 仲裁者不需要专用 硬件。</p>
+<p>仲裁者将永远是仲裁者，而主要人员可能会退出并成为次要人员，而次要人员可能成为选举期间的主要人员。</p>
+<p>如果你的副本+主节点的个数是偶数，建议加一个仲裁者，形成奇数，容易满足大多数的投票。</p>
+<p>如果你的副本+主节点的个数是奇数，可以不加仲裁者。</p>
+<blockquote>
+<p>说人话就是 <a target="_blank" rel="noopener" href="https://zhenye-na.github.io/blog/2020/02/07/[https://www.wikiwand.com/zh/Paxos%E7%AE%97%E6%B3%95](https://www.wikiwand.com/zh/Paxos%E7%AE%97%E6%B3%95)">Paxos 协议算法</a>, 建议阅读</p>
+</blockquote>
+</blockquote>
+<h3 id="1-3-动手实现一个副本集"><a href="#1-3-动手实现一个副本集" class="headerlink" title="1.3 动手实现一个副本集"></a>1.3 动手实现一个副本集</h3><h4 id="1-3-1-创建节点"><a href="#1-3-1-创建节点" class="headerlink" title="1.3.1 创建节点"></a>1.3.1 创建节点</h4><blockquote>
+<p>使用一个主节点, 一个副节点, 一个仲裁节点</p>
+<blockquote>
+<ol>
+<li>用端口号区分不同的节点</li>
+<li>副本集名称都是 <code>myrs</code></li>
+</ol>
+</blockquote>
+</blockquote>
+<blockquote>
+<p>主节点 (PRIMARY), 副节点 (SECONDARY), 以及仲裁节点 (ARBITER) 的创建过程详见配套文档</p>
+</blockquote>
+<h4 id="1-3-2-初始化配置副本集和主节点"><a href="#1-3-2-初始化配置副本集和主节点" class="headerlink" title="1.3.2 初始化配置副本集和主节点"></a>1.3.2 初始化配置副本集和主节点</h4><p>使用客户端命令连接任意一个节点，但这里尽量要连接主节点 (27017节点)</p>
+<pre class="line-numbers language-none"><code class="language-none">$ &#x2F;usr&#x2F;local&#x2F;mongodb&#x2F;bin&#x2F;mongo --host&#x3D;180.76.159.126 --port&#x3D;27017<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>连接上之后，很多命令无法使用, 比如 <code>show dbs</code> 等，必须初始化副本集才行</p>
+<p>初始化新的副本集</p>
+<pre class="line-numbers language-none"><code class="language-none"># example, &#96;configuration&#96; is optional
+# rs.initiate(configuration)
+
+$ rs.initiate()
+&#123;
+  &quot;info2&quot; : &quot;no configuration specified. Using a default configuration for the set&quot;,
+  &quot;me&quot; : &quot;&lt;ip_address&gt;:27017&quot;,
+  &quot;ok&quot; : 1,
+  &quot;operationTime&quot; : Timestamp(1565760476, 1),
+  &quot;$clusterTime&quot; : &#123;
+    &quot;clusterTime&quot; : Timestamp(1565760476, 1),
+    &quot;signature&quot; : &#123;
+    &quot;hash&quot; : BinData(0,&quot;AAAAAAAAAAAAAAAAAAAAAAAAAAA&#x3D;&quot;),
+    &quot;keyId&quot; : NumberLong(0)
+    &#125;
+  &#125;
+&#125;
+myrs:SECONDARY&gt; &lt;hit enter&gt;
+myrs:PRIMARY&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ol>
+<li><code>ok</code> 的值为 <code>1</code>, 说明创建成功</li>
+<li>命令行提示符发生变化，变成了一个从节点角色，此时默认不能读写。稍等片刻，回车，变成主节 点。</li>
+</ol>
+<h4 id="1-3-3-查看配置"><a href="#1-3-3-查看配置" class="headerlink" title="1.3.3 查看配置"></a>1.3.3 查看配置</h4><pre class="line-numbers language-none"><code class="language-none"># configuration - optional
+$ rs.conf(configuration)
+
+myrs:PRIMARY&gt; rs.conf()
+&#123;
+  &quot;_id&quot; : &quot;myrs&quot;,
+  &quot;version&quot; : 1,
+  &quot;protocolVersion&quot; : NumberLong(1),
+  &quot;writeConcernMajorityJournalDefault&quot; : true,
+  &quot;members&quot; : [&#123;
+    &quot;_id&quot; : 0,
+    &quot;host&quot; : &quot;180.76.159.126:27017&quot;,
+    &quot;arbiterOnly&quot; : false,
+    &quot;buildIndexes&quot; : true,
+    &quot;hidden&quot; : false,
+    &quot;priority&quot; : 1,
+    &quot;tags&quot; : &#123;&#125;,
+    &quot;slaveDelay&quot; : NumberLong(0),
+    &quot;votes&quot; : 1
+  &#125;],
+  &quot;settings&quot; : &#123;
+    &quot;chainingAllowed&quot; : true,
+    &quot;heartbeatIntervalMillis&quot; : 2000,
+    &quot;heartbeatTimeoutSecs&quot; : 10,
+    &quot;electionTimeoutMillis&quot; : 10000,
+    &quot;catchUpTimeoutMillis&quot; : -1,
+    &quot;catchUpTakeoverDelayMillis&quot; : 30000,
+    &quot;getLastErrorModes&quot; : &#123;&#125;,
+    &quot;getLastErrorDefaults&quot; : &#123;
+      &quot;w&quot; : 1,
+      &quot;wtimeout&quot; : 0
+    &#125;,
+    &quot;replicaSetId&quot; : ObjectId(&quot;5d539bdcd6a308e600d126bb&quot;)
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li><code>&quot;_id&quot; : &quot;myrs&quot;</code> ：副本集的配置数据存储的主键值，默认就是<strong>副本集</strong>的名字</li>
+<li><code>&quot;members&quot;</code> ：副本集成员数组，</li>
+<li>此时只有一个： <code>&quot;host&quot; : &quot;180.76.159.126:27017&quot;</code> ，</li>
+<li>该成员不是仲裁节点： <code>&quot;arbiterOnly&quot; : false</code> ，</li>
+<li>优先级（权重值）： <code>&quot;priority&quot; : 1</code></li>
+<li><code>&quot;settings&quot;</code> ：副本集的参数配置。</li>
+</ul>
+<h4 id="1-3-4-查看副本集状态"><a href="#1-3-4-查看副本集状态" class="headerlink" title="1.3.4 查看副本集状态"></a>1.3.4 查看副本集状态</h4><p>返回包含状态信息的文档。此输出使用从副本集的其他成员发送的心跳包中获得的数据反映副本集的当 前状态</p>
+<pre class="line-numbers language-none"><code class="language-none">$ rs.status()<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="1-3-5-添加副本节点以及仲裁节点"><a href="#1-3-5-添加副本节点以及仲裁节点" class="headerlink" title="1.3.5 添加副本节点以及仲裁节点"></a>1.3.5 添加副本节点以及仲裁节点</h4><p>在主节点添加从节点，将其他成员加入到副本集</p>
+<pre class="line-numbers language-none"><code class="language-none">$ rs.add(host, arbiterOnly)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>添加一个仲裁节点到副本集</p>
+<pre class="line-numbers language-none"><code class="language-none">$ rs.addArb(host)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="1-4-副本集的数据读写操作"><a href="#1-4-副本集的数据读写操作" class="headerlink" title="1.4 副本集的数据读写操作"></a>1.4 副本集的数据读写操作</h3><p>副本节点 (SECONDARY) 默认不能 read , 更不可能 write 数据, 需要</p>
+<pre class="line-numbers language-none"><code class="language-none">$ rs.slaveOk()
+myrs:SECONDARY&gt; show dbs; 
+
+&quot;errmsg&quot; : &quot;not master and slaveOk&#x3D;false&quot;,
+
+# 非主节点同时 slaveOk&#x3D;false 无法读写<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>数据会自动同步, 但是会有延迟</p>
+<hr>
+<p>仲裁者节点, 不存放任何数据 -&gt; <code>rs.slaveOk()</code> 也看不到数据</p>
+<h3 id="1-5-主节点的选举原则"><a href="#1-5-主节点的选举原则" class="headerlink" title="1.5 主节点的选举原则"></a>1.5 主节点的选举原则</h3><p>MongoDB在副本集中，会自动进行主节点的选举，主节点选举的触发条件</p>
+<ol>
+<li>主节点故障</li>
+<li>主节点网络不可达 (默认心跳信息为 10 秒)</li>
+<li>人工干预 <code>rs.stepDown(600)</code></li>
+</ol>
+<p>一旦触发选举，就要根据一定规则来选主节点</p>
+<p>选举规则是根据票数来决定谁获胜</p>
+<ul>
+<li>票数最高，且获得了“大多数”成员的投票支持的节点获胜。<ul>
+<li>“大多数”的定义为：假设复制集内投票成员数量为N，则大多数为 N/2 + 1。例如：3个投票成员， 则大多数的值是2。当复制集内存活成员数量不足大多数时，整个复制集将无法选举出Primary， 复制集将无法提供写服务，处于只读状态。</li>
+</ul>
+</li>
+<li>若票数相同，且都获得了“大多数”成员的投票支持的，数据新的节点获胜。<ul>
+<li>数据的新旧是通过操作日志 oplog 来对比的。</li>
+</ul>
+</li>
+</ul>
+<p>在获得票数的时候，优先级（priority）参数影响重大。</p>
+<p>可以通过设置优先级（priority）来设置额外票数。优先级即权重，取值为0-1000，相当于可额外增加 0-1000的票数，优先级的值越大，就越可能获得多数成员的投票（votes）数。指定较高的值可使成员 更有资格成为主要成员，更低的值可使成员更不符合条件。</p>
+<p>默认情况下，优先级的值是 1</p>
+<h3 id="1-6-故障测试"><a href="#1-6-故障测试" class="headerlink" title="1.6 故障测试"></a>1.6 故障测试</h3><h4 id="1-6-1-副本节点故障测试"><a href="#1-6-1-副本节点故障测试" class="headerlink" title="1.6.1 副本节点故障测试"></a>1.6.1 副本节点故障测试</h4><p>关闭 <code>27018</code> 副本节点</p>
+<ul>
+<li>主节点和仲裁节点对 <code>27018</code> 的心跳失败。因为主节点还在，因此，没有触发投票选举。</li>
+<li>如果此时，在主节点写入数据。再启动从节点，会发现，<strong>主节点写入的数据</strong>，<strong>会自动同步给从节点</strong>。</li>
+</ul>
+<h4 id="1-6-2-主节点故障测试"><a href="#1-6-2-主节点故障测试" class="headerlink" title="1.6.2 主节点故障测试"></a>1.6.2 主节点故障测试</h4><p>关闭27017节点</p>
+<ul>
+<li>从节点和仲裁节点对27017的心跳失败，当失败超过10秒，此时因为没有主节点了，会自动发起投票。</li>
+<li>而副本节点只有27018，因此，候选人只有一个就是27018，开始投票。</li>
+<li>27019向27018投了一票，27018本身自带一票，因此共两票，超过了“大多数”</li>
+<li>27019是仲裁节点，没有选举权，27018不向其投票，其票数是0.</li>
+</ul>
+<p>最终结果，27018成为主节点。具备读写功能。 在27018写入数据查看。</p>
+<h4 id="1-6-3-仲裁节点和主节点故障"><a href="#1-6-3-仲裁节点和主节点故障" class="headerlink" title="1.6.3 仲裁节点和主节点故障"></a>1.6.3 仲裁节点和主节点故障</h4><p>先关掉仲裁节点27019， 关掉现在的主节点27018 登录27017后</p>
+<ul>
+<li>27017仍然是从节点，副本集中没有主节点了，导致此时，副本集是只读状态， 无法写入。</li>
+<li>为啥不选举了？<ul>
+<li>因为27017的票数，没有获得大多数，即没有大于等于2，它只有默认的一票（优先级 是1）</li>
+<li>如果要触发选举，随便加入一个成员即可。<ul>
+<li>如果只加入27019仲裁节点成员，则主节点一定是27017，因为没得选了，仲裁节点不参与选举， 但参与投票</li>
+<li>如果只加入27018节点，会发起选举。因为27017和27018都是两票，则按照谁数据新，谁当主节点。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="1-6-4-仲裁节点和从节点故障"><a href="#1-6-4-仲裁节点和从节点故障" class="headerlink" title="1.6.4 仲裁节点和从节点故障"></a>1.6.4 仲裁节点和从节点故障</h4><p>先关掉仲裁节点 <code>27019</code>，关掉现在的副本节点 <code>27018</code></p>
+<p>10秒后，<code>27017</code> 主节点自动降级为副本节点。（服务降级）</p>
+<p>副本集不可写数据了，已经故障了。</p>
+<h2 id="2-分片集群-Sharded-Cluster"><a href="#2-分片集群-Sharded-Cluster" class="headerlink" title="2. 分片集群 - Sharded Cluster"></a>2. 分片集群 - Sharded Cluster</h2><h3 id="2-1-分片概念"><a href="#2-1-分片概念" class="headerlink" title="2.1 分片概念"></a>2.1 分片概念</h3><p>分片 (<strong>sharding</strong>) 是一种跨多台机器分布数据的方法， MongoDB 使用分片来支持具有非常大的数据集和高吞吐量操作的部署。</p>
+<p>换句话说：分片 (sharding) 是指将数据拆分，将其分散存在不同的机器上的过程。有时也用分区 (<strong>partitioning</strong>) 来表示这个概念。将数据分散到不同的机器上，不需要功能强大的大型计算机就可以储存更多的数据，处理更多的负载。</p>
+<p>具有大型数据集或高吞吐量应用程序的数据库系统可以会挑战单个服务器的容量。例如，高查询率会耗尽服务器的 CPU 容量。工作集大小大于系统的 RAM 会强调磁盘驱动器的 <code>I/O</code> 容量。</p>
+<p>有两种解决系统增长的方法：<strong>垂直扩展</strong>和<strong>水平扩展</strong>。</p>
+<ul>
+<li><strong>垂直扩展</strong>意味着<strong>增加单个服务器的容量</strong>，例如使用更强大的CPU，添加更多RAM或增加存储空间量。可 用技术的局限性可能会限制单个机器对于给定工作负载而言足够强大。此外基于云的提供商基于可用的硬件配置具有硬性上限。结果，垂直缩放有实际的最大值。</li>
+<li><strong>水平扩展</strong>意味着<strong>划分系统数据集并加载多个服务器</strong>，添加其他服务器以根据需要增加容量。虽然单个机器的总体速度或容量可能不高，但每台机器处理整个工作负载的子集，可能提供比单个高速大容量服务器更高的效率。扩展部署容量只需要根据需要添加额外的服务器，这可能比单个机器的高端硬件的总体 成本更低。权衡是基础架构和部署维护的复杂性增加。</li>
+</ul>
+<p>MongoDB 支持通过<strong>分片进行水平扩展</strong>。</p>
+<h3 id="2-2-分片集群包含的组件"><a href="#2-2-分片集群包含的组件" class="headerlink" title="2.2 分片集群包含的组件"></a>2.2 分片集群包含的组件</h3><p>MongoDB 分片群集包含以下组件：</p>
+<ul>
+<li>分片（存储）：每个分片包含分片数据的子集。 每个分片都可以部署为副本集。</li>
+<li>mongos （路由）：mongos充当查询路由器，在客户端应用程序和分片集群之间提供接口。</li>
+<li>conﬁg servers （”调度” 的配置）：配置服务器存储群集的元数据和配置设置。 从MongoDB 3.4 开始，必须将配置服务器部署为副本集（CSRS）。</li>
+</ul>
+<p><img src="https://docs.mongodb.com/manual/_images/sharded-cluster-production-architecture.bakedsvg.svg" alt="img"></p>
+<h3 id="2-3-分片集群架构目标"><a href="#2-3-分片集群架构目标" class="headerlink" title="2.3 分片集群架构目标"></a>2.3 分片集群架构目标</h3><blockquote>
+<p>两个分片节点副本集（3+3）+ 一个配置节点副本集（3）+ 两个路由节点（2），共 <code>11</code> 个服务节点</p>
+</blockquote>
+<p>添加分片</p>
+<pre class="line-numbers language-none"><code class="language-none">$ sh.addShard(&quot;IP:Port&quot;, &quot;IP:Port&quot;, &quot;IP:Port&quot;)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>查看分片状态情况</p>
+<pre class="line-numbers language-none"><code class="language-none">$ sh.status()<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>如果添加分片失败，需要先手动移除分片，检查添加分片的信息的正确性后，再次添加分片。 移除分片:</p>
+<pre class="line-numbers language-none"><code class="language-none">$ use admin
+$ db.runCommand( &#123; removeShard: &quot;myshardrs02&quot; &#125; )<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<ul>
+<li>如果只剩下最后一个 shard，是无法删除的</li>
+<li>移除时会自动转移分片数据，需要一个时间过程</li>
+<li>完成后，再次执行删除分片命令才能真正删除</li>
+</ul>
+<p>开启分片功能</p>
+<pre class="line-numbers language-none"><code class="language-none">$ sh.enableSharding(&quot;articledb&quot;)
+$ sh.enableSharding(&quot;库名&quot;)
+
+$ sh.shardCollection(&quot;库名.集合名&quot;,&#123;&quot;key&quot;:1&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>集合分片，使用 <code>sh.shardCollection()</code> 方法指定集合和分片键</p>
+<pre class="line-numbers language-none"><code class="language-none">$ sh.shardCollection(namespace, key, unique)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>对集合进行分片时, 你需要选择一个 <strong>片键</strong> (Shard Key) shard key 是每条记录都必须包含的, 且建立了<strong>索引</strong>的单个字段或复合字段, MongoDB按照片键将数据划分到不同的数据块中,并将数据块均衡地分布到所有分片中. 为了按照片键划分数据块, MongoDB使用<strong>基于哈希</strong>的分片方式（随机平均分配）或者<strong>基于范围</strong>的分片方式（数值大小分配） 。</p>
+<blockquote>
+<p>用什么字段当片键都可以，如：nickname作为片键，但一定是必填字段。</p>
+</blockquote>
+<h3 id="分片策略-规则"><a href="#分片策略-规则" class="headerlink" title="分片策略(规则)"></a>分片策略(规则)</h3><h4 id="哈希策略"><a href="#哈希策略" class="headerlink" title="哈希策略"></a>哈希策略</h4><p>对于 <strong>基于哈希</strong> 的分片 , MongoDB计算一个字段的哈希值, 并用这个哈希值来创建数据块.</p>
+<p>在使用基于哈希分片的系统中, 拥有”相近”片键的文档<strong>很可能不会</strong>存储在同一个数据块中, 因此<strong>数据的分离性</strong>更好一些.</p>
+<h4 id="范围策略"><a href="#范围策略" class="headerlink" title="范围策略"></a>范围策略</h4><p>对于 <strong>基于范围</strong> 的分片 , MongoDB 按照片键的范围把数据分成不同部分. 假设有一个数字的片键 : 想象一个从负无穷到正无穷的直线,每一个片键的值都在直线上画了一个点. MongoDB把这条直线划分为更短的不重叠的片段, 并称之为数据块 ,每个数据块包含了片键在一定范围内的数据.</p>
+<p>在使用片键做范围划分的系统中, 拥有”相近”片键的文档<strong>很可能存储在同一个数据块</strong>中, 因此也会存储在同一个分片中.</p>
+<h4 id="基于范围的分片方式与基于哈希的分片方式性能对比"><a href="#基于范围的分片方式与基于哈希的分片方式性能对比" class="headerlink" title="基于范围的分片方式与基于哈希的分片方式性能对比"></a>基于范围的分片方式与基于哈希的分片方式性能对比</h4><p>基于范围的分片方式提供了更高效的范围查询, 给定一个片键的范围,分发路由可以很简单地确定哪个数 据块存储了请求需要的数据,并将请求转发到相应的分片中. 不过, 基于范围的分片会导致数据在不同分片上的不均衡,有时候,带来的消极作用会大于查询性能的积极作用. 比如, 如果片键所在的字段是线性增长的, 一定时间内的所有请求都会落到某个固定的数据块中, 最终导致分布在同一个分片中. 在这种情况下, 一小部分分片承载了集群大部分的数据,系统并不能很好地进行 扩展. 与此相比, 基于哈希的分片方式以范围查询性能的损失为代价, 保证了集群中数据的均衡.哈希值的随机性 使数据随机分布在每个数据块中, 因此也随机分布在不同分片中.但是也正由于随机性, 一个范围查询很难 确定应该请求哪些分片, 通常为了返回需要的结果,需要请求所有分片.</p>
+<p>如无特殊情况，一般推荐使用 <code>Hash Sharding</code>. 而使用 <code>_id</code> 作为片键是一个不错的选择，因为它是必有的，你可以使用数据文档 <code>_id</code> 的哈希作为片键。 这个方案能够是的读和写都能够平均分布，并且它能够保证每个文档都有不同的片键所以数据块能够很 精细。 似乎还是不够完美，因为这样的话对多个文档的查询必将命中所有的分片。虽说如此，这也是一种比较 好的方案了。 理想化的 <code>shard key</code> 可以让 documents 均匀地在集群中分布</p>
+<h2 id="3-安全认证"><a href="#3-安全认证" class="headerlink" title="3. 安全认证"></a>3. 安全认证</h2><h3 id="3-1-MongoDB的用户和角色权限简介"><a href="#3-1-MongoDB的用户和角色权限简介" class="headerlink" title="3.1 MongoDB的用户和角色权限简介"></a>3.1 MongoDB的用户和角色权限简介</h3><p>默认情况下，MongoDB实例启动运行时是没有启用用户访问权限控制的，也就是说，在实例本机服务 器上都可以随意连接到实例进行各种操作，MongoDB不会对连接客户端进行用户验证，这是非常危险 的。</p>
+<p>mongodb官网上说，为了能保障mongodb的安全可以做以下几个步骤</p>
+<ol>
+<li>使用新的端口，默认的 27017 端口如果一旦知道了 ip 就能连接上，不太安全</li>
+<li>设置 mongodb 的网络环境，最好将 mongodb 部署到公司服务器内网，这样外网是访问不到的。公 司内部访问使用 vpn 等</li>
+<li>开启安全认证。认证要同时设置服务器之间的内部认证方式，同时要设置客户端连接到集群的账号 密码认证方式。</li>
+</ol>
+<p>为了强制开启用户访问控制(用户验证)，则需要在MongoDB实例启动时使用选项 –auth 或在指定启动 配置文件中添加选项 <code>auth=true</code></p>
+<p>在开始之前需要了解一下概念</p>
+<h4 id="启用访问控制"><a href="#启用访问控制" class="headerlink" title="启用访问控制"></a>启用访问控制</h4><ul>
+<li>MongoDB使用的是基于角色的访问控制(Role-Based Access Control,RBAC)来管理用户对实例的访问。 通过对用户授予一个或多个角色来控制用户访问数据库资源的权限和数据库操作的权限，在对用户分配 角色之前，用户无法访问实例</li>
+<li>在实例启动时添加选项 –auth 或指定启动配置文件中添加选项 <code>auth=true</code></li>
+</ul>
+<h4 id="角色"><a href="#角色" class="headerlink" title="角色"></a>角色</h4><p>在MongoDB中通过角色对用户授予相应数据库资源的操作权限，每个角色当中的权限可以显式指定， 也可以通过继承其他角色的权限，或者两都都存在的权限。</p>
+<h4 id="权限"><a href="#权限" class="headerlink" title="权限"></a>权限</h4><p>权限由指定的数据库资源(resource)以及允许在指定资源上进行的操作(action)组成</p>
+<ol>
+<li>资源(resource)包括：数据库、集合、部分集合和集群</li>
+<li>操作(action)包括：对资源进行的增、删、改、查(CRUD)操作</li>
+</ol>
+<p>在角色定义时可以包含一个或多个已存在的角色，新创建的角色会继承包含的角色所有的权限。在同一 个数据库中，新创建角色可以继承其他角色的权限，在 admin 数据库中创建的角色可以继承在其它任意 数据库中角色的权限。</p>
+<pre class="line-numbers language-none"><code class="language-none"># 查询所有角色权限(仅用户自定义角色)
+$ db.runCommand(&#123; rolesInfo: 1 &#125;)
+
+# 查询所有角色权限(包含内置角色)
+$ db.runCommand(&#123; rolesInfo: 1, showBuiltinRoles: true &#125;)
+
+
+# 查询当前数据库中的某角色的权限
+$ db.runCommand(&#123; rolesInfo: &quot;&lt;rolename&gt;&quot; &#125;)
+
+# 查询其它数据库中指定的角色权限
+$ db.runCommand(&#123; rolesInfo: &#123; role: &quot;&lt;rolename&gt;&quot;, db: &quot;&lt;database&gt;&quot; &#125; &#125;
+
+# 查询多个角色权限
+$ db.runCommand(&#123;
+  rolesInfo: [
+    &quot;&lt;rolename&gt;&quot;,
+    &#123;
+      role: &quot;&lt;rolename&gt;&quot;,
+      db: &quot;&lt;database&gt;&quot;
+    &#125;,
+    ...
+
+  ]
+&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>常用的内置角色：</p>
+<ul>
+<li>数据库用户角色：read、readWrite</li>
+<li>所有数据库用户角色：readAnyDatabase、readWriteAnyDatabase、 userAdminAnyDatabase、dbAdminAnyDatabase</li>
+<li>数据库管理角色： dbAdmin、dbOwner、userAdmin</li>
+<li>集群管理角色： clusterAdmin、clusterManager、clusterMonitor、hostManager</li>
+<li>备份恢复角色： backup、restore</li>
+<li>超级用户角色： root</li>
+<li>内部角色： system</li>
+</ul>
+
+    </article>
+    
+    <div class="read-nums">
+      <!-- id 将作为查询条件 -->
+      <span id="2022/10/30/Mango学习-二/" class="leancloud_visitors" data-flag-title="Your Article Title">
+        <em class="post-meta-item-text">浏览量</em>
+        <i class="leancloud-visitors-count"></i>
+      </span>
+    </div>
+    <div class="comments-intro">
+      <h2>评论区</h2>
+      <p>欢迎你留下宝贵的意见，昵称输入QQ号会显示QQ头像哦~</p>
+    </div>
+    <div id="vcomments" class="vcomments"></div>
+    
+  </div>
+  <div class="article-catelogue">
+    <div class="article-catelogue--wrapper">
+      <div class="catelogue catelogue-1">
+        <h3>目录</h3>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MongoDB-%E6%95%B0%E6%8D%AE%E5%BA%93%E9%AB%98%E7%BA%A7%E8%BF%9B%E9%98%B6-%E9%9B%86%E7%BE%A4%E5%92%8C%E5%AE%89%E5%85%A8"><span class="toc-number">1.</span> <span class="toc-text">MongoDB 数据库高级进阶 - 集群和安全</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#MongoDB-%E5%89%AF%E6%9C%AC%E9%9B%86-Replica-Sets"><span class="toc-number">1.1.</span> <span class="toc-text">MongoDB 副本集 - Replica Sets</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.1.1.</span> <span class="toc-text">简介</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%97%E4%BD%99%E5%92%8C%E6%95%B0%E6%8D%AE%E5%8F%AF%E7%94%A8%E6%80%A7"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">冗余和数据可用性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MongoDB-%E4%B8%AD%E7%9A%84%E5%A4%8D%E5%88%B6"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">MongoDB 中的复制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%92%8C%E5%89%AF%E6%9C%AC%E9%9B%86%E5%8C%BA%E5%88%AB"><span class="toc-number">1.1.1.3.</span> <span class="toc-text">主从复制和副本集区别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E5%89%AF%E6%9C%AC%E9%9B%86%E7%9A%84%E4%B8%89%E4%B8%AA%E8%A7%92%E8%89%B2"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 副本集的三个角色</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E5%89%AF%E6%9C%AC%E9%9B%86"><span class="toc-number">1.1.3.</span> <span class="toc-text">1.3 动手实现一个副本集</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-1-%E5%88%9B%E5%BB%BA%E8%8A%82%E7%82%B9"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">1.3.1 创建节点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-2-%E5%88%9D%E5%A7%8B%E5%8C%96%E9%85%8D%E7%BD%AE%E5%89%AF%E6%9C%AC%E9%9B%86%E5%92%8C%E4%B8%BB%E8%8A%82%E7%82%B9"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">1.3.2 初始化配置副本集和主节点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-3-%E6%9F%A5%E7%9C%8B%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">1.3.3 查看配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-4-%E6%9F%A5%E7%9C%8B%E5%89%AF%E6%9C%AC%E9%9B%86%E7%8A%B6%E6%80%81"><span class="toc-number">1.1.3.4.</span> <span class="toc-text">1.3.4 查看副本集状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-5-%E6%B7%BB%E5%8A%A0%E5%89%AF%E6%9C%AC%E8%8A%82%E7%82%B9%E4%BB%A5%E5%8F%8A%E4%BB%B2%E8%A3%81%E8%8A%82%E7%82%B9"><span class="toc-number">1.1.3.5.</span> <span class="toc-text">1.3.5 添加副本节点以及仲裁节点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-%E5%89%AF%E6%9C%AC%E9%9B%86%E7%9A%84%E6%95%B0%E6%8D%AE%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C"><span class="toc-number">1.1.4.</span> <span class="toc-text">1.4 副本集的数据读写操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-%E4%B8%BB%E8%8A%82%E7%82%B9%E7%9A%84%E9%80%89%E4%B8%BE%E5%8E%9F%E5%88%99"><span class="toc-number">1.1.5.</span> <span class="toc-text">1.5 主节点的选举原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-%E6%95%85%E9%9A%9C%E6%B5%8B%E8%AF%95"><span class="toc-number">1.1.6.</span> <span class="toc-text">1.6 故障测试</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-6-1-%E5%89%AF%E6%9C%AC%E8%8A%82%E7%82%B9%E6%95%85%E9%9A%9C%E6%B5%8B%E8%AF%95"><span class="toc-number">1.1.6.1.</span> <span class="toc-text">1.6.1 副本节点故障测试</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-6-2-%E4%B8%BB%E8%8A%82%E7%82%B9%E6%95%85%E9%9A%9C%E6%B5%8B%E8%AF%95"><span class="toc-number">1.1.6.2.</span> <span class="toc-text">1.6.2 主节点故障测试</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-6-3-%E4%BB%B2%E8%A3%81%E8%8A%82%E7%82%B9%E5%92%8C%E4%B8%BB%E8%8A%82%E7%82%B9%E6%95%85%E9%9A%9C"><span class="toc-number">1.1.6.3.</span> <span class="toc-text">1.6.3 仲裁节点和主节点故障</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-6-4-%E4%BB%B2%E8%A3%81%E8%8A%82%E7%82%B9%E5%92%8C%E4%BB%8E%E8%8A%82%E7%82%B9%E6%95%85%E9%9A%9C"><span class="toc-number">1.1.6.4.</span> <span class="toc-text">1.6.4 仲裁节点和从节点故障</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%88%86%E7%89%87%E9%9B%86%E7%BE%A4-Sharded-Cluster"><span class="toc-number">1.2.</span> <span class="toc-text">2. 分片集群 - Sharded Cluster</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%88%86%E7%89%87%E6%A6%82%E5%BF%B5"><span class="toc-number">1.2.1.</span> <span class="toc-text">2.1 分片概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E5%88%86%E7%89%87%E9%9B%86%E7%BE%A4%E5%8C%85%E5%90%AB%E7%9A%84%E7%BB%84%E4%BB%B6"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.2 分片集群包含的组件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%88%86%E7%89%87%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84%E7%9B%AE%E6%A0%87"><span class="toc-number">1.2.3.</span> <span class="toc-text">2.3 分片集群架构目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%89%87%E7%AD%96%E7%95%A5-%E8%A7%84%E5%88%99"><span class="toc-number">1.2.4.</span> <span class="toc-text">分片策略(规则)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%93%88%E5%B8%8C%E7%AD%96%E7%95%A5"><span class="toc-number">1.2.4.1.</span> <span class="toc-text">哈希策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%8C%83%E5%9B%B4%E7%AD%96%E7%95%A5"><span class="toc-number">1.2.4.2.</span> <span class="toc-text">范围策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E8%8C%83%E5%9B%B4%E7%9A%84%E5%88%86%E7%89%87%E6%96%B9%E5%BC%8F%E4%B8%8E%E5%9F%BA%E4%BA%8E%E5%93%88%E5%B8%8C%E7%9A%84%E5%88%86%E7%89%87%E6%96%B9%E5%BC%8F%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94"><span class="toc-number">1.2.4.3.</span> <span class="toc-text">基于范围的分片方式与基于哈希的分片方式性能对比</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81"><span class="toc-number">1.3.</span> <span class="toc-text">3. 安全认证</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-MongoDB%E7%9A%84%E7%94%A8%E6%88%B7%E5%92%8C%E8%A7%92%E8%89%B2%E6%9D%83%E9%99%90%E7%AE%80%E4%BB%8B"><span class="toc-number">1.3.1.</span> <span class="toc-text">3.1 MongoDB的用户和角色权限简介</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AF%E7%94%A8%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">启用访问控制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%92%E8%89%B2"><span class="toc-number">1.3.1.2.</span> <span class="toc-text">角色</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9D%83%E9%99%90"><span class="toc-number">1.3.1.3.</span> <span class="toc-text">权限</span></a></li></ol></li></ol></li></ol></li></ol>
+      </div>
+      
+        <div class="catelogue catelogue-2">
+          
+            <p>
+              <span>上一篇：</span>
+              <a href="/2022/10/30/计算机网络-一/">计算机网络(一)</a>
+            </p>
+           
+          
+            <p>
+              <span>下一篇</span>
+              <a href="/2022/10/30/MongoDB/">Mango学习(一)</a>
+            </p>
+          
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+<script src="/js/prism.js"></script>
+
+<script>
+  // var定义，避免pjax重新进来造成的重复声明错误
+  var config = JSON.parse('{"enable":true,"appId":"Pf8zCXGEH1qsprnWfikVVujL-gzGzoHsz","appKey":"qOqoiUHhH1TGtLRUYURkLRQX","placeholder":"请留下你宝贵的意见吧~","meta":["nick"],"recordIP":true,"visitor":true,"enableQQ":true}')
+  new Valine({
+    el: '#vcomments',
+    appId: config.appId,
+    appKey: config.appKey,
+    placeholder: config.placeholder,
+    meta: config.meta,
+    recordIP: config.recordIP,
+    visitor: config.visitor,
+    enableQQ: config.enableQQ,
+    path: '2022/10/30/Mango学习-二/'
+  })
+</script>
+
+
+<script>
+  $(document).on('pjax:complete', function() {
+    const tocs = document.querySelector('.toc')
+    const as = tocs ? tocs.querySelectorAll('a') : []
+    as.forEach(a => {
+      a.addEventListener('click', e => {
+        const href = decodeURIComponent(a.href)
+        href.search(/#(.*)/)
+        const id = RegExp.$1
+        const target = document.querySelector('#' + id)
+        const top = target.offsetTop
+        document.documentElement.scrollTo({
+          top: top - 100,
+          behavior: 'smooth'
+        })
+        e.preventDefault()
+      })
+    })
+  })
+</script> 
+
+</div>
+      <div class="main-right-wrapper"><div class="main-right">
+  <div class="main-right--board">
+    <div class="main-right--title">
+      <h5>公告栏</h5>
+      <i class="iconfont icon-gonggao"></i>
+    </div>
+    <div class="main-right--content">
+      欢迎来到我的博客捏，记录着一些自己学习的知识内容，期待和大家的交流 
+    </div>
+  </div>
+
+  <div id="aplayer" class="main-right--music"></div>
+
+  <div class="operate-items">
+    <div class="operate-item backtop">
+      <i class="iconfont icon-huidaodingbu"></i>
+      <span>回到顶部</span>
+    </div>
+    
+    <div class="operate-item turn-comment hidden">
+      <i class="iconfont icon-pinglun"></i>
+      <span>查看评论</span>
+    </div>
+    
+  </div>
+
+  <div class="main-right--site">
+    <div class="main-right--power">
+      <p>Power By <a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">Hexo</a>.</p>
+      <p>Theme：<a target="_blank" rel="noopener" href="https://github.com/Aizener/hexo-theme-cola">Cola.</a></p>
+    </div>
+    <p class="main-right--refer">By Nirvana. </p>
+  </div>
+</div>
+
+<script>
+  function setOperateItem () {
+    const reg = /\d{4}\/\d{2}\/\d{2}\/.+/
+    const path = location.pathname
+    const commentDom = document.querySelector('.turn-comment')
+    if (commentDom) {
+      if (reg.test(path) || path.match(/\/log\/.+/)) {
+        commentDom.classList.remove('hidden')
+      } else {
+        commentDom.classList.add('hidden')
+      }
+    }
+  }
+
+  setOperateItem()
+  const musics = JSON.parse(`[{"name":"卡布达","artist":"暂无","url":"/music/kabuda.mp3","cover":"https://img2.baidu.com/it/u=705831265,2862720033&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500"}]`)
+  const ap = new APlayer({
+    container: document.querySelector('#aplayer'),
+    audio: musics,
+  })
+
+  $(document).on('pjax:complete', function() {
+    setOperateItem()
+  })
+
+  document.querySelector('.backtop').addEventListener('click', () => {
+    document.documentElement.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  })
+  const dom = document.querySelector('.turn-comment')
+  dom && dom.addEventListener('click', () => {
+    const commentDom = document.querySelector('.comments-intro')
+    if (!commentDom) return
+    const top = commentDom.offsetTop, height = commentDom.offsetHeight
+    document.documentElement.scrollTo({
+      top: top - 2 * height,
+      behavior: 'smooth'
+    })
+  })
+</script></div>
+    </section>
+  </div>
+  <div id="progress" class="progress"></div>
+
+  <script>
+    function initScroll () {
+      document.addEventListener('scroll', () => {
+        const doc = document.documentElement
+        const scrollTop = doc.scrollTop
+        const pageHeight = doc.offsetHeight
+        const clientHeight = doc.clientHeight
+        const ratio = scrollTop / (pageHeight - clientHeight)
+        const progress = document.querySelector('#progress')
+        const avatarImg = document.querySelector('.main-left--avatar')
+        progress.style.width = (100 * ratio) + '%'
+        avatarImg.style.transform = `rotate(${360 * ratio}deg)`
+      })
+    }
+
+
+    window.onload = function () {
+      setTimeout(() => {
+        $('#load').slideUp()
+        $('#container').slideToggle()
+        setTimeout(() => {
+          initScroll()
+          if (['/', '/log/', '/link/', '/about/', '/tools/'].includes(location.pathname) && window.innerWidth > 1200) {
+            init && init('container') // 水波纹动画
+          }
+        }, 500)
+      }, 500)
+    }
+    
+    // 对所有链接跳转事件绑定pjax容器container
+    $(document).pjax('a[target!=_blank]', '#main-container', {fragment:'#main-container', timeout:8000})
+
+    $(document).on('pjax:start', function() {
+      // $('.main-container').hide()
+    })
+    $(document).on('pjax:complete', function() {
+      $('.main-container').addClass('to-up').on('animationend', function() {
+        $(this).removeClass('to-up')
+      })
+    })
+    $(document).on('pjax:popstate', function() {
+      // $('.main-container').fadeIn()
+    })
+  </script>
+  
+</body>
+</html>
