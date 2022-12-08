@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Hexo | JVM | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/imgs/shortcut-icon.ico" type="image/x-icon">
+
+  
+    <link rel="stylesheet" href="/css/public.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/iconfont.css" />
+    <link rel="stylesheet" href="/css/APlayer.min.css" />
+    <script src="/js/APlayer.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.pjax.min.js"></script>
+  
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+  <script>
+    document.title = `Hexo | JVM`
+  </script>
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+<style>
+  .load {
+    width: 100%;
+    height: 100vh;
+    background-color: rgb(37, 35, 40);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 9999;
+  }
+  .load-circle {
+    width: 80px;
+    height: 80px;
+    border: 8px solid orange;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: rotate 1s linear infinite;
+    filter: drop-shadow(0 0 3px orange);
+  }
+  .load-circle-inner {
+    width: 40px;
+    height: 40px;
+    border: 8px solid orange;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: rotate-reverse .5s linear infinite;
+  }
+  .load-text {
+    margin-top: 20px;
+    font-size: 24px;
+    color: orange;
+    display: flex;
+  }
+  .load-text span {
+    margin: 0 5px;
+    text-shadow: 5px 5px 5px orange;
+    animation: move 1s linear infinite;
+  }
+  .load-text span:nth-child(1) {
+    animation-delay: -0.6s;
+  }
+  .load-text span:nth-child(2) {
+    animation-delay: -0.5s;
+  }
+  .load-text span:nth-child(3) {
+    animation-delay: -0.4s;
+  }
+  .load-text span:nth-child(4) {
+    animation-delay: -0.3s;
+  }
+  .load-text span:nth-child(5) {
+    animation-delay: -0.2s;
+  }
+  .load-text span:nth-child(6) {
+    animation-delay: -0.1s;
+  }
+  @keyframes rotate {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes rotate-reverse {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(-360deg); }
+  }
+  @keyframes move {
+    0% { transform: translateY(0%) rotate(0) scale(1); }
+    20% { transform: translateY(20%) rotate(10deg) scale(1.2); }
+    80% { transform: translateY(-10%) rotate(-20deg) scale(.8);}
+    100% { transform: translateY(0) rotate(0) scale(1); }
+  }
+
+  .progress {
+    position: fixed;
+    left: 0; top: 0;
+    width: 0;
+    height: 3px;
+    background-color: green;
+    transition: all cubic-bezier(0.215, 0.610, 0.355, 1) .1s;
+    z-index: 9999;
+  }
+
+  .to-up {
+    animation: toUp .5s 1;
+  }
+  @keyframes toUp {
+    from { transform: translateY(15px); opacity: 0; }
+    to { transform: translateY(0) ; opacity: 1; }
+  }
+</style>
+<body>
+  <div id="load" class="load">
+    <div class="load-circle">
+      <div class="load-circle-inner"></div>
+    </div>
+    <p class="load-text">
+      <span>L</span>
+      <span>O</span>
+      <span>A</span>
+      <span>D</span>
+      <span>I</span>
+      <span>N</span>
+      <span>G</span>
+    </p>
+  </div>
+  <div id="container" class="container w-100 vh-100" style="display: none;">
+    <header class="header">
+  <div class="header-wrapper">
+    <div class="header-left">
+      <div class="header-search">
+        <input id="search-input" type="text" class="header-search--input" placeholder="请输入要检索的文章标题" />
+        <span id="search-btn" class="header-search--icon"><i class="iconfont icon-sousuo"></i></span>
+      </div>
+      <div id="search-layer" class="header-search--layer hidden">
+        <p class="title">
+          <span>以下是搜索内容：</span>
+          <span id="close-layer-btn">关闭</span>
+        </p>
+        <ul>
+        </ul>
+      </div>
+    </div>
+    <div class="header-right">
+      <ul class="header-menu">
+        <li>
+          <a href="/">
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+            <span class="header-menu--span">首页</span>
+          </a>
+        </li>
+        <li>
+          <a href="/log">
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+            <span class="header-menu--span">日志</span>
+          </a>
+        </li>
+        <li>
+          <a href="/link">
+            <i class="header-menu--icon iconfont icon-youqinglianjie"></i>
+            <span class="header-menu--span">友情链接</span>
+          </a>
+        </li>
+        <li>
+          <a href="/about">
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+            <span class="header-menu--span">关于我</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<script>
+  const ipt = document.querySelector('#search-input')
+  const btn = document.querySelector('#search-btn')
+  const layer = document.querySelector('#search-layer')
+  const posts = JSON.parse(`[{"title":"CSS学习(二)","path":"2022/03/27/CSS学习-二/"},{"title":"CSS学习(一)","path":"2022/03/20/CSS学习-一/"},{"title":"Docker","path":"2022/11/09/Docker/"},{"title":"Dubbo","cover":"imgs/cover5.webp","path":"2022/11/08/Dubbo/"},{"title":"HTML学习(一)","path":"2022/03/14/HTML学习-一/"},{"title":"HTML学习(二)","path":"2022/03/14/HTML学习-二/"},{"title":"Linux Nginx学习","path":"2022/10/25/Linux Nginx/"},{"title":"Maven学习","path":"2022/10/14/Maven学习/"},{"title":"RabbitMQ","path":"2022/11/09/RabbitMQ/"},{"title":"SQL，jdbc，MybatisPlus","path":"2022/10/22/SQL/"},{"title":"SpringMVC+SpringBoot学习","cover":"imgs/cover3.webp","path":"2022/10/15/SpringMSV学习/"},{"title":"Spring Franework","cover":"imgs/cover3.webp","path":"2022/10/13/Spring学习/"},{"title":"Git学习","path":"2022/10/16/git学习/"},{"title":"Zookeeper","cover":"imgs/cover5.webp","path":"2022/11/09/zookeeper/"},{"title":"个人对于前端岗位的理解","path":"2022/02/27/个人对于前端岗位的理解/"},{"title":"小知识","path":"2022/10/26/杂文/"},{"title":"计算机网络(一)","cover":"imgs/cover1.webp","path":"2022/10/30/计算机网络-一/"},{"title":"数据库系统概论","cover":"imgs/cover3.webp","path":"2022/11/05/数据库系统概论/"},{"title":"Mango学习(二)","cover":"imgs/cover2.webp","path":"2022/10/30/Mango学习-二/"},{"title":"Mango学习(一)","cover":"imgs/cover2.webp","path":"2022/10/30/MongoDB/"},{"title":"Redis学习","path":"2022/10/26/Redis学习/"},{"title":"Tomcat核心原理","cover":"imgs/cover4.webp","path":"2022/11/06/Tomcat核心原理/"},{"title":"JVM","path":"2022/12/05/JVM/"},{"title":"微服务技术栈(一)","path":"2022/11/20/微服务技术栈(一)/"},{"title":"设计模式(一)","path":"2022/12/02/设计模式(一)/"},{"title":"微服务技术栈(二)","path":"2022/12/02/微服务技术栈-二/"},{"title":"设计模式(二)","path":"2022/12/03/设计模式-二/"}]`)
+  ipt.addEventListener('keyup', e => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  })
+  btn.addEventListener('click', () => {
+    handleSearch()
+  })
+
+  document.querySelector('#close-layer-btn').addEventListener('click', () => {
+    layer.classList.toggle('hidden')
+  })
+
+  function handleSearch() {
+    if (ipt.value.trim() === '') {
+      return
+    }
+    let html = ''
+    const targetPosts = posts.filter(post => post.title.includes(ipt.value))
+    targetPosts.forEach(post => {
+      html += `
+        <li>
+          <div>
+            <a href="/${post.path}">${post.title.replace(new RegExp(ipt.value), `<span>${ipt.value}</span>`)}</a>
+          </div>
+          <img src="${post.cover || '/imgs/default-cover.webp' }" />
+        </li>
+      `
+    })
+    if (html.trim () === '') {
+      html += '<p class="empty">没有搜索到内容</p>'
+    }
+    layer.querySelector('ul').innerHTML = html
+    layer.classList.remove('hidden')
+  }
+</script> 
+    <section id="main" class="main">
+      <div class="main-left-wrapper">
+<div class="main-left">
+  <div class="main-left--block">
+    <div class="main-left--info">
+      <img src="/imgs/avatar.jpg"" class="main-left--avatar" />
+      <div class="main-left--intro">
+        <p class="main-left--name">Nirvana</p>
+        <div class="main-left--tags">
+          <span class="main-left--tag">学习</span>
+          <span class="main-left--tag">摆烂</span>
+        </div>
+      </div>
+    </div>
+  
+    <div>
+      <div class="main-left--motto">
+        <p>“花有重开日，人无再少年”</p>
+        <p>“一个简单普通的男孩”</p>
+      </div>
+      <div class="main-left--github">
+        <span class="line"></span>
+        <a href=""><i class="logo iconfont icon-github-fill"></i></a>
+        <span class="line"></span>
+      </div>
+      <div class="main-left--statics">
+        <a href="/categories">
+          <div>
+            <span>16</span>
+            <span>分类</span>
+          </div>
+        </a>
+        <a href="/tags">
+          <div>
+            <span>11</span>
+            <span>标签</span>
+          </div>
+        </a>
+        <a href="/archives">
+          <div>
+            <span>5 </span>
+            <span>归档</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-left--block">
+    <ul class="main-left--menu">
+      
+        <li>
+          <a href="/">
+            <span class="header-menu--span">小站首页</span>
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/log">
+            <span class="header-menu--span">个人日志</span>
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/about">
+            <span class="header-menu--span">关于自己</span>
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/tools">
+            <span class="header-menu--span">我的工具</span>
+            <i class="header-menu--icon iconfont icon-gongju"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="main-left--block">
+    <div class="main-left--site">
+      <h5 class="main-left--title">
+        <span>站点信息</span>
+        <i class="iconfont icon-zhandian"></i>
+      </h5>
+      <p class="main-left--subtitle">
+        <span>文章数目：</span>
+        <span>27 篇</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>最近动态：</span>
+        <span>今天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>上线时间：</span>
+        <span>270天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>当前版本：</span>
+        <span>v1.0.2</span>
+      </p>
+    </div>
+  </div>
+</div></div>
+      <div id="main-container" class="main-container">
+
+
+  <style>
+pre::-webkit-scrollbar {
+  width: 5px;
+  height: 10px;
+  background-color:#F5F5F5;
+}
+/*定义滚动条轨道
+内阴影+圆角*/
+pre::-webkit-scrollbar-track {
+  background-color:#F5F5F5;
+}
+/*定义滑块
+内阴影+圆角*/
+pre::-webkit-scrollbar-thumb {
+  background-color: rgb(69, 83, 100);
+}
+
+pre:active {
+  background-color: rgb(81, 95, 116);
+}
+</style>
+
+<div class="article-container">
+  <div class="article">
+    <h1 class="article-title">JVM</h1>
+    <div class="article-info">
+      <div class="article-info--item">
+        <div class="article-info--info">
+          
+          <div class="article-info--categories">
+            <span>分类：</span>
+            <a class="category-link" href="/categories/Java/">Java</a>
+          </div>
+          
+          
+          <div class="article-info--tags">
+            <span>标签：</span>
+            <a class="tag-link" href="/tags/JVM/" rel="tag">JVM</a>
+          </div>
+          
+          <p class="article-info--date">日期：2022-12-05 21:34:47</p>
+        </div>
+        <img src="/imgs/default-cover.webp" alt="" class="article-cover">
+      </div>
+    </div>
+    <article class="article-content">
+      <h1 id="JVM学习"><a href="#JVM学习" class="headerlink" title="JVM学习"></a>JVM学习</h1><h2 id="什么是JVM"><a href="#什么是JVM" class="headerlink" title="什么是JVM"></a>什么是JVM</h2><h5 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h5><h5 id="JVM-Java-Virtual-Machine-java程序的运行环境"><a href="#JVM-Java-Virtual-Machine-java程序的运行环境" class="headerlink" title="JVM: Java Virtual Machine -java程序的运行环境"></a>JVM: Java Virtual Machine -java程序的运行环境</h5><h5 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h5><ul>
+<li>一次编写，到处运行</li>
+<li>自动内存管理，垃圾回收功能</li>
+<li>数组下标越界检查</li>
+<li>多态等</li>
+</ul>
+<h5 id="组成"><a href="#组成" class="headerlink" title="组成"></a>组成</h5><p><img src="/images/image-20221205215332929.png" alt="image-20221205215332929"></p>
+<h2 id="内存结构"><a href="#内存结构" class="headerlink" title="内存结构"></a>内存结构</h2><h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><h5 id="定义-1"><a href="#定义-1" class="headerlink" title="定义"></a>定义</h5><p>Program Counter Register 程序计数器（寄存器）</p>
+<h5 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h5><p>记住下一条jvm指令的执行地址</p>
+<h5 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h5><ul>
+<li>线程私有</li>
+<li>不会存在内存溢出 </li>
+</ul>
+<h3 id="虚拟机栈"><a href="#虚拟机栈" class="headerlink" title="虚拟机栈"></a>虚拟机栈</h3><p><strong>栈</strong>:线程运行需要的空间结构</p>
+<p><strong>栈帧</strong>:每个方法运行时所需要的内存</p>
+<p><strong>活动栈帧</strong>:每个线程只有一个活动栈帧,对应正在执行的方法</p>
+<h4 id="栈内存溢出"><a href="#栈内存溢出" class="headerlink" title="栈内存溢出"></a>栈内存溢出</h4><ol>
+<li>栈帧过多</li>
+<li>栈帧过大  </li>
+</ol>
+<h4 id="线程运行诊断"><a href="#线程运行诊断" class="headerlink" title="线程运行诊断"></a>线程运行诊断</h4><ol>
+<li>cpu占用过多<ol>
+<li>用top定位那个进程占用过高</li>
+<li>ps H -eo pid,tid,%cpu | grep 用ps命令进一步定位</li>
+<li>jstack</li>
+</ol>
+</li>
+<li>程序运行很长时间没有结果<ol>
+<li>jstack 定位</li>
+</ol>
+</li>
+</ol>
+<h3 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h3><p>Native Method Stacks</p>
+<p>指不用java代码编写的方法，用C或C++编写的本地方法</p>
+<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><p>通过new关键字，创建对象都会使用堆内存。</p>
+<h5 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h5><ul>
+<li>线程共享，堆中的对象都许哟啊考虑线程安全的问题</li>
+<li>有垃圾回收机制 </li>
+</ul>
+<h4 id="堆内存诊断"><a href="#堆内存诊断" class="headerlink" title="堆内存诊断"></a>堆内存诊断</h4><ol>
+<li><p>jps工具</p>
+<p>查看当前系统有哪些java进程</p>
+</li>
+<li><p>jmap工具</p>
+<p>查看堆内存占用情况</p>
+</li>
+<li><p>jconsole工具</p>
+<p>图形界面的，多功能的监测工具，可以连续监测</p>
+</li>
+</ol>
+<h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><h4 id="定义-2"><a href="#定义-2" class="headerlink" title="定义"></a>定义</h4><p>Java 虚拟机有一个在所有 Java 虚拟机线程之间共享的方法区域。方法区域类似于用于传统语言的编译代码的存储区域，或者类似于操作系统进程中的“文本”段。它存储每个类的结构，例如运行时常量池、字段和方法数据，以及方法和构造函数的代码，包括特殊方法，用于类和实例初始化以及接口初始化方法区域是在虚拟机启动时创建的。尽管方法区域在逻辑上是堆的一部分，但简单的实现可能不会选择垃圾收集或压缩它。此规范不强制指定方法区的位置或用于管理已编译代码的策略。方法区域可以具有固定的大小，或者可以根据计算的需要进行扩展，并且如果不需要更大的方法区域，则可以收缩。方法区域的内存不需要是连续的！</p>
+<h4 id="组成-1"><a href="#组成-1" class="headerlink" title="组成"></a>组成</h4><p><img src="/images/image-20221207194457151.png" alt="image-20221207194457151"></p>
+<h4 id="方法区内存溢出"><a href="#方法区内存溢出" class="headerlink" title="方法区内存溢出"></a>方法区内存溢出</h4><p>1.8 之前会导致永久代内存溢出<br>使用 <code>-XX:MaxPermSize=8m</code> 指定永久代内存大小<br>1.8 之后会导致元空间内存溢出<br>使用 <code>-XX:MaxMetaspaceSize=8m</code> 指定元空间大小</p>
+<h4 id="运行时常量池"><a href="#运行时常量池" class="headerlink" title="运行时常量池"></a>运行时常量池</h4><p><strong>二进制字节码包含（类的基本信息，常量池，类方法定义，包含了虚拟机的指令）</strong></p>
+<p><strong>常量池</strong>：就是一张表，虚拟机指令根据这张常量表找到要执行的类名、方法名、参数类型、字面量信息<br><strong>运行时常量池</strong>：常量池是 *.class 文件中的，当该类被加载以后，它的常量池信息就会放入运行时常量池，并把里面的符号地址变为真实地址</p>
+<h4 id="StringTable"><a href="#StringTable" class="headerlink" title="StringTable"></a>StringTable</h4><ul>
+<li>常量池中的字符串仅是符号，只有在被用到时才会转化为对象</li>
+<li>利用串池的机制，来避免重复创建字符串对象</li>
+<li>字符串变量拼接的原理是StringBuilder</li>
+<li>字符串常量拼接的原理是编译器优化</li>
+<li>可以使用intern方法，主动将串池中还没有的字符串对象放入串池中</li>
+</ul>
+<h5 id="intern方法-1-8"><a href="#intern方法-1-8" class="headerlink" title="intern方法 1.8"></a>intern方法 1.8</h5><p>调用字符串对象的 intern 方法，会将该字符串对象尝试放入到串池中</p>
+<ul>
+<li>如果串池中没有该字符串对象，则放入成功</li>
+<li>如果有该字符串对象，则放入失败<br>无论放入是否成功，都会返回串池中的字符串对象</li>
+</ul>
+<p>注意：此时如果调用 intern 方法成功，堆内存与串池中的字符串对象是同一个对象；如果失败，则不是同一个对象</p>
+<h4 id="StringTable-的位置"><a href="#StringTable-的位置" class="headerlink" title="StringTable 的位置"></a>StringTable 的位置</h4><p>jdk1.6 StringTable 位置是在永久代中</p>
+<p>1.8 StringTable 位置是在堆中。</p>
+<h4 id="StringTable-垃圾回收"><a href="#StringTable-垃圾回收" class="headerlink" title="StringTable 垃圾回收"></a>StringTable 垃圾回收</h4><p><code>-Xmx10m</code> 指定堆内存大小<br><code>-XX:+PrintStringTableStatistics</code> 打印字符串常量池信息<br><code>-XX:+PrintGCDetails</code><br><code>-verbose:gc</code> 打印 gc 的次数，耗费时间等信息</p>
+<h4 id="StringTable-性能调优"><a href="#StringTable-性能调优" class="headerlink" title="StringTable 性能调优"></a>StringTable 性能调优</h4><ul>
+<li><p>因为StringTable是由HashTable实现的，所以可以适当增加HashTable桶的个数，来减少字符串放入串池所需要的时间</p>
+<p><code>-XX:StringTableSize=桶个数（最少设置为 1009 以上）</code></p>
+</li>
+<li><p>考虑是否需要将字符串对象入池可以通过 intern 方法减少重复入池</p>
+</li>
+</ul>
+<h3 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a>直接内存</h3><h4 id="定义-3"><a href="#定义-3" class="headerlink" title="定义"></a>定义</h4><p>Direct Memory</p>
+<ul>
+<li>常见于 NIO 操作时，用于数据缓冲区</li>
+<li>分配回收成本较高，但读写性能高</li>
+<li>不受 JVM 内存回收管理</li>
+</ul>
+<h4 id="使用直接内存的好处"><a href="#使用直接内存的好处" class="headerlink" title="使用直接内存的好处"></a>使用直接内存的好处</h4><h5 id="文件读写流程"><a href="#文件读写流程" class="headerlink" title="文件读写流程"></a>文件读写流程</h5><p><img src="/images/image-20221207195314733.png" alt="image-20221207195314733"></p>
+<p>因为 java 不能直接操作文件管理，需要切换到内核态，使用本地方法进行操作，然后读取磁盘文件，会在系统内存中创建一个缓冲区，将数据读到系统缓冲区， 然后在将系统缓冲区数据，复制到 java 堆内存中。缺点是数据存储了两份，在系统内存中有一份，java 堆中有一份，造成了不必要的复制。</p>
+<h5 id="使用了-DirectBuffer-文件读取流程"><a href="#使用了-DirectBuffer-文件读取流程" class="headerlink" title="使用了 DirectBuffer 文件读取流程"></a>使用了 DirectBuffer 文件读取流程</h5><p><img src="/images/image-20221207195343248.png" alt="image-20221207195343248"></p>
+<p>直接内存是操作系统和 Java 代码都可以访问的一块区域，无需将代码从系统内存复制到 Java 堆内存，从而提高了效率。</p>
+<h4 id="直接内存回收原理"><a href="#直接内存回收原理" class="headerlink" title="直接内存回收原理"></a>直接内存回收原理</h4><p>直接内存的回收不是通过 JVM 的垃圾回收来释放的，而是通过unsafe.freeMemory 来手动释放。</p>
+<p>一般用 jvm 调优时，会加上下面的参数：</p>
+<p><code>-XX:+DisableExplicitGC  // 静止显示的 GC</code><br>意思就是禁止我们手动的 GC，比如手动 System.gc() 无效，它是一种 full gc，会回收新生代、老年代，会造成程序执行的时间比较长。所以我们就通过 unsafe 对象调用 freeMemory 的方式释放内存。</p>
+<h2 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h2><h3 id="如果判断对象可以回收"><a href="#如果判断对象可以回收" class="headerlink" title="如果判断对象可以回收"></a>如果判断对象可以回收</h3><h4 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h4><p>当一个对象被引用时，就当引用对象的值加一，当值为 0 时，就表示该对象不被引用，可以被垃圾收集器回收。<br>这个引用计数法听起来不错，但是有一个弊端，如下图所示，循环引用时，两个对象的计数都为1，导致两个对象都无法被释放。</p>
+<p><img src="/images/image-20221207195527764.png" alt="image-20221207195527764"></p>
+<h4 id="可达性分析算法"><a href="#可达性分析算法" class="headerlink" title="可达性分析算法"></a>可达性分析算法</h4><ul>
+<li>JVM 中的垃圾回收器通过可达性分析来探索所有存活的对象</li>
+<li>扫描堆中的对象，看能否沿着 GC Root 对象为起点的引用链找到该对象，如果找不到，则表示可以回收</li>
+<li>可以作为 GC Root 的对象<ul>
+<li>虚拟机栈（栈帧中的本地变量表）中引用的对象。</li>
+<li>方法区中类静态属性引用的对象</li>
+<li>方法区中常量引用的对象</li>
+<li>本地方法栈中 JNI（即一般说的Native方法）引用的对象</li>
+</ul>
+</li>
+</ul>
+<h4 id="四种引用"><a href="#四种引用" class="headerlink" title="四种引用"></a>四种引用</h4><p><img src="/images/image-20221207195815515.png" alt="image-20221207195815515"></p>
+<h5 id="强引用"><a href="#强引用" class="headerlink" title="强引用"></a>强引用</h5><p>只有所有 GC Roots 对象都不通过【强引用】引用该对象，该对象才能被垃圾回收</p>
+<h5 id="软引用（SoftReference）"><a href="#软引用（SoftReference）" class="headerlink" title="软引用（SoftReference）"></a>软引用（SoftReference）</h5><p>仅有软引用引用该对象时，在垃圾回收后，内存仍不足时会再次出发垃圾回收，回收软引用对象<br>可以配合引用队列来释放软引用自身</p>
+<h5 id="弱引用（WeakReference）"><a href="#弱引用（WeakReference）" class="headerlink" title="弱引用（WeakReference）"></a>弱引用（WeakReference）</h5><p>仅有弱引用引用该对象时，在垃圾回收时，无论内存是否充足，都会回收弱引用对象<br>可以配合引用队列来释放弱引用自身</p>
+<h5 id="虚引用（PhantomReference）"><a href="#虚引用（PhantomReference）" class="headerlink" title="虚引用（PhantomReference）"></a>虚引用（PhantomReference）</h5><p>必须配合引用队列使用，主要配合 ByteBuffer 使用，被引用对象回收时，会将虚引用入队，<br>由 Reference Handler 线程调用虚引用相关方法释放直接内存</p>
+<h5 id="终结器引用（FinalReference）"><a href="#终结器引用（FinalReference）" class="headerlink" title="终结器引用（FinalReference）"></a>终结器引用（FinalReference）</h5><p>无需手动编码，但其内部配合引用队列使用，在垃圾回收时，终结器引用入队（被引用对象暂时没有被回收），再由 Finalizer 线程通过终结器引用找到被引用对象并调用它的 finalize 方法，第二次 GC 时才能回收被引用对象。<br>演示软引用</p>
+<h3 id="回收算法"><a href="#回收算法" class="headerlink" title="回收算法"></a>回收算法</h3><h4 id="标记清除"><a href="#标记清除" class="headerlink" title="标记清除"></a>标记清除</h4><h5 id="定义-4"><a href="#定义-4" class="headerlink" title="定义"></a>定义</h5><p>Mark Sweep</p>
+<p><img src="/images/image-20221207195928211.png" alt="image-20221207195928211"></p>
+<ul>
+<li>速度较快</li>
+<li>会产生内存碎片</li>
+</ul>
+<h4 id="标记整理"><a href="#标记整理" class="headerlink" title="标记整理"></a>标记整理</h4><h5 id="定义-5"><a href="#定义-5" class="headerlink" title="定义"></a>定义</h5><p>Mark Compact</p>
+<p><img src="/images/image-20221207200013597.png" alt="image-20221207200013597"></p>
+<ul>
+<li>速度慢</li>
+<li>没有内存碎片</li>
+</ul>
+<h4 id="复制"><a href="#复制" class="headerlink" title="复制"></a>复制</h4><h5 id="定义-6"><a href="#定义-6" class="headerlink" title="定义"></a>定义</h5><p>Copy</p>
+<p><img src="/images/image-20221207200042215.png" alt="image-20221207200042215"></p>
+<ul>
+<li>不会有内存碎片</li>
+<li>需要占用两倍内存空间</li>
+</ul>
+<h3 id="分代垃圾回收"><a href="#分代垃圾回收" class="headerlink" title="分代垃圾回收"></a>分代垃圾回收</h3><ul>
+<li>新创建的对象首先分配在 eden 区</li>
+<li>新生代空间不足时，触发 minor gc ，eden 区 和 from 区存活的对象使用 - copy 复制到 to 中，存活的对象年龄加一，然后交换 from to</li>
+<li>minor gc 会引发 stop the world，暂停其他线程，等垃圾回收结束后，恢复用户线程运行</li>
+<li>当幸存区对象的寿命超过阈值时，会晋升到老年代，最大的寿命是 15（4bit）</li>
+<li>当老年代空间不足时，会先触发 minor gc，如果空间仍然不足，那么就触发 full fc ，停止的时间更长！</li>
+</ul>
+<h4 id="相关-JVM-参数"><a href="#相关-JVM-参数" class="headerlink" title="相关 JVM 参数"></a>相关 JVM 参数</h4><table>
+<thead>
+<tr>
+<th>含义</th>
+<th>参数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>堆初始大小</td>
+<td>-Xms</td>
+</tr>
+<tr>
+<td>堆最大大小</td>
+<td>-Xmx 或 -XX:MaxHeapSize=size</td>
+</tr>
+<tr>
+<td>新生代大小</td>
+<td>-Xmn 或 (-XX:NewSize=size + -XX:MaxNewSize=size )</td>
+</tr>
+<tr>
+<td>幸存区比例（动态）</td>
+<td>-XX:InitialSurvivorRatio=ratio 和 -XX:+UseAdaptiveSizePolicy</td>
+</tr>
+<tr>
+<td>幸存区比例</td>
+<td>-XX:SurvivorRatio=ratio</td>
+</tr>
+<tr>
+<td>晋升阈值</td>
+<td>-XX:MaxTenuringThreshold=threshold</td>
+</tr>
+<tr>
+<td>晋升详情</td>
+<td>-XX:+PrintTenuringDistribution</td>
+</tr>
+<tr>
+<td>GC详情</td>
+<td>-XX:+PrintGCDetails -verbose:gc</td>
+</tr>
+<tr>
+<td>FullGC 前 MinorGC</td>
+<td>-XX:+ScavengeBeforeFullGC</td>
+</tr>
+</tbody></table>
+<h3 id="垃圾回收器"><a href="#垃圾回收器" class="headerlink" title="垃圾回收器"></a>垃圾回收器</h3><h4 id="相关概念"><a href="#相关概念" class="headerlink" title="相关概念"></a>相关概念</h4><ul>
+<li>并行收集：指多条垃圾收集线程并行工作，但此时用户线程仍处于等待状态。</li>
+<li>并发收集：指用户线程与垃圾收集线程同时工作（不一定是并行的可能会交替执行）。用户程序在继续运行，而垃圾收集程序运行在另一个 CPU 上</li>
+<li>吞吐量：即 CPU 用于运行用户代码的时间与 CPU 总消耗时间的比值（吞吐量 = 运行用户代码时间 / ( 运行用户代码时间 + 垃圾收集时间 )），也就是。例如：虚拟机共运行 100 分钟，垃圾收集器花掉 1 分钟，那么吞吐量就是 99% 。</li>
+</ul>
+<h4 id="串行"><a href="#串行" class="headerlink" title="串行"></a>串行</h4><ul>
+<li>单线程</li>
+<li>堆内存较少，适合个人电脑</li>
+</ul>
+<p><code>-XX:+UseSerialGC=serial + serialOld</code></p>
+<p><strong>安全点</strong>：让其他线程都在这个点停下来，以免垃圾回收时移动对象地址，使得其他线程找不到被移动的对象<br>因为是串行的，所以只有一个垃圾回收线程。且在该线程执行回收工作时，其他线程进入阻塞状态</p>
+<p><strong>Serial 收集器</strong>:Serial 收集器是最基本的、发展历史最悠久的收集器</p>
+<p><strong>特点：</strong>单线程、简单高效（与其他收集器的单线程相比），采用复制算法。对于限定单个 CPU 的环境来说，Serial 收集器由于没有线程交互的开销，专心做垃圾收集自然可以获得最高的单线程收集效率。收集器进行垃圾回收时，必须暂停其他所有的工作线程，直到它结束（Stop The World）！</p>
+<p><strong>ParNew 收集器</strong>:ParNew 收集器其实就是 Serial 收集器的多线程版本<br><strong>特点：</strong>多线程、ParNew 收集器默认开启的收集线程数与CPU的数量相同，在 CPU 非常多的环境中，可以使用 -XX:ParallelGCThreads 参数来限制垃圾收集的线程数。和 Serial 收集器一样存在 Stop The World 问题</p>
+<p><strong>Serial Old 收集器</strong>:Serial Old 是 Serial 收集器的老年代版本<br><strong>特点：</strong>同样是单线程收集器，采用标记-整理算法</p>
+<h4 id="吞吐量优先"><a href="#吞吐量优先" class="headerlink" title="吞吐量优先"></a>吞吐量优先</h4><p><img src="/images/image-20221207200848435.png" alt="image-20221207200848435"></p>
+<ul>
+<li>多线程</li>
+<li>堆内存较大，多核 cpu</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">-XX:+UseParallelGC ~ -XX:+UsePrallerOldGC
+-XX:+UseAdaptiveSizePolicy
+-XX:GCTimeRatio&#x3D;ratio &#x2F;&#x2F; 1&#x2F;(1+radio)
+-XX:MaxGCPauseMillis&#x3D;ms &#x2F;&#x2F; 200ms
+-XX:ParallelGCThreads&#x3D;n<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<p><strong>Parallel Scavenge 收集器</strong>:与吞吐量关系密切，故也称为吞吐量优先收集器<br><strong>特点：</strong>属于新生代收集器也是采用复制算法的收集器（用到了新生代的幸存区），又是并行的多线程收集器（与 ParNew 收集器类似）</p>
+<p>该收集器的目标是达到一个可控制的吞吐量。还有一个值得关注的点是：GC自适应调节策略（与 ParNew 收集器最重要的一个区别）</p>
+<p><strong>GC自适应调节策略</strong>：<br>Parallel Scavenge 收集器可设置 <code>-XX:+UseAdptiveSizePolicy</code> 参数。<br>当开关打开时不需要手动指定新生代的大小（-Xmn）、Eden 与 Survivor 区的比例（-XX:SurvivorRation）、<br>晋升老年代的对象年龄（-XX:PretenureSizeThreshold）等，虚拟机会根据系统的运行状况收集性能监控信息，动态设置这些参数以提供最优的停顿时间和最高的吞吐量，这种调节方式称为 GC 的自适应调节策略。</p>
+<p>Parallel Scavenge 收集器使用两个参数控制吞吐量：</p>
+<ul>
+<li><code>XX:MaxGCPauseMillis=ms 控制最大的垃圾收集停顿时间（默认200ms）</code></li>
+<li><code>XX:GCTimeRatio=rario 直接设置吞吐量的大小</code></li>
+</ul>
+<p><strong>Parallel Old 收集器</strong><br>是 Parallel Scavenge 收集器的老年代版本<br><strong>特点：</strong>多线程，采用标记-整理算法（老年代没有幸存区）</p>
+<h4 id="响应时间优先"><a href="#响应时间优先" class="headerlink" title="响应时间优先"></a>响应时间优先</h4><p><img src="/images/image-20221207201100709.png" alt="image-20221207201100709"></p>
+<ul>
+<li>多线程</li>
+<li>堆内存较大，多核 cpu</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">-XX:+UseConcMarkSweepGC ~ -XX:+UseParNewGC ~ SerialOld
+-XX:ParallelGCThreads&#x3D;n ~ -XX:ConcGCThreads&#x3D;threads
+-XX:CMSInitiatingOccupancyFraction&#x3D;percent
+-XX:+CMSScavengeBeforeRemark<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>CMS 收集器</strong>:Concurrent Mark Sweep，一种以获取最短回收停顿时间为目标的老年代收集器<br><strong>特点：</strong>基于标记-清除算法实现。并发收集、低停顿，但是会产生内存碎片<br>应用场景：适用于注重服务的响应速度，希望系统停顿时间最短，给用户带来更好的体验等场景下。如 web 程序、b/s 服务</p>
+<p><strong>CMS 收集器的运行过程分为下列4步：</strong></p>
+<ol>
+<li>初始标记：标记 GC Roots 能直接到的对象。速度很快但是仍存在 Stop The World 问题。</li>
+<li>并发标记：进行 GC Roots Tracing 的过程，找出存活对象且用户线程可并发执行。</li>
+<li>重新标记：为了修正并发标记期间因用户程序继续运行而导致标记产生变动的那一部分对象的标记记录。仍然存在 Stop The World 问题</li>
+<li>并发清除：对标记的对象进行清除回收，清除的过程中，可能任然会有新的垃圾产生，这些垃圾就叫浮动垃圾，如果当用户需要存入一个很大的对象时，新生代放不下去，老年代由于浮动垃圾过多，就会退化为 serial Old 收集器，将老年代垃圾进行标记-整理，当然这也是很耗费时间的！</li>
+</ol>
+<p>CMS 收集器的内存回收过程是与用户线程一起并发执行的，可以搭配 ParNew 收集器（多线程，新生代，复制算法）与 Serial Old 收集器（单线程，老年代，标记-整理算法）使用。</p>
+<h4 id="G1-收集器"><a href="#G1-收集器" class="headerlink" title="G1 收集器"></a>G1 收集器</h4><p><strong>定义：</strong> Garbage First<br>适用场景：</p>
+<ul>
+<li>同时注重吞吐量和低延迟（响应时间）</li>
+<li>超大堆内存（内存大的），会将堆内存划分为多个大小相等的区域</li>
+<li>整体上是标记-整理算法，两个区域之间是复制算法</li>
+</ul>
+<p>相关参数：</p>
+<p>JDK8 并不是默认开启的，所需要参数开启</p>
+<pre class="line-numbers language-none"><code class="language-none">-XX:+UseG1GC
+-XX:G1HeapRegionSize&#x3D;size
+-XX:MaxGCPauseMillis&#x3D;time<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+
+
+<h5 id="G1-垃圾回收阶段"><a href="#G1-垃圾回收阶段" class="headerlink" title="G1 垃圾回收阶段"></a>G1 垃圾回收阶段</h5><p><img src="/images/image-20221207201253533.png" alt="image-20221207201253533"></p>
+<ol>
+<li>Young Collection：对新生代垃圾收集</li>
+<li>Young Collection + Concurrent Mark：如果老年代内存到达一定的阈值了，新生代垃圾收集同时会执行一些并发的标记。</li>
+<li>Mixed Collection：会对新生代 + 老年代 + 幸存区等进行混合收集，然后收集结束，会重新进入新生代收集。</li>
+</ol>
+<p><strong>Young Collection</strong></p>
+<p>分代是按对象的生命周期划分，分区则是将堆空间划分连续几个不同小区间，每一个小区间独立回收，可以控制一次回收多少个小区间，方便控制 GC 产生的停顿时间！<br>新生代收集会产生 STW ！</p>
+<p><strong>Young Collection + CM</strong></p>
+<p>在 Young GC 时会进行 GC Root 的初始化标记</p>
+<p>老年代占用堆空间比例达到阈值时，进行并发标记（不会STW），由下面的 JVM 参数决定</p>
+<p><code>-XX:InitiatingHeapOccupancyPercent=percent （默认45%）</code></p>
+<p><strong>Mixed Collection</strong></p>
+<p>会对 E,S,O 进行全面的回收</p>
+<ul>
+<li>最终标记会 STW</li>
+<li>拷贝存活会 STW</li>
+</ul>
+<p><code>-XX:MaxGCPauseMills=xxms</code> 用于指定最长的停顿时间！<br>问：为什么有的老年代被拷贝了，有的没拷贝？<br>因为指定了最大停顿时间，如果对所有老年代都进行回收，耗时可能过高。为了保证时间不超过设定的停顿时间，会回收最有价值的老年代（回收后，能够得到更多内存）</p>
+<p><strong>Full GC</strong></p>
+<p>G1 在老年代内存不足时（老年代所占内存超过阈值）<br>如果垃圾产生速度慢于垃圾回收速度，不会触发 Full GC，还是并发地进行清理<br>如果垃圾产生速度快于垃圾回收速度，便会触发 Full GC，然后退化成 serial Old 收集器串行的收集，就会导致停顿的时候长。</p>
+<p><strong>Young Collection 跨代引用</strong></p>
+<ul>
+<li>新生代回收的跨代引用（老年代引用新生代）问题</li>
+<li>卡表 与 Remembered Set<ul>
+<li>Remembered Set 存在于E中，用于保存新生代对象对应的脏卡</li>
+<li>脏卡：O 被划分为多个区域（一个区域512K），如果该区域引用了新生代对象，则该区域被称为脏卡</li>
+</ul>
+</li>
+<li>在引用变更时通过 post-write barried + dirty card queue</li>
+<li>concurrent refinement threads 更新 Remembered Set</li>
+</ul>
+<p><strong>Remark</strong></p>
+<p>重新标记阶段<br>在垃圾回收时，收集器处理对象的过程中</p>
+<p>黑色：已被处理，需要保留的<br>灰色：正在处理中的<br>白色：还未处理的</p>
+<p>但是在并发标记过程中，有可能 A 被处理了以后未引用 C ，但该处理过程还未结束，在处理过程结束之前 A 引用了 C ，这时就会用到 remark 。</p>
+<p>过程如下</p>
+<ul>
+<li>之前 C 未被引用，这时 A 引用了 C ，就会给 C 加一个写屏障，写屏障的指令会被执行，将 C 放入一个队列当中，并将 C 变为 处理中状态</li>
+<li>在并发标记阶段结束以后，重新标记阶段会 STW ，然后将放在该队列中的对象重新处理，发现有强引用引用它，就会处理它，由灰色变成黑色。</li>
+</ul>
+<p><strong>JDK 8u20 字符串去重</strong></p>
+<p>过程</p>
+<ul>
+<li>将所有新分配的字符串（底层是 char[] ）放入一个队列</li>
+<li>当新生代回收时，G1 并发检查是否有重复的字符串</li>
+<li>如果字符串的值一样，就让他们引用同一个字符串对象</li>
+<li>注意，其与 String.intern() 的区别<ul>
+<li>String.intern() 关注的是字符串对象</li>
+<li>字符串去重关注的是 char[]</li>
+<li>在 JVM 内部，使用了不同的字符串标</li>
+</ul>
+</li>
+</ul>
+<p><strong>优点与缺点</strong></p>
+<ul>
+<li>节省了大量内存</li>
+<li>新生代回收时间略微增加，导致略微多占用 CPU</li>
+</ul>
+<p><code>-XX:+UseStringDeduplication</code></p>
+<p><strong>JDK 8u40 并发标记类卸载</strong></p>
+<p>在并发标记阶段结束以后，就能知道哪些类不再被使用。如果一个类加载器的所有类都不在使用，则卸载它所加载的所有类</p>
+<p><strong>JDK 8u60 回收巨型对象</strong></p>
+<ul>
+<li>一个对象大于region的一半时，就称为巨型对象</li>
+<li>G1不会对巨型对象进行拷贝</li>
+<li>回收时被优先考虑</li>
+<li>G1会跟踪老年代所有incoming引用，如果老年代incoming引用为0的巨型对象就可以在新生代垃圾回收时处理掉</li>
+</ul>
+<p><strong>JDK 9 并发标记起始时间的调整</strong></p>
+<ul>
+<li>并发标记必须在堆空间占满前完成，否则退化为 FulGC</li>
+<li>JDK 9 之前需要使用 <code>-XX:InitiatingHeapOccupancyPercent</code></li>
+<li>JDK 9 可以动态调整<ul>
+<li><code>-XX:InitiatingHeapOccupancyPercent</code> 用来设置初始值</li>
+<li>进行数据采样并动态调整</li>
+<li>总会添加一个安全的空挡空间</li>
+</ul>
+</li>
+</ul>
+<h3 id="垃圾回收调优"><a href="#垃圾回收调优" class="headerlink" title="垃圾回收调优"></a>垃圾回收调优</h3><p>查看虚拟机参数命令</p>
+<p><code>D:\JavaJDK1.8\bin\java  -XX:+PrintFlagsFinal -version | findstr &quot;GC&quot;</code></p>
+<p>可以根据参数去查询具体的信息</p>
+<h4 id="调优领域"><a href="#调优领域" class="headerlink" title="调优领域"></a>调优领域</h4><ul>
+<li>内存</li>
+<li>锁竞争</li>
+<li>cpu 占用</li>
+<li>io</li>
+<li>gc</li>
+</ul>
+<h4 id="确定目标"><a href="#确定目标" class="headerlink" title="确定目标"></a>确定目标</h4><p>低延迟/高吞吐量？ 选择合适的GC</p>
+<ul>
+<li>CMS G1 ZGC</li>
+<li>ParallelGC</li>
+<li>Zing</li>
+</ul>
+<h4 id="最快的-GC是不发生gc"><a href="#最快的-GC是不发生gc" class="headerlink" title="最快的 GC是不发生gc"></a>最快的 GC是不发生gc</h4><p>首先排除减少因为自身编写的代码而引发的内存问题</p>
+<ul>
+<li>查看 Full GC 前后的内存占用，考虑以下几个问题<ul>
+<li>数据是不是太多？<ul>
+<li>resultSet = statement.executeQuery(“select * from 大表 limit n”)</li>
+</ul>
+</li>
+<li>数据表示是否太臃肿<ul>
+<li>对象图</li>
+<li>对象大小 16 Integer 24 int 4</li>
+</ul>
+</li>
+<li>是否存在内存泄漏<ul>
+<li>static Map map …</li>
+<li>软</li>
+<li>弱</li>
+<li>第三方缓存实现</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="新生代调优"><a href="#新生代调优" class="headerlink" title="新生代调优"></a>新生代调优</h4><ul>
+<li><strong>新生代的特点</strong><ul>
+<li>所有的 new 操作分配内存都是非常廉价的<ul>
+<li>TLAB thread-lcoal allocation buffer</li>
+</ul>
+</li>
+<li>死亡对象回收零代价</li>
+<li>大部分对象用过即死（朝生夕死）</li>
+<li>Minor GC 所用时间远小于 Full GC</li>
+</ul>
+</li>
+<li>新生代内存越大越好么？<ul>
+<li>不是<ul>
+<li>新生代内存太小：频繁触发 Minor GC ，会 STW ，会使得吞吐量下降</li>
+<li>新生代内存太大：老年代内存占比有所降低，会更频繁地触发 Full GC。而且触发 Minor GC 时，清理新生代所花费的时间会更长</li>
+</ul>
+</li>
+<li>新生代内存设置为内容纳[并发量*(请求-响应)]的数据为宜</li>
+</ul>
+</li>
+<li>幸存区需要能够保存 当前活跃对象+需要晋升的对象</li>
+<li>晋升阈值配置得当，让长时间存活的对象尽快晋升</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">-XX:MaxTenuringThreshold&#x3D;threshold
+-XX:+PrintTenuringDistrubution<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
+
+<h4 id="老年代调优"><a href="#老年代调优" class="headerlink" title="老年代调优"></a>老年代调优</h4><p>以 CMS 为例：</p>
+<ul>
+<li>CMS 的老年代内存越大越好</li>
+<li>先尝试不做调优，如果没有 Full GC 那么已经，否者先尝试调优新生代。</li>
+<li>观察发现 Full GC 时老年代内存占用，将老年代内存预设调大 1/4 ~ 1/3</li>
+</ul>
+<p><code>-XX:CMSInitiatingOccupancyFraction=percent</code></p>
+<h2 id="类加载与字节码技术"><a href="#类加载与字节码技术" class="headerlink" title="类加载与字节码技术"></a>类加载与字节码技术</h2><h3 id="类文件结构"><a href="#类文件结构" class="headerlink" title="类文件结构"></a>类文件结构</h3><p>执行一个简单的 <code>HelloWorld.java</code></p>
+<pre class="line-numbers language-none"><code class="language-none">&#x2F;&#x2F; HelloWorld 示例
+public class HelloWorld &#123;
+    public static void main(String[] args) &#123;
+        System.out.println(&quot;hello world&quot;);
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>执行<code>javac -parameters -d . HellowWorld.java</code></p>
+<p>编译为<code>HelloWorld.class</code>得到的字节码</p>
+<pre class="line-numbers language-none"><code class="language-none">0000000 ca fe ba be 00 00 00 34 00 23 0a 00 06 00 15 09 
+0000020 00 16 00 17 08 00 18 0a 00 19 00 1a 07 00 1b 07 
+0000040 00 1c 01 00 06 3c 69 6e 69 74 3e 01 00 03 28 29 
+0000060 56 01 00 04 43 6f 64 65 01 00 0f 4c 69 6e 65 4e 
+0000100 75 6d 62 65 72 54 61 62 6c 65 01 00 12 4c 6f 63 
+0000120 61 6c 56 61 72 69 61 62 6c 65 54 61 62 6c 65 01 
+0000140 00 04 74 68 69 73 01 00 1d 4c 63 6e 2f 69 74 63 
+0000160 61 73 74 2f 6a 76 6d 2f 74 35 2f 48 65 6c 6c 6f 
+0000200 57 6f 72 6c 64 3b 01 00 04 6d 61 69 6e 01 00 16 
+0000220 28 5b 4c 6a 61 76 61 2f 6c 61 6e 67 2f 53 74 72 
+0000240 69 6e 67 3b 29 56 01 00 04 61 72 67 73 01 00 13 
+0000260 5b 4c 6a 61 76 61 2f 6c 61 6e 67 2f 53 74 72 69 
+0000300 6e 67 3b 01 00 10 4d 65 74 68 6f 64 50 61 72 61 
+0000320 6d 65 74 65 72 73 01 00 0a 53 6f 75 72 63 65 46 
+0000340 69 6c 65 01 00 0f 48 65 6c 6c 6f 57 6f 72 6c 64
+0000360 2e 6a 61 76 61 0c 00 07 00 08 07 00 1d 0c 00 1e 
+0000400 00 1f 01 00 0b 68 65 6c 6c 6f 20 77 6f 72 6c 64 
+0000420 07 00 20 0c 00 21 00 22 01 00 1b 63 6e 2f 69 74 
+0000440 63 61 73 74 2f 6a 76 6d 2f 74 35 2f 48 65 6c 6c 
+0000460 6f 57 6f 72 6c 64 01 00 10 6a 61 76 61 2f 6c 61 
+0000500 6e 67 2f 4f 62 6a 65 63 74 01 00 10 6a 61 76 61 
+0000520 2f 6c 61 6e 67 2f 53 79 73 74 65 6d 01 00 03 6f 
+0000540 75 74 01 00 15 4c 6a 61 76 61 2f 69 6f 2f 50 72 
+0000560 69 6e 74 53 74 72 65 61 6d 3b 01 00 13 6a 61 76 
+0000600 61 2f 69 6f 2f 50 72 69 6e 74 53 74 72 65 61 6d 
+0000620 01 00 07 70 72 69 6e 74 6c 6e 01 00 15 28 4c 6a 
+0000640 61 76 61 2f 6c 61 6e 67 2f 53 74 72 69 6e 67 3b 
+0000660 29 56 00 21 00 05 00 06 00 00 00 00 00 02 00 01 
+0000700 00 07 00 08 00 01 00 09 00 00 00 2f 00 01 00 01 
+0000720 00 00 00 05 2a b7 00 01 b1 00 00 00 02 00 0a 00 
+0000740 00 00 06 00 01 00 00 00 04 00 0b 00 00 00 0c 00 
+0000760 01 00 00 00 05 00 0c 00 0d 00 00 00 09 00 0e 00 
+0001000 0f 00 02 00 09 00 00 00 37 00 02 00 01 00 00 00 
+0001020 09 b2 00 02 12 03 b6 00 04 b1 00 00 00 02 00 0a 
+0001040 00 00 00 0a 00 02 00 00 00 06 00 08 00 07 00 0b 
+0001060 00 00 00 0c 00 01 00 00 00 09 00 10 00 11 00 00 
+0001100 00 12 00 00 00 05 01 00 10 00 00 00 01 00 13 00 
+0001120 00 00 02 00 14<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>根据JVM规范,类文件结构如下</p>
+<pre class="line-numbers language-none"><code class="language-none">u4 			 magic
+u2             minor_version;    
+u2             major_version;    
+u2             constant_pool_count;    
+cp_info        constant_pool[constant_pool_count-1];    
+u2             access_flags;    
+u2             this_class;    
+u2             super_class;   
+u2             interfaces_count;    
+u2             interfaces[interfaces_count];   
+u2             fields_count;    
+field_info     fields[fields_count];   
+u2             methods_count;    
+method_info    methods[methods_count];    
+u2             attributes_count;    
+attribute_info attributes[attributes_count];<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<h5 id="魔数"><a href="#魔数" class="headerlink" title="魔数"></a>魔数</h5><p>0-3字节，表示它是否是[class]类型文件。（ca fe ba be)</p>
+<h5 id="版本"><a href="#版本" class="headerlink" title="版本"></a>版本</h5><p>4-7字节，表示类的版本 (00 00 00 34) 前三个是小版本，最后一个是大版本16进制</p>
+<h5 id="常量池"><a href="#常量池" class="headerlink" title="常量池"></a>常量池</h5><p>8 -9字节，表示常量池长度，00 23 （十进制下35） 表示常量池有#1-#34项，注意#0项不计入，也没有值。</p>
+<p>第#1项 0a 表示第一个Method 信息， 00 06 和 00 15 （21）表示它引用了常量池#6和#21项来获得这个方法的所属类和方法名</p>
+<p>第#2项09表示一个Field信息, 00 16 (22) 和 00 17 (23) 表示他引用了常量池#22 和 #23 项来获得这个成员变量的所属类和方法名</p>
+<p>….</p>
+<h3 id="字节码指令"><a href="#字节码指令" class="headerlink" title="字节码指令"></a>字节码指令</h3><h4 id="javap工具"><a href="#javap工具" class="headerlink" title="javap工具"></a>javap工具</h4><p>Oracle 提供了 javap 工具来反编译 class 文件</p>
+<p><code>javap -v 类名.class</code></p>
+<h4 id="图解方法执行流程"><a href="#图解方法执行流程" class="headerlink" title="图解方法执行流程"></a>图解方法执行流程</h4><h5 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h5><p>原始java代码</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+* 演示 字节码指令 和 操作数栈、常量池的关系
+*/</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Demo3_1</span> <span class="token punctuation">&#123;</span>   
+	<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>        
+		<span class="token keyword">int</span> a <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>        
+		<span class="token keyword">int</span> b <span class="token operator">=</span> <span class="token class-name">Short</span><span class="token punctuation">.</span>MAX_VALUE <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>        
+		<span class="token keyword">int</span> c <span class="token operator">=</span> a <span class="token operator">+</span> b<span class="token punctuation">;</span>        
+		<span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>c<span class="token punctuation">)</span><span class="token punctuation">;</span>   
+    <span class="token punctuation">&#125;</span> 
+<span class="token punctuation">&#125;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>编译后的字节码文件</p>
+<pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# javap -v Demo3_1.class
+Classfile &#x2F;root&#x2F;Demo3_1.class
+Last modified Jul 7, 2019; size 665 bytes
+MD5 checksum a2c29a22421e218d4924d31e6990cfc5
+Compiled from &quot;Demo3_1.java&quot;
+public class cn.itcast.jvm.t3.bytecode.Demo3_1
+minor version: 0
+major version: 52
+flags: ACC_PUBLIC, ACC_SUPER
+Constant pool:
+#1 &#x3D; Methodref #7.#26 &#x2F;&#x2F; java&#x2F;lang&#x2F;Object.&quot;&lt;init&gt;&quot;:()V
+#2 &#x3D; Class #27 &#x2F;&#x2F; java&#x2F;lang&#x2F;Short
+#3 &#x3D; Integer 32768
+#4 &#x3D; Fieldref #28.#29 &#x2F;&#x2F;
+java&#x2F;lang&#x2F;System.out:Ljava&#x2F;io&#x2F;PrintStream;
+#5 &#x3D; Methodref #30.#31 &#x2F;&#x2F; java&#x2F;io&#x2F;PrintStream.println:(I)V
+#6 &#x3D; Class #32 &#x2F;&#x2F; cn&#x2F;itcast&#x2F;jvm&#x2F;t3&#x2F;bytecode&#x2F;Demo3_1
+#7 &#x3D; Class #33 &#x2F;&#x2F; java&#x2F;lang&#x2F;Object
+#8 &#x3D; Utf8 &lt;init&gt;
+#9 &#x3D; Utf8 ()V
+#10 &#x3D; Utf8 Code
+#11 &#x3D; Utf8 LineNumberTable
+#12 &#x3D; Utf8 LocalVariableTable
+#13 &#x3D; Utf8 this
+#14 &#x3D; Utf8 Lcn&#x2F;itcast&#x2F;jvm&#x2F;t3&#x2F;bytecode&#x2F;Demo3_1;
+#15 &#x3D; Utf8 main
+#16 &#x3D; Utf8 ([Ljava&#x2F;lang&#x2F;String;)V
+#17 &#x3D; Utf8 args
+#18 &#x3D; Utf8 [Ljava&#x2F;lang&#x2F;String;
+#19 &#x3D; Utf8 a
+#22 &#x3D; Utf8 c
+#23 &#x3D; Utf8 MethodParameters
+#24 &#x3D; Utf8 SourceFile
+#25 &#x3D; Utf8 Demo3_1.java
+#26 &#x3D; NameAndType #8:#9 &#x2F;&#x2F; &quot;&lt;init&gt;&quot;:()V
+#27 &#x3D; Utf8 java&#x2F;lang&#x2F;Short
+#28 &#x3D; Class #34 &#x2F;&#x2F; java&#x2F;lang&#x2F;System
+#29 &#x3D; NameAndType #35:#36 &#x2F;&#x2F; out:Ljava&#x2F;io&#x2F;PrintStream;
+#30 &#x3D; Class #37 &#x2F;&#x2F; java&#x2F;io&#x2F;PrintStream
+#31 &#x3D; NameAndType #38:#39 &#x2F;&#x2F; println:(I)V
+#32 &#x3D; Utf8 cn&#x2F;itcast&#x2F;jvm&#x2F;t3&#x2F;bytecode&#x2F;Demo3_1
+#33 &#x3D; Utf8 java&#x2F;lang&#x2F;Object
+#34 &#x3D; Utf8 java&#x2F;lang&#x2F;System
+#35 &#x3D; Utf8 out
+#36 &#x3D; Utf8 Ljava&#x2F;io&#x2F;PrintStream;
+#37 &#x3D; Utf8 java&#x2F;io&#x2F;PrintStream
+#38 &#x3D; Utf8 println
+#39 &#x3D; Utf8 (I)V
+&#123;
+public cn.itcast.jvm.t3.bytecode.Demo3_1();
+descriptor: ()V
+flags: ACC_PUBLIC
+Code:
+stack&#x3D;1, locals&#x3D;1, args_size&#x3D;1
+0: aload_0
+1: invokespecial #1 &#x2F;&#x2F; Method java&#x2F;lang&#x2F;Object.&quot;
+&lt;init&gt;&quot;:()V
+4: return
+LineNumberTable:
+line 6: 0
+LocalVariableTable:
+Start Length Slot Name Signature
+0 5 0 this Lcn&#x2F;itcast&#x2F;jvm&#x2F;t3&#x2F;bytecode&#x2F;Demo3_1;
+public static void main(java.lang.String[]);
+descriptor: ([Ljava&#x2F;lang&#x2F;String;)V
+flags: ACC_PUBLIC, ACC_STATIC
+Code:
+stack&#x3D;2, locals&#x3D;4, args_size&#x3D;1
+0: bipush 10
+2: istore_1
+3: ldc #3 &#x2F;&#x2F; int 32768
+5: istore_2
+6: iload_1
+7: iload_2
+8: iadd
+9: istore_3
+10: getstatic #4 &#x2F;&#x2F; Field
+java&#x2F;lang&#x2F;System.out:Ljava&#x2F;io&#x2F;PrintStream;
+13: iload_3
+14: invokevirtual #5 &#x2F;&#x2F; Method
+java&#x2F;io&#x2F;PrintStream.println:(I)V
+17: return
+LineNumberTable:
+line 8: 0
+line 9: 3
+line 12: 17
+LocalVariableTable:
+Start Length Slot Name Signature
+0 18 0 args [Ljava&#x2F;lang&#x2F;String;
+3 15 1 a I
+6 12 2 b I
+10 8 3 c I
+MethodParameters:
+Name Flags
+args
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>常量池载入运行时常量池</p>
+<p><img src="/images/image-20221208185321717.png" alt="image-20221208185321717"></p>
+<p>方法字节码载入方法区</p>
+<p><img src="/images/image-20221208185637379.png" alt="image-20221208185637379"></p>
+<p>main线程开始运行,分配栈帧内存</p>
+<p><img src="/images/image-20221208185709470.png" alt="image-20221208185709470"></p>
+<p>执行引擎开始执行字节码</p>
+<p><strong>bipush 10</strong>：</p>
+<ul>
+<li>将一个 byte 压入操作数栈（其长度会补齐 4 个字节），类似的指令还有<ul>
+<li>sipush 将一个 short 压入操作数栈（其长度会补齐 4 个字节）</li>
+<li>ldc 将一个 int 压入操作数栈</li>
+<li>ldc2_w 将一个 long 压入操作数栈（分两次压入，因为 long 是 8 个字节）</li>
+<li>这里小的数字都是和字节码指令存在一起，超过 short 范围的数字存入了常量池</li>
+</ul>
+</li>
+</ul>
+<p><img src="/images/image-20221208190119193.png" alt="image-20221208190119193"></p>
+<p><strong>istore 1</strong>：</p>
+<ul>
+<li>将操作数栈栈顶元素弹出，放入局部变量表的slot 1中</li>
+</ul>
+<p><img src="/images/image-20221208190200703.png" alt="image-20221208190200703"></p>
+<p><strong>ldc #3</strong>：</p>
+<ul>
+<li>从常量池加载 #3 数据到操作数栈</li>
+<li>注意 <code>Short.MAX_VALUE</code> 是 32767，所以 32768 = Short.MAX_VALUE + 1 实际是在编译期间计算好的</li>
+</ul>
+<p><img src="/images/image-20221208190604059.png" alt="image-20221208190604059"></p>
+<p><strong>iload1</strong>：</p>
+<p>将局部变量表中1号位置的元素放入操作数栈中</p>
+<p><img src="/images/image-20221208190712925.png" alt="image-20221208190712925"></p>
+<p>…</p>
+<p>…</p>
+<h5 id="return"><a href="#return" class="headerlink" title="return"></a>return</h5><ul>
+<li>完成main方法调用,弹出main栈帧</li>
+<li>程序结束</li>
+</ul>
+<h4 id="多态的原理"><a href="#多态的原理" class="headerlink" title="多态的原理"></a>多态的原理</h4><p>因为普通成员方法需要在运行时才能确定具体的内容，所以虚拟机需要调用invokevirtual指令</p>
+<p>在执行invokevirtual指令时，经历了以下几个步骤</p>
+<ol>
+<li>先通过栈帧中对象的引用找到对象</li>
+<li>分析对象头，找到对象实际的Class</li>
+<li>Class结构中有vtable，它在类加载的链接阶段就已经根据方法的重写规则生成好了</li>
+<li>查询vtable找到方法的具体地址</li>
+<li>执行方法的字节码</li>
+</ol>
+<h4 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h4><h5 id="（1）try-catch"><a href="#（1）try-catch" class="headerlink" title="（1）try-catch"></a>（1）try-catch</h5><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Main</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
+            i <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            i <span class="token operator">=</span> <span class="token number">20</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>对应的字节码文件（为了抓住重点，下面的字节码省略了不重要的部分）：</p>
+<pre class="line-numbers language-none"><code class="language-none">Code:
+     stack&#x3D;1, locals&#x3D;3, args_size&#x3D;1
+        0: iconst_0
+        1: istore_1
+        2: bipush        10
+        4: istore_1
+        5: goto          12
+        8: astore_2
+        9: bipush        20
+       11: istore_1
+       12: return
+       Exception table:
+        from    to  target type
+            2     5     8   Class java&#x2F;lang&#x2F;Exception<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>可以看到多出来一个 Exception table 的结构，[from, to) 是前闭后开（也就是检测2~4行）的检测范围，一旦这个范围内的字节码执行出现异常，则通过 type 匹配异常类型，如果一致，进入 target 所指示行号</li>
+<li>8行的字节码指令 astore_2 是将异常对象引用存入局部变量表的2号位置（为e）</li>
+</ul>
+<h5 id="（2）多个-single-catch-块的情况"><a href="#（2）多个-single-catch-块的情况" class="headerlink" title="（2）多个 single-catch 块的情况"></a>（2）多个 single-catch 块的情况</h5><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Main</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
+            i <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ArithmeticException</span> e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            i <span class="token operator">=</span> <span class="token number">20</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            i <span class="token operator">=</span> <span class="token number">30</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>对应的字节码文件：</p>
+<pre class="line-numbers language-none"><code class="language-none">Code:
+     stack&#x3D;1, locals&#x3D;3, args_size&#x3D;1
+        0: iconst_0
+        1: istore_1
+        2: bipush        10
+        4: istore_1
+        5: goto          19
+        8: astore_2
+        9: bipush        20
+       11: istore_1
+       12: goto          19
+       15: astore_2
+       16: bipush        30
+       18: istore_1
+       19: return
+     Exception table:
+        from    to  target type
+            2     5     8   Class java&#x2F;lang&#x2F;ArithmeticException
+            2     5    15   Class java&#x2F;lang&#x2F;Exception<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>因为异常出现时，只能进入 Exception table 中一个分支，所以局部变量表 slot 2 位置被共用</p>
+<h5 id="（3）finally"><a href="#（3）finally" class="headerlink" title="（3）finally"></a>（3）finally</h5><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Main</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
+            i <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            i <span class="token operator">=</span> <span class="token number">20</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span> <span class="token keyword">finally</span> <span class="token punctuation">&#123;</span>
+            i <span class="token operator">=</span> <span class="token number">30</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>对应的字节码文件：          </p>
+<pre><code>   Code:
+      stack=1, locals=4, args_size=1
+     0: iconst_0
+     1: istore_1
+      //try块
+     2: bipush        10
+     4: istore_1
+     5: bipush        30
+     //try块执行完后，会执行finally 
+     7: istore_1
+     8: goto          27
+     //catch块
+    11: astore_2
+    12: bipush        20
+    14: istore_1
+     //catch块执行完，会执行finally
+    15: bipush        30
+    17: istore_1
+    18: goto          27
+    //出现异常，但未被Exception捕获，会抛出其他异常，这时也需要执行finally块中的代码   
+    21: astore_3
+    22: bipush        30
+    24: istore_1
+    25: aload_3
+    26: athrow //抛出异常
+    27: return
+  Exception table:
+     from    to  target type
+         2     5    11   Class java/lang/Exception
+         2     5    21   any //剩余的异常类型，比如 Error
+        11    15    21   any //剩余的异常类型，比如 Erro
+</code></pre>
+<p>被复制了 3 份，分别放入 try 流程，catch 流程以及 catch 剩余的异常类型流程</p>
+<p>注意：</p>
+<p>虽然从字节码指令看来，每个块中都有finally块，但是finally块中的代码只会被执行一次</p>
+<h5 id="（4）finally中的return"><a href="#（4）finally中的return" class="headerlink" title="（4）finally中的return"></a>（4）finally中的return</h5><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Main</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">int</span> result <span class="token operator">=</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//20</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token number">10</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span> <span class="token keyword">finally</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token number">20</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span> 
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<p>对应的字节码文件：</p>
+<pre class="line-numbers language-none"><code class="language-none">Code:
+      stack&#x3D;1, locals&#x3D;2, args_size&#x3D;0
+         0: bipush        10
+         2: istore_0
+         3: bipush        20
+         5: ireturn  &#x2F;&#x2F; 返回栈顶 int(20)
+         6: astore_1
+         7: bipush        20
+         9: ireturn  &#x2F;&#x2F; 返回栈顶 int(20)
+      Exception table:
+         from    to  target type
+             0     3     6   any<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>由于 finally 中的 ireturn 被插入了所有可能的流程，因此返回结果肯定以 finally 的为准<br>跟前一个中的 finally 相比，发现没有 athrow 了，这告诉我们：如果在 finally 中出现了 return，会吞掉异常<br>运行下面的代码，不会抛出异常：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Main</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">int</span> result <span class="token operator">=</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span> <span class="token operator">/</span> <span class="token number">0</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span> <span class="token number">10</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span> <span class="token keyword">finally</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> <span class="token number">20</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="（5）finally不带return"><a href="#（5）finally不带return" class="headerlink" title="（5）finally不带return"></a>（5）finally不带return</h5><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Main</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token class-name">Main</span><span class="token punctuation">.</span><span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//输出为10</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
+        <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> i<span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span> <span class="token keyword">finally</span> <span class="token punctuation">&#123;</span>
+            i <span class="token operator">=</span> <span class="token number">20</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>对应的字节码文件：</p>
+<pre class="line-numbers language-none"><code class="language-none">Code:
+      stack&#x3D;1, locals&#x3D;3, args_size&#x3D;0
+      	0: bipush        10
+        2: istore_0 &#x2F;&#x2F;赋值给i 10
+        3: iload_0	&#x2F;&#x2F;加载到操作数栈顶
+        4: istore_1 &#x2F;&#x2F;加载到局部变量表的1号位置
+        5: bipush        20
+        7: istore_0 &#x2F;&#x2F;赋值给i 20
+        8: iload_1 &#x2F;&#x2F;加载局部变量表1号位置的数10到操作数栈
+        9: ireturn &#x2F;&#x2F;返回操作数栈顶元素 10
+       10: astore_2
+       11: bipush        20
+       13: istore_0
+       14: aload_2 &#x2F;&#x2F;加载异常
+       15: athrow &#x2F;&#x2F;抛出异常
+      Exception table:
+         from    to  target type
+             3     5    10   any<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<h4 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h4><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Main</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
+        <span class="token class-name">Object</span> lock <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Object</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">synchronized</span> <span class="token punctuation">(</span>lock<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>对应的字节码文件：</p>
+<pre class="line-numbers language-none"><code class="language-none">Code:
+      stack&#x3D;2, locals&#x3D;5, args_size&#x3D;1
+         0: bipush        10
+         2: istore_1
+         3: new           #2                  &#x2F;&#x2F; class java&#x2F;lang&#x2F;Object
+         6: dup
+         7: invokespecial #1                  &#x2F;&#x2F; Method java&#x2F;lang&#x2F;Object.&quot;&lt;init&gt;&quot;:()V
+        10: astore_2
+        11: aload_2
+        12: dup
+        13: astore_3
+        14: monitorenter &#x2F;&#x2F;加锁
+        15: getstatic     #3                  &#x2F;&#x2F; Field java&#x2F;lang&#x2F;System.out:Ljava&#x2F;io&#x2F;PrintStream;
+        18: iload_1
+        19: invokevirtual #4                  &#x2F;&#x2F; Method java&#x2F;io&#x2F;PrintStream.println:(I)V
+        22: aload_3
+        23: monitorexit &#x2F;&#x2F;解锁
+        24: goto          34
+        &#x2F;&#x2F;异常操作
+        27: astore        4
+        29: aload_3
+        30: monitorexit &#x2F;&#x2F;解锁
+        31: aload         4
+        33: athrow
+        34: return
+      Exception table:
+         from    to  target type
+            15    24    27   any
+            27    31    27   any<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="编译期处理"><a href="#编译期处理" class="headerlink" title="编译期处理"></a>编译期处理</h2><p>所谓的 语法糖 ，其实就是指 java 编译器把 *.java 源码编译为 *.class 字节码的过程中，自动生成和转换的一些代码，主要是为了减轻程序员的负担，算是 java 编译器给我们的一个额外福利（给糖吃嘛）</p>
+<h3 id="默认构造器"><a href="#默认构造器" class="headerlink" title="默认构造器"></a>默认构造器</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Candy1</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
+<p>编译成class后的代码：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Candy1</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// 这个无参构造是编译器帮助我们加上的</span>
+    <span class="token keyword">public</span> <span class="token class-name">Candy1</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 即调用父类 Object 的无参构造方法，即调用 java/lang/Object."&lt;init>":()V</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<h4 id="自动拆装箱"><a href="#自动拆装箱" class="headerlink" title="自动拆装箱"></a>自动拆装箱</h4><p>这个特性是 JDK 5 开始加入的， 如下代码 ：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Candy2</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">Integer</span> x <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> y <span class="token operator">=</span> x<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<h4 id="泛型集合取值"><a href="#泛型集合取值" class="headerlink" title="泛型集合取值"></a>泛型集合取值</h4><p>泛型也是在 JDK 5 开始加入的特性，但 java 在编译泛型代码后会执行泛型擦除 的动作，即泛型信息在编译为字节码之后就丢失了，实际的类型都当做了 Object 类型来处理：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Candy3</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> list <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        list<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 实际调用的是 List.add(Object e)</span>
+        <span class="token class-name">Integer</span> x <span class="token operator">=</span> list<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 实际调用的是 Object obj = List.get(int index);</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>所以在取值时，编译器真正生成的字节码中，还要额外做一个类型转换的操作：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">// 需要将 Object 转为 Integer</span>
+<span class="token class-name">Integer</span> x <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">Integer</span><span class="token punctuation">)</span>list<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
+<p>如果前面的 x 变量类型修改为 int 基本类型那么最终生成的字节码是：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">// 需要将 Object 转为 Integer, 并执行拆箱操作</span>
+<span class="token keyword">int</span> x <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token class-name">Integer</span><span class="token punctuation">)</span>list<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">intValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
+
+
+<h4 id="可变参数"><a href="#可变参数" class="headerlink" title="可变参数"></a>可变参数</h4><p>可变参数也是 JDK 5 开始加入的新特性： 例如：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Candy4</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">foo</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> array <span class="token operator">=</span> args<span class="token punctuation">;</span> <span class="token comment">// 直接赋值</span>
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>array<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token function">foo</span><span class="token punctuation">(</span><span class="token string">"hello"</span><span class="token punctuation">,</span> <span class="token string">"world"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>可变参数 String… args 其实是一个 String[] args ，从代码中的赋值语句中就可以看出来。 同样java 编译器会在编译期间将上述代码变换为：</p>
+<pre class="line-numbers language-Java" data-language="Java"><code class="language-Java">public class Candy4 &#123;
+    public static void foo(String[] args) &#123;
+        String[] array &#x3D; args; &#x2F;&#x2F; 直接赋值
+        System.out.println(array);
+    &#125;
+    public static void main(String[] args) &#123;
+        foo(new String[]&#123;&quot;hello&quot;, &quot;world&quot;&#125;);
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>注意： 如果调用了 foo() 则等价代码为 foo(new String[]{}) ，创建了一个空的数组，而不会 传递 null 进去</p>
+<h4 id="foreach循环"><a href="#foreach循环" class="headerlink" title="foreach循环"></a>foreach循环</h4><p>仍是 JDK 5 开始引入的语法糖，数组的循环：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Candy5_1</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> array <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span> <span class="token comment">// 数组赋初值的简化写法也是语法糖哦</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> e <span class="token operator">:</span> array<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>会被编译器转换为：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Candy5_1</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token class-name">Candy5_1</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> array <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">&#123;</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> array<span class="token punctuation">.</span>length<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">int</span> e <span class="token operator">=</span> array<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>如果是集合呢？</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Candy5_2</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> list <span class="token operator">=</span> <span class="token class-name">Arrays</span><span class="token punctuation">.</span><span class="token function">asList</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name">Integer</span> i <span class="token operator">:</span> list<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>实际被编译器转换为对迭代器的调用：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Candy5_2</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token class-name">Candy5_2</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> list <span class="token operator">=</span> <span class="token class-name">Arrays</span><span class="token punctuation">.</span><span class="token function">asList</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Iterator</span> iter <span class="token operator">=</span> list<span class="token punctuation">.</span><span class="token function">iterator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>iter<span class="token punctuation">.</span><span class="token function">hasNext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token class-name">Integer</span> e <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">Integer</span><span class="token punctuation">)</span>iter<span class="token punctuation">.</span><span class="token function">next</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>注意 ：foreach 循环写法，能够配合数组，以及所有实现了 Iterable 接口的集合类一起使用，其 中 Iterable 用来获取集合的迭代器（ Iterator ）</p>
+<h4 id="switch-字符串"><a href="#switch-字符串" class="headerlink" title="switch 字符串"></a>switch 字符串</h4><p>从 JDK 7 开始，switch 可以作用于字符串和枚举类，这个功能其实也是语法糖，例如：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Candy6_1</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">choose</span><span class="token punctuation">(</span><span class="token class-name">String</span> str<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">switch</span> <span class="token punctuation">(</span>str<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">case</span> <span class="token string">"hello"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+                <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"h"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token punctuation">&#125;</span>
+            <span class="token keyword">case</span> <span class="token string">"world"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+                <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"w"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token punctuation">&#125;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>注意： switch 配合 String 和枚举使用时，变量不能为null，原因分析完语法糖转换后的代码应当自然清楚</p>
+<p>会被编译器转换为：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Candy6_1</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token class-name">Candy6_1</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">choose</span><span class="token punctuation">(</span><span class="token class-name">String</span> str<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">byte</span> x <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">switch</span><span class="token punctuation">(</span>str<span class="token punctuation">.</span><span class="token function">hashCode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">case</span> <span class="token number">99162322</span><span class="token operator">:</span> <span class="token comment">// hello 的 hashCode</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>str<span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span><span class="token string">"hello"</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+                    x <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+                <span class="token punctuation">&#125;</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token keyword">case</span> <span class="token number">113318802</span><span class="token operator">:</span> <span class="token comment">// world 的 hashCode</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>str<span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span><span class="token string">"world"</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+                    x <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+                <span class="token punctuation">&#125;</span>
+        <span class="token punctuation">&#125;</span>
+        <span class="token keyword">switch</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">case</span> <span class="token number">0</span><span class="token operator">:</span>
+                <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"h"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token keyword">case</span> <span class="token number">1</span><span class="token operator">:</span>
+                <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"w"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>以看到，执行了两遍 switch，第一遍是根据字符串的 hashCode 和 equals 将字符串的转换为相应 byte 类型，第二遍才是利用 byte 执行进行比较。</p>
+<p>问：为什么第一遍时必须既比较 hashCode，又利用 equals 比较呢？hashCode 是为了提高效率，减少可能的比较；而 equals 是为了防止 hashCode 冲突。</p>
+<p>例如 BM 和 C. 这两个字符串的hashCode值都是 2123 ，如果有如下代码：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Candy6_1</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">choose</span><span class="token punctuation">(</span><span class="token class-name">String</span> str<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">switch</span> <span class="token punctuation">(</span>str<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">case</span> <span class="token string">"BM"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+                <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"h"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token punctuation">&#125;</span>
+            <span class="token keyword">case</span> <span class="token string">"C."</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+                <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"w"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token punctuation">&#125;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>会被编译器转换为：</p>
+<pre><code>public class Candy6_1 &#123;
+     public Candy6_1() &#123;
+     &#125;
+public static void choose(String var0) &#123;
+     byte var2 = -1;
+     switch(var0.hashCode()) &#123;
+     case 2123:
+         if (var0.equals(&quot;C.&quot;)) &#123;
+             var2 = 1;
+         &#125; else if (var0.equals(&quot;BM&quot;)) &#123;
+             var2 = 0;
+         &#125;
+     default:
+         switch(var2) &#123;
+         case 0:
+             System.out.println(&quot;h&quot;);
+             break;
+         case 1:
+             System.out.println(&quot;w&quot;);
+         &#125;
+ 
+     &#125;
+ &#125;
+&#125;
+</code></pre>
+<h3 id="类加载阶段"><a href="#类加载阶段" class="headerlink" title="类加载阶段"></a>类加载阶段</h3><h4 id="加载"><a href="#加载" class="headerlink" title="加载"></a>加载</h4><ul>
+<li>将类的字节码载入方法区（1.8后为元空间，在本地内存中）中，内部采用 C++ 的 instanceKlass 描述 java 类，它的重要 ﬁeld 有：</li>
+<li><ul>
+<li>_java_mirror 即 java 的类镜像，例如对 String 来说，它的镜像类就是 String.class，作用是把 klass 暴露给 java 使用</li>
+<li>_super 即父类</li>
+<li>_ﬁelds 即成员变量</li>
+<li>_methods 即方法</li>
+<li>_constants 即常量池</li>
+<li>_class_loader 即类加载器</li>
+<li>_vtable 虚方法表</li>
+<li>_itable 接口方法</li>
+</ul>
+</li>
+<li>如果这个类还有父类没有加载，先加载父类</li>
+<li>加载和链接可能是交替运行的</li>
+<li>instanceKlass 这样的【元数据】是存储在方法区（1.8 后的元空间内），但 _java_mirror 是存储在堆中</li>
+<li>instanceKlass和 java_mirror（java镜像类）互相保存了对方的地址</li>
+<li>类的对象在对象头中保存了 *.class 的地址。让对象可以通过其找到方法区中的instanceKlass，从而获取类的各种信息</li>
+</ul>
+<p><img src="/images/image-20221208212153066.png" alt="image-20221208212153066"></p>
+<h4 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h4><p>（1）验证<br>验证类是否符合 JVM规范，安全性检查</p>
+<p>（2）准备<br>为 static 变量分配空间，设置默认值</p>
+<ul>
+<li>static变量在JDK 7以前是存储与instanceKlass末尾。但在JDK 7以后就存储在_java_mirror末尾了</li>
+<li>static变量在分配空间和赋值是在两个阶段完成的。分配空间在准备阶段完成，赋值在初始化阶段完成</li>
+<li>如果 static 变量是 ﬁnal 的基本类型，以及字符串常量，那么编译阶段值就确定了，赋值在准备阶段完成</li>
+<li>如果 static 变量是 ﬁnal 的，但属于引用类型，那么赋值也会在初始化阶段完成</li>
+</ul>
+<h4 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h4><p>将常量池中的符号引用解析为直接引用</p>
+<h4 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h4><h5 id="（1）-lt-cinit-gt-V方法"><a href="#（1）-lt-cinit-gt-V方法" class="headerlink" title="（1）&lt;cinit&gt;()V方法"></a>（1）<code>&lt;cinit&gt;()V</code>方法</h5><p>初始化即调用 ，虚拟机会保证这个类的【构造方法】的线程安全</p>
+<h5 id="（2）发生的时机"><a href="#（2）发生的时机" class="headerlink" title="（2）发生的时机"></a>（2）发生的时机</h5><p>类的初始化的懒惰的，以下情况会初始化：</p>
+<ul>
+<li>main 方法所在的类，总会被首先初始化</li>
+<li>首次访问这个类的静态变量或静态方法时</li>
+<li>子类初始化，如果父类还没初始化，会引发</li>
+<li>子类访问父类的静态变量，只会触发父类的初始化</li>
+<li>Class.forName</li>
+<li>new 会导致初始化</li>
+</ul>
+<p>以下情况不会初始化：</p>
+<ul>
+<li>访问类的 static ﬁnal 静态常量（基本类型和字符串）</li>
+<li>类对象.class 不会触发初始化</li>
+<li>创建该类对象的数组</li>
+<li>类加载器的.loadClass方法</li>
+<li>Class.forName的参数2为false时</li>
+</ul>
+<h3 id="加载器"><a href="#加载器" class="headerlink" title="加载器"></a>加载器</h3><p>以 JDK 8 为例：</p>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">加载的类</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Bootstrap</td>
+<td align="center">ClassLoader（启动类加载器）</td>
+<td align="center">JAVA_HOME/jre/lib    无法直接访问</td>
+</tr>
+<tr>
+<td align="center">Extension ClassLoader(拓展类加载器)</td>
+<td align="center">JAVA_HOME/jre/lib/ext</td>
+<td align="center">上级为Bootstrap，显示为null</td>
+</tr>
+<tr>
+<td align="center">Application ClassLoader(应用程序类加载器)</td>
+<td align="center">classpath</td>
+<td align="center">上级为Extension</td>
+</tr>
+<tr>
+<td align="center">自定义类加载器</td>
+<td align="center">自定义</td>
+<td align="center">上级为Application</td>
+</tr>
+</tbody></table>
+<h3 id="启动类加载器"><a href="#启动类加载器" class="headerlink" title="启动类加载器"></a>启动类加载器</h3><p>用 Bootstrap 类加载器加载类：</p>
+<pre class="line-numbers language-JAVA" data-language="JAVA"><code class="language-JAVA">package cn.itcast.jvm.t3.load;
+public class F &#123;
+    static &#123;
+        System.out.println(&quot;bootstrap F init&quot;);
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>执行</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">cn<span class="token punctuation">.</span>itcast<span class="token punctuation">.</span>jvm<span class="token punctuation">.</span>t3<span class="token punctuation">.</span>load</span><span class="token punctuation">;</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Load5_1</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">ClassNotFoundException</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">Class</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> aClass <span class="token operator">=</span> <span class="token class-name">Class</span><span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span><span class="token string">"cn.itcast.jvm.t3.load.F"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>aClass<span class="token punctuation">.</span><span class="token function">getClassLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>输出</p>
+<pre class="line-numbers language-none"><code class="language-none">E:\git\jvm\out\production\jvm&gt;java -Xbootclasspath&#x2F;a:.
+cn.itcast.jvm.t3.load.Load5
+bootstrap F init
+null <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>-Xbootclasspath 表示设置 bootclasspath</li>
+<li>其中 /a:. 表示将当前目录追加至 bootclasspath 之后</li>
+<li>可以用这个办法替换核心类<ul>
+<li>java -Xbootclasspath:<new bootclasspath></li>
+<li>java -Xbootclasspath/a:&lt;追加路径&gt;（后追加）</li>
+<li>java -Xbootclasspath/p:&lt;追加路径&gt;（前追加）</li>
+</ul>
+</li>
+</ul>
+<h3 id="扩展类加载器"><a href="#扩展类加载器" class="headerlink" title="扩展类加载器"></a>扩展类加载器</h3><p>如果classpath和JAVA_HOME/jre/lib/ext 下有同名类，加载时会使用拓展类加载器加载。当应用程序类加载器发现拓展类加载器已将该同名类加载过了，则不会再次加载</p>
+<h3 id="双亲委派模式"><a href="#双亲委派模式" class="headerlink" title="双亲委派模式"></a>双亲委派模式</h3><ol>
+<li>当AppClassLoader加载一个class时，它首先不会自己去尝试加载这个类，而是把类加载请求委派给父类加载器ExtClassLoader去完成。</li>
+<li>当ExtClassLoader加载一个class时，它首先也不会自己去尝试加载这个类，而是把类加载请求委派给BootStrapClassLoader去完成。</li>
+<li>如果BootStrapClassLoader加载失败(例如在$JAVA_HOME/jre/lib里未查找到该class)，会使用ExtClassLoader来尝试加载；</li>
+<li>若ExtClassLoader也加载失败，则会使用AppClassLoader来加载，如果AppClassLoader也加载失败，则会报出异常ClassNotFoundException。</li>
+</ol>
+<p>所谓的双亲委派，就是指调用类加载器的 loadClass 方法时，查找类的规则</p>
+<h3 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h3><h4 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h4><p>想加载非 classpath 随意路径中的类文件<br>通过接口来使用实现，希望解耦时，常用在框架设计<br>这些类希望予以隔离，不同应用的同名类都可以加载，不冲突，常见于 tomcat 容器</p>
+<h4 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h4><p>继承ClassLoader父类<br>要遵从双亲委派机制，重写 ﬁndClass 方法<br>不是重写loadClass方法，否则不会走双亲委派机制<br>读取类文件的字节码<br>调用父类的 deﬁneClass 方法来加载类<br>使用者调用该类加载器的 loadClass 方法</p>
+<h2 id="运行期优化"><a href="#运行期优化" class="headerlink" title="运行期优化"></a>运行期优化</h2><h3 id="即时编译"><a href="#即时编译" class="headerlink" title="即时编译"></a>即时编译</h3><h4 id="分层编译"><a href="#分层编译" class="headerlink" title="分层编译"></a>分层编译</h4><p>JVM 将执行状态分成了 5 个层次：</p>
+<p>0层：解释执行，用解释器将字节码翻译为机器码<br>1层：使用 C1 即时编译器编译执行（不带 proﬁling）<br>2层：使用 C1 即时编译器编译执行（带基本的profiling）<br>3层：使用 C1 即时编译器编译执行（带完全的profiling）<br>4层：使用 C2 即时编译器编译执行<br>proﬁling 是指在运行过程中收集一些程序执行状态的数据，例如【方法的调用次数】，【循环的 回边次数】等</p>
+<p>即时编译器（JIT）与解释器的区别：</p>
+<h3 id="解释器"><a href="#解释器" class="headerlink" title="解释器"></a>解释器</h3><p>将字节码解释为机器码，下次即使遇到相同的字节码，仍会执行重复的解释<br>是将字节码解释为针对所有平台都通用的机器码<br>即时编译器<br>将一些字节码编译为机器码，并存入 Code Cache，下次遇到相同的代码，直接执行，无需再编译<br>根据平台类型，生成平台特定的机器码<br>对于大部分的不常用的代码，我们无需耗费时间将其编译成机器码，而是采取解释执行的方式运行；另一方面，对于仅占据小部分的热点代码，我们则可以将其编译成机器码，以达到理想的运行速度。 执行效率上简单比较一下 Interpreter &lt; C1 &lt; C2，总的目标是发现热点代码（hotspot名称的由 来），并优化这些热点代码</p>
+<h4 id="逃逸分析："><a href="#逃逸分析：" class="headerlink" title="逃逸分析："></a>逃逸分析：</h4><p>发现新建的对象是否逃逸。可以使用 -XX:- DoEscapeAnalysis 关闭逃逸分析</p>
+<h1 id="内存模型JMM"><a href="#内存模型JMM" class="headerlink" title="内存模型JMM"></a>内存模型JMM</h1><p>JMM 即 Java Memory Model，它定义了<strong>主存（共享内存）、工作内存（线程私有）</strong>抽象概念</p>
+<p>原子性 - 保证指令不会受到线程上下文切换的影响<br>可见性 - 保证指令不会受 cpu 缓存的影响<br>有序性 - 保证指令不会受 cpu 指令并行优化的影响</p>
+<h3 id="volatile与synchronized-区别："><a href="#volatile与synchronized-区别：" class="headerlink" title="volatile与synchronized 区别："></a>volatile与synchronized 区别：</h3><ol>
+<li>volatile（易变的）保证可见性、有序性，不保证原子性！<ul>
+<li>可见性：每次读取变量值都是去主存中读取，保证的是在多个线程之间，一个线程对volatile 变量的修改对另一个线程可见。</li>
+<li>有序性：禁用指令重排，禁止的是加 volatile 关键字变量之前的代码重排序。</li>
+</ul>
+</li>
+<li>synchronized 语句块既可以保证代码块的原子性，也同时保证代码块内变量的可见性。但缺点是 synchronized 是属于重量级操作，性能相对更低。</li>
+</ol>
+<h3 id="volatile-原理"><a href="#volatile-原理" class="headerlink" title="volatile 原理"></a>volatile 原理</h3><p>volatile 的底层实现原理是<strong>内存屏障</strong>，Memory Barrier（Memory Fence）<br>对 volatile 变量的写指令<strong>后会加入写屏障</strong><br>对 volatile 变量的读指令<strong>前会加入读屏障</strong></p>
+<h3 id="CAS（CompareAndSwap）与原子类"><a href="#CAS（CompareAndSwap）与原子类" class="headerlink" title="CAS（CompareAndSwap）与原子类"></a>CAS（CompareAndSwap）与原子类</h3><h4 id="1、CAS流程"><a href="#1、CAS流程" class="headerlink" title="1、CAS流程"></a>1、CAS流程</h4><p>1）首先从地址 V 读取旧的预期值 A；</p>
+<p>2）根据 A 计算目标值 B；</p>
+<p>3）通过 CAS 以原子的方式将地址 V 中的值从 A 修改为 B。</p>
+<p><strong>特点</strong>：</p>
+<p>更新一个变量的时候，只有当旧的预期值A和内存地址V当前实际值相同时，才会将内存地址V对应的值修改为B。（整个比较并替换的操作是一个原子操作）</p>
+<p>一般与volatile一起使用，使得可以从主存中获取变量的最新值。</p>
+<p><strong>CAS的缺点</strong>：</p>
+<ul>
+<li><p>并发量高时，CPU开销过大</p>
+</li>
+<li><p>CAS机制只能保证一个变量的原子性</p>
+</li>
+<li><p>ABA问题</p>
+</li>
+<li><p>CAS（乐观锁）—synchronized（悲观锁）</p>
+</li>
+</ul>
+<h4 id="2、原子类"><a href="#2、原子类" class="headerlink" title="2、原子类"></a>2、原子类</h4><p>原子操作类，指的是以Atomic开头的包装类。如AtomicBoolean，AtomicUInteger，AtomicLong。而Atomic操作类的底层正是用到了CAS机制”。</p>
+<h5 id="synchronized-锁优化"><a href="#synchronized-锁优化" class="headerlink" title="synchronized 锁优化"></a>synchronized 锁优化</h5><ul>
+<li>轻量级锁（假设多个线程错开访问，用课本占座）–&gt; 用MarkWord记录加锁（00），无锁（01）</li>
+<li>锁膨胀：若有其他线程访问同步块，轻量级锁膨胀为重量级锁（10）。</li>
+<li>重量级锁：monitorEnter、monitorExit。重量级锁竞争时使用自旋来优化（等红灯不熄火）。</li>
+<li>偏向锁：第一次CAS将线程ID存入Mark Word头，之后若访问线程为自己ID就不用再CAS。</li>
+</ul>
+<p>加锁优化方面：</p>
+<ul>
+<li>同步代码块尽量短</li>
+<li>减少锁的粒度（拆分锁）</li>
+<li>锁粗化</li>
+<li>锁消除（逃逸分析）</li>
+<li>读写分离（CopyOnWriteArrayList）</li>
+</ul>
+
+    </article>
+    
+    <div class="read-nums">
+      <!-- id 将作为查询条件 -->
+      <span id="2022/12/05/JVM/" class="leancloud_visitors" data-flag-title="Your Article Title">
+        <em class="post-meta-item-text">浏览量</em>
+        <i class="leancloud-visitors-count"></i>
+      </span>
+    </div>
+    <div class="comments-intro">
+      <h2>评论区</h2>
+      <p>欢迎你留下宝贵的意见，昵称输入QQ号会显示QQ头像哦~</p>
+    </div>
+    <div id="vcomments" class="vcomments"></div>
+    
+  </div>
+  <div class="article-catelogue">
+    <div class="article-catelogue--wrapper">
+      <div class="catelogue catelogue-1">
+        <h3>目录</h3>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#JVM%E5%AD%A6%E4%B9%A0"><span class="toc-number">1.</span> <span class="toc-text">JVM学习</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFJVM"><span class="toc-number">1.1.</span> <span class="toc-text">什么是JVM</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-number">1.1.0.0.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#JVM-Java-Virtual-Machine-java%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83"><span class="toc-number">1.1.0.0.2.</span> <span class="toc-text">JVM: Java Virtual Machine -java程序的运行环境</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A5%BD%E5%A4%84"><span class="toc-number">1.1.0.0.3.</span> <span class="toc-text">好处</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%84%E6%88%90"><span class="toc-number">1.1.0.0.4.</span> <span class="toc-text">组成</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84"><span class="toc-number">1.2.</span> <span class="toc-text">内存结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="toc-number">1.2.1.</span> <span class="toc-text">程序计数器</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-1"><span class="toc-number">1.2.1.0.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%9C%E7%94%A8"><span class="toc-number">1.2.1.0.2.</span> <span class="toc-text">作用</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%89%B9%E7%82%B9"><span class="toc-number">1.2.1.0.3.</span> <span class="toc-text">特点</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%88"><span class="toc-number">1.2.2.</span> <span class="toc-text">虚拟机栈</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%88%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">栈内存溢出</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E8%BF%90%E8%A1%8C%E8%AF%8A%E6%96%AD"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">线程运行诊断</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E6%96%B9%E6%B3%95%E6%A0%88"><span class="toc-number">1.2.3.</span> <span class="toc-text">本地方法栈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A0%86"><span class="toc-number">1.2.4.</span> <span class="toc-text">堆</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%89%B9%E7%82%B9-1"><span class="toc-number">1.2.4.0.1.</span> <span class="toc-text">特点</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A0%86%E5%86%85%E5%AD%98%E8%AF%8A%E6%96%AD"><span class="toc-number">1.2.4.1.</span> <span class="toc-text">堆内存诊断</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E5%8C%BA"><span class="toc-number">1.2.5.</span> <span class="toc-text">方法区</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-2"><span class="toc-number">1.2.5.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%84%E6%88%90-1"><span class="toc-number">1.2.5.2.</span> <span class="toc-text">组成</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E5%8C%BA%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="toc-number">1.2.5.3.</span> <span class="toc-text">方法区内存溢出</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B8%B8%E9%87%8F%E6%B1%A0"><span class="toc-number">1.2.5.4.</span> <span class="toc-text">运行时常量池</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#StringTable"><span class="toc-number">1.2.5.5.</span> <span class="toc-text">StringTable</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#intern%E6%96%B9%E6%B3%95-1-8"><span class="toc-number">1.2.5.5.1.</span> <span class="toc-text">intern方法 1.8</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#StringTable-%E7%9A%84%E4%BD%8D%E7%BD%AE"><span class="toc-number">1.2.5.6.</span> <span class="toc-text">StringTable 的位置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#StringTable-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6"><span class="toc-number">1.2.5.7.</span> <span class="toc-text">StringTable 垃圾回收</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#StringTable-%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98"><span class="toc-number">1.2.5.8.</span> <span class="toc-text">StringTable 性能调优</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98"><span class="toc-number">1.2.6.</span> <span class="toc-text">直接内存</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-3"><span class="toc-number">1.2.6.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98%E7%9A%84%E5%A5%BD%E5%A4%84"><span class="toc-number">1.2.6.2.</span> <span class="toc-text">使用直接内存的好处</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B"><span class="toc-number">1.2.6.2.1.</span> <span class="toc-text">文件读写流程</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E4%BA%86-DirectBuffer-%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%B5%81%E7%A8%8B"><span class="toc-number">1.2.6.2.2.</span> <span class="toc-text">使用了 DirectBuffer 文件读取流程</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6%E5%8E%9F%E7%90%86"><span class="toc-number">1.2.6.3.</span> <span class="toc-text">直接内存回收原理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6"><span class="toc-number">1.3.</span> <span class="toc-text">垃圾回收</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E5%88%A4%E6%96%AD%E5%AF%B9%E8%B1%A1%E5%8F%AF%E4%BB%A5%E5%9B%9E%E6%94%B6"><span class="toc-number">1.3.1.</span> <span class="toc-text">如果判断对象可以回收</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0%E6%B3%95"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">引用计数法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%AF%E8%BE%BE%E6%80%A7%E5%88%86%E6%9E%90%E7%AE%97%E6%B3%95"><span class="toc-number">1.3.1.2.</span> <span class="toc-text">可达性分析算法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E7%A7%8D%E5%BC%95%E7%94%A8"><span class="toc-number">1.3.1.3.</span> <span class="toc-text">四种引用</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BC%BA%E5%BC%95%E7%94%A8"><span class="toc-number">1.3.1.3.1.</span> <span class="toc-text">强引用</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BD%AF%E5%BC%95%E7%94%A8%EF%BC%88SoftReference%EF%BC%89"><span class="toc-number">1.3.1.3.2.</span> <span class="toc-text">软引用（SoftReference）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BC%B1%E5%BC%95%E7%94%A8%EF%BC%88WeakReference%EF%BC%89"><span class="toc-number">1.3.1.3.3.</span> <span class="toc-text">弱引用（WeakReference）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%99%9A%E5%BC%95%E7%94%A8%EF%BC%88PhantomReference%EF%BC%89"><span class="toc-number">1.3.1.3.4.</span> <span class="toc-text">虚引用（PhantomReference）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%88%E7%BB%93%E5%99%A8%E5%BC%95%E7%94%A8%EF%BC%88FinalReference%EF%BC%89"><span class="toc-number">1.3.1.3.5.</span> <span class="toc-text">终结器引用（FinalReference）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95"><span class="toc-number">1.3.2.</span> <span class="toc-text">回收算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%87%E8%AE%B0%E6%B8%85%E9%99%A4"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">标记清除</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-4"><span class="toc-number">1.3.2.1.1.</span> <span class="toc-text">定义</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%87%E8%AE%B0%E6%95%B4%E7%90%86"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">标记整理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-5"><span class="toc-number">1.3.2.2.1.</span> <span class="toc-text">定义</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%8D%E5%88%B6"><span class="toc-number">1.3.2.3.</span> <span class="toc-text">复制</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-6"><span class="toc-number">1.3.2.3.1.</span> <span class="toc-text">定义</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E4%BB%A3%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6"><span class="toc-number">1.3.3.</span> <span class="toc-text">分代垃圾回收</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3-JVM-%E5%8F%82%E6%95%B0"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">相关 JVM 参数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8"><span class="toc-number">1.3.4.</span> <span class="toc-text">垃圾回收器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="toc-number">1.3.4.1.</span> <span class="toc-text">相关概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%B2%E8%A1%8C"><span class="toc-number">1.3.4.2.</span> <span class="toc-text">串行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%9E%E5%90%90%E9%87%8F%E4%BC%98%E5%85%88"><span class="toc-number">1.3.4.3.</span> <span class="toc-text">吞吐量优先</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%93%8D%E5%BA%94%E6%97%B6%E9%97%B4%E4%BC%98%E5%85%88"><span class="toc-number">1.3.4.4.</span> <span class="toc-text">响应时间优先</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#G1-%E6%94%B6%E9%9B%86%E5%99%A8"><span class="toc-number">1.3.4.5.</span> <span class="toc-text">G1 收集器</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#G1-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E9%98%B6%E6%AE%B5"><span class="toc-number">1.3.4.5.1.</span> <span class="toc-text">G1 垃圾回收阶段</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E8%B0%83%E4%BC%98"><span class="toc-number">1.3.5.</span> <span class="toc-text">垃圾回收调优</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B0%83%E4%BC%98%E9%A2%86%E5%9F%9F"><span class="toc-number">1.3.5.1.</span> <span class="toc-text">调优领域</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A1%AE%E5%AE%9A%E7%9B%AE%E6%A0%87"><span class="toc-number">1.3.5.2.</span> <span class="toc-text">确定目标</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%80%E5%BF%AB%E7%9A%84-GC%E6%98%AF%E4%B8%8D%E5%8F%91%E7%94%9Fgc"><span class="toc-number">1.3.5.3.</span> <span class="toc-text">最快的 GC是不发生gc</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B0%E7%94%9F%E4%BB%A3%E8%B0%83%E4%BC%98"><span class="toc-number">1.3.5.4.</span> <span class="toc-text">新生代调优</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%80%81%E5%B9%B4%E4%BB%A3%E8%B0%83%E4%BC%98"><span class="toc-number">1.3.5.5.</span> <span class="toc-text">老年代调优</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%AD%97%E8%8A%82%E7%A0%81%E6%8A%80%E6%9C%AF"><span class="toc-number">1.4.</span> <span class="toc-text">类加载与字节码技术</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="toc-number">1.4.1.</span> <span class="toc-text">类文件结构</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%AD%94%E6%95%B0"><span class="toc-number">1.4.1.0.1.</span> <span class="toc-text">魔数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%89%88%E6%9C%AC"><span class="toc-number">1.4.1.0.2.</span> <span class="toc-text">版本</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B8%B8%E9%87%8F%E6%B1%A0"><span class="toc-number">1.4.1.0.3.</span> <span class="toc-text">常量池</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%97%E8%8A%82%E7%A0%81%E6%8C%87%E4%BB%A4"><span class="toc-number">1.4.2.</span> <span class="toc-text">字节码指令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#javap%E5%B7%A5%E5%85%B7"><span class="toc-number">1.4.2.1.</span> <span class="toc-text">javap工具</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%BE%E8%A7%A3%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-number">1.4.2.2.</span> <span class="toc-text">图解方法执行流程</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%87%86%E5%A4%87"><span class="toc-number">1.4.2.2.1.</span> <span class="toc-text">准备</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#return"><span class="toc-number">1.4.2.2.2.</span> <span class="toc-text">return</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9A%E6%80%81%E7%9A%84%E5%8E%9F%E7%90%86"><span class="toc-number">1.4.2.3.</span> <span class="toc-text">多态的原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86"><span class="toc-number">1.4.2.4.</span> <span class="toc-text">异常处理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%881%EF%BC%89try-catch"><span class="toc-number">1.4.2.4.1.</span> <span class="toc-text">（1）try-catch</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%A4%9A%E4%B8%AA-single-catch-%E5%9D%97%E7%9A%84%E6%83%85%E5%86%B5"><span class="toc-number">1.4.2.4.2.</span> <span class="toc-text">（2）多个 single-catch 块的情况</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%883%EF%BC%89finally"><span class="toc-number">1.4.2.4.3.</span> <span class="toc-text">（3）finally</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%884%EF%BC%89finally%E4%B8%AD%E7%9A%84return"><span class="toc-number">1.4.2.4.4.</span> <span class="toc-text">（4）finally中的return</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%885%EF%BC%89finally%E4%B8%8D%E5%B8%A6return"><span class="toc-number">1.4.2.4.5.</span> <span class="toc-text">（5）finally不带return</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#synchronized"><span class="toc-number">1.4.2.5.</span> <span class="toc-text">synchronized</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E6%9C%9F%E5%A4%84%E7%90%86"><span class="toc-number">1.5.</span> <span class="toc-text">编译期处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%98%E8%AE%A4%E6%9E%84%E9%80%A0%E5%99%A8"><span class="toc-number">1.5.1.</span> <span class="toc-text">默认构造器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%87%AA%E5%8A%A8%E6%8B%86%E8%A3%85%E7%AE%B1"><span class="toc-number">1.5.1.1.</span> <span class="toc-text">自动拆装箱</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E9%9B%86%E5%90%88%E5%8F%96%E5%80%BC"><span class="toc-number">1.5.1.2.</span> <span class="toc-text">泛型集合取值</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0"><span class="toc-number">1.5.1.3.</span> <span class="toc-text">可变参数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#foreach%E5%BE%AA%E7%8E%AF"><span class="toc-number">1.5.1.4.</span> <span class="toc-text">foreach循环</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#switch-%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">1.5.1.5.</span> <span class="toc-text">switch 字符串</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E9%98%B6%E6%AE%B5"><span class="toc-number">1.5.2.</span> <span class="toc-text">类加载阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD"><span class="toc-number">1.5.2.1.</span> <span class="toc-text">加载</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%93%BE%E6%8E%A5"><span class="toc-number">1.5.2.2.</span> <span class="toc-text">链接</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E6%9E%90"><span class="toc-number">1.5.2.3.</span> <span class="toc-text">解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">1.5.2.4.</span> <span class="toc-text">初始化</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%881%EF%BC%89-lt-cinit-gt-V%E6%96%B9%E6%B3%95"><span class="toc-number">1.5.2.4.1.</span> <span class="toc-text">（1）&lt;cinit&gt;()V方法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%8F%91%E7%94%9F%E7%9A%84%E6%97%B6%E6%9C%BA"><span class="toc-number">1.5.2.4.2.</span> <span class="toc-text">（2）发生的时机</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="toc-number">1.5.3.</span> <span class="toc-text">加载器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="toc-number">1.5.4.</span> <span class="toc-text">启动类加载器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="toc-number">1.5.5.</span> <span class="toc-text">扩展类加载器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.5.6.</span> <span class="toc-text">双亲委派模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="toc-number">1.5.7.</span> <span class="toc-text">自定义类加载器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">1.5.7.1.</span> <span class="toc-text">使用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4"><span class="toc-number">1.5.7.2.</span> <span class="toc-text">步骤</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E6%9C%9F%E4%BC%98%E5%8C%96"><span class="toc-number">1.6.</span> <span class="toc-text">运行期优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%B3%E6%97%B6%E7%BC%96%E8%AF%91"><span class="toc-number">1.6.1.</span> <span class="toc-text">即时编译</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E5%B1%82%E7%BC%96%E8%AF%91"><span class="toc-number">1.6.1.1.</span> <span class="toc-text">分层编译</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E9%87%8A%E5%99%A8"><span class="toc-number">1.6.2.</span> <span class="toc-text">解释器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%83%E9%80%B8%E5%88%86%E6%9E%90%EF%BC%9A"><span class="toc-number">1.6.2.1.</span> <span class="toc-text">逃逸分析：</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8BJMM"><span class="toc-number">2.</span> <span class="toc-text">内存模型JMM</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#volatile%E4%B8%8Esynchronized-%E5%8C%BA%E5%88%AB%EF%BC%9A"><span class="toc-number">2.0.1.</span> <span class="toc-text">volatile与synchronized 区别：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#volatile-%E5%8E%9F%E7%90%86"><span class="toc-number">2.0.2.</span> <span class="toc-text">volatile 原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CAS%EF%BC%88CompareAndSwap%EF%BC%89%E4%B8%8E%E5%8E%9F%E5%AD%90%E7%B1%BB"><span class="toc-number">2.0.3.</span> <span class="toc-text">CAS（CompareAndSwap）与原子类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%E3%80%81CAS%E6%B5%81%E7%A8%8B"><span class="toc-number">2.0.3.1.</span> <span class="toc-text">1、CAS流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%E3%80%81%E5%8E%9F%E5%AD%90%E7%B1%BB"><span class="toc-number">2.0.3.2.</span> <span class="toc-text">2、原子类</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#synchronized-%E9%94%81%E4%BC%98%E5%8C%96"><span class="toc-number">2.0.3.2.1.</span> <span class="toc-text">synchronized 锁优化</span></a></li></ol></li></ol></li></ol></li></ol></li></ol>
+      </div>
+      
+        <div class="catelogue catelogue-2">
+           
+          
+            <p>
+              <span>下一篇</span>
+              <a href="/2022/12/03/设计模式-二/">设计模式(二)</a>
+            </p>
+          
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+<script src="/js/prism.js"></script>
+
+<script>
+  // var定义，避免pjax重新进来造成的重复声明错误
+  var config = JSON.parse('{"enable":true,"appId":"Pf8zCXGEH1qsprnWfikVVujL-gzGzoHsz","appKey":"qOqoiUHhH1TGtLRUYURkLRQX","placeholder":"请留下你宝贵的意见吧~","meta":["nick"],"recordIP":true,"visitor":true,"enableQQ":true}')
+  new Valine({
+    el: '#vcomments',
+    appId: config.appId,
+    appKey: config.appKey,
+    placeholder: config.placeholder,
+    meta: config.meta,
+    recordIP: config.recordIP,
+    visitor: config.visitor,
+    enableQQ: config.enableQQ,
+    path: '2022/12/05/JVM/'
+  })
+</script>
+
+
+<script>
+  $(document).on('pjax:complete', function() {
+    const tocs = document.querySelector('.toc')
+    const as = tocs ? tocs.querySelectorAll('a') : []
+    as.forEach(a => {
+      a.addEventListener('click', e => {
+        const href = decodeURIComponent(a.href)
+        href.search(/#(.*)/)
+        const id = RegExp.$1
+        const target = document.querySelector('#' + id)
+        const top = target.offsetTop
+        document.documentElement.scrollTo({
+          top: top - 100,
+          behavior: 'smooth'
+        })
+        e.preventDefault()
+      })
+    })
+  })
+</script> 
+
+</div>
+      <div class="main-right-wrapper"><div class="main-right">
+  <div class="main-right--board">
+    <div class="main-right--title">
+      <h5>公告栏</h5>
+      <i class="iconfont icon-gonggao"></i>
+    </div>
+    <div class="main-right--content">
+      欢迎来到我的博客捏，记录着一些自己学习的知识内容，期待和大家的交流 
+    </div>
+  </div>
+
+  <div id="aplayer" class="main-right--music"></div>
+
+  <div class="operate-items">
+    <div class="operate-item backtop">
+      <i class="iconfont icon-huidaodingbu"></i>
+      <span>回到顶部</span>
+    </div>
+    
+    <div class="operate-item turn-comment hidden">
+      <i class="iconfont icon-pinglun"></i>
+      <span>查看评论</span>
+    </div>
+    
+  </div>
+
+  <div class="main-right--site">
+    <div class="main-right--power">
+      <p>Power By <a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">Hexo</a>.</p>
+      <p>Theme：<a target="_blank" rel="noopener" href="https://github.com/Aizener/hexo-theme-cola">Cola.</a></p>
+    </div>
+    <p class="main-right--refer">By Nirvana. </p>
+  </div>
+</div>
+
+<script>
+  function setOperateItem () {
+    const reg = /\d{4}\/\d{2}\/\d{2}\/.+/
+    const path = location.pathname
+    const commentDom = document.querySelector('.turn-comment')
+    if (commentDom) {
+      if (reg.test(path) || path.match(/\/log\/.+/)) {
+        commentDom.classList.remove('hidden')
+      } else {
+        commentDom.classList.add('hidden')
+      }
+    }
+  }
+
+  setOperateItem()
+  const musics = JSON.parse(`[{"name":"卡","artist":"布","url":"达","cover":"/"},{"name":"暂","artist":"无","cover":"/"},{"name":"/","artist":"m","url":"u","cover":"/s"},{"name":"h","artist":"t","url":"t","cover":"/p"}]`)
+  const ap = new APlayer({
+    container: document.querySelector('#aplayer'),
+    audio: musics,
+  })
+
+  $(document).on('pjax:complete', function() {
+    setOperateItem()
+  })
+
+  document.querySelector('.backtop').addEventListener('click', () => {
+    document.documentElement.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  })
+  const dom = document.querySelector('.turn-comment')
+  dom && dom.addEventListener('click', () => {
+    const commentDom = document.querySelector('.comments-intro')
+    if (!commentDom) return
+    const top = commentDom.offsetTop, height = commentDom.offsetHeight
+    document.documentElement.scrollTo({
+      top: top - 2 * height,
+      behavior: 'smooth'
+    })
+  })
+</script></div>
+    </section>
+  </div>
+  <div id="progress" class="progress"></div>
+
+  <script>
+    function initScroll () {
+      document.addEventListener('scroll', () => {
+        const doc = document.documentElement
+        const scrollTop = doc.scrollTop
+        const pageHeight = doc.offsetHeight
+        const clientHeight = doc.clientHeight
+        const ratio = scrollTop / (pageHeight - clientHeight)
+        const progress = document.querySelector('#progress')
+        const avatarImg = document.querySelector('.main-left--avatar')
+        progress.style.width = (100 * ratio) + '%'
+        avatarImg.style.transform = `rotate(${360 * ratio}deg)`
+      })
+    }
+
+
+    window.onload = function () {
+      setTimeout(() => {
+        $('#load').slideUp()
+        $('#container').slideToggle()
+        setTimeout(() => {
+          initScroll()
+          if (['/', '/log/', '/link/', '/about/', '/tools/'].includes(location.pathname) && window.innerWidth > 1200) {
+            init && init('container') // 水波纹动画
+          }
+        }, 500)
+      }, 500)
+    }
+    
+    // 对所有链接跳转事件绑定pjax容器container
+    $(document).pjax('a[target!=_blank]', '#main-container', {fragment:'#main-container', timeout:8000})
+
+    $(document).on('pjax:start', function() {
+      // $('.main-container').hide()
+    })
+    $(document).on('pjax:complete', function() {
+      $('.main-container').addClass('to-up').on('animationend', function() {
+        $(this).removeClass('to-up')
+      })
+    })
+    $(document).on('pjax:popstate', function() {
+      // $('.main-container').fadeIn()
+    })
+  </script>
+  
+</body>
+</html>
