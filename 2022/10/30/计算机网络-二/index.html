@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Hexo | 计算机网络(二) | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/imgs/shortcut-icon.ico" type="image/x-icon">
+
+  
+    <link rel="stylesheet" href="/css/public.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/iconfont.css" />
+    <link rel="stylesheet" href="/css/APlayer.min.css" />
+    <script src="/js/APlayer.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.pjax.min.js"></script>
+  
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+  <script>
+    document.title = `Hexo | 计算机网络(二)`
+  </script>
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+<style>
+  .load {
+    width: 100%;
+    height: 100vh;
+    background-color: rgb(37, 35, 40);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 9999;
+  }
+  .load-circle {
+    width: 80px;
+    height: 80px;
+    border: 8px solid orange;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: rotate 1s linear infinite;
+    filter: drop-shadow(0 0 3px orange);
+  }
+  .load-circle-inner {
+    width: 40px;
+    height: 40px;
+    border: 8px solid orange;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: rotate-reverse .5s linear infinite;
+  }
+  .load-text {
+    margin-top: 20px;
+    font-size: 24px;
+    color: orange;
+    display: flex;
+  }
+  .load-text span {
+    margin: 0 5px;
+    text-shadow: 5px 5px 5px orange;
+    animation: move 1s linear infinite;
+  }
+  .load-text span:nth-child(1) {
+    animation-delay: -0.6s;
+  }
+  .load-text span:nth-child(2) {
+    animation-delay: -0.5s;
+  }
+  .load-text span:nth-child(3) {
+    animation-delay: -0.4s;
+  }
+  .load-text span:nth-child(4) {
+    animation-delay: -0.3s;
+  }
+  .load-text span:nth-child(5) {
+    animation-delay: -0.2s;
+  }
+  .load-text span:nth-child(6) {
+    animation-delay: -0.1s;
+  }
+  @keyframes rotate {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes rotate-reverse {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(-360deg); }
+  }
+  @keyframes move {
+    0% { transform: translateY(0%) rotate(0) scale(1); }
+    20% { transform: translateY(20%) rotate(10deg) scale(1.2); }
+    80% { transform: translateY(-10%) rotate(-20deg) scale(.8);}
+    100% { transform: translateY(0) rotate(0) scale(1); }
+  }
+
+  .progress {
+    position: fixed;
+    left: 0; top: 0;
+    width: 0;
+    height: 3px;
+    background-color: green;
+    transition: all cubic-bezier(0.215, 0.610, 0.355, 1) .1s;
+    z-index: 9999;
+  }
+
+  .to-up {
+    animation: toUp .5s 1;
+  }
+  @keyframes toUp {
+    from { transform: translateY(15px); opacity: 0; }
+    to { transform: translateY(0) ; opacity: 1; }
+  }
+</style>
+<body>
+  <div id="load" class="load">
+    <div class="load-circle">
+      <div class="load-circle-inner"></div>
+    </div>
+    <p class="load-text">
+      <span>L</span>
+      <span>O</span>
+      <span>A</span>
+      <span>D</span>
+      <span>I</span>
+      <span>N</span>
+      <span>G</span>
+    </p>
+  </div>
+  <div id="container" class="container w-100 vh-100" style="display: none;">
+    <header class="header">
+  <div class="header-wrapper">
+    <div class="header-left">
+      <div class="header-search">
+        <input id="search-input" type="text" class="header-search--input" placeholder="请输入要检索的文章标题" />
+        <span id="search-btn" class="header-search--icon"><i class="iconfont icon-sousuo"></i></span>
+      </div>
+      <div id="search-layer" class="header-search--layer hidden">
+        <p class="title">
+          <span>以下是搜索内容：</span>
+          <span id="close-layer-btn">关闭</span>
+        </p>
+        <ul>
+        </ul>
+      </div>
+    </div>
+    <div class="header-right">
+      <ul class="header-menu">
+        <li>
+          <a href="/">
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+            <span class="header-menu--span">首页</span>
+          </a>
+        </li>
+        <li>
+          <a href="/log">
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+            <span class="header-menu--span">日志</span>
+          </a>
+        </li>
+        <li>
+          <a href="/link">
+            <i class="header-menu--icon iconfont icon-youqinglianjie"></i>
+            <span class="header-menu--span">友情链接</span>
+          </a>
+        </li>
+        <li>
+          <a href="/about">
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+            <span class="header-menu--span">关于我</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<script>
+  const ipt = document.querySelector('#search-input')
+  const btn = document.querySelector('#search-btn')
+  const layer = document.querySelector('#search-layer')
+  const posts = JSON.parse(`[{"title":"CSS学习(一)","path":"2022/03/20/CSS学习-一/"},{"title":"CSS学习(二)","path":"2022/03/27/CSS学习-二/"},{"title":"Docker","path":"2022/11/09/Docker/"},{"title":"HTML学习(一)","path":"2022/03/14/HTML学习-一/"},{"title":"Dubbo","cover":"imgs/cover5.webp","path":"2022/11/08/Dubbo/"},{"title":"HTML学习(二)","path":"2022/03/14/HTML学习-二/"},{"title":"Linux Nginx学习","path":"2022/10/25/Linux Nginx/"},{"title":"Maven学习","path":"2022/10/14/Maven学习/"},{"title":"RabbitMQ","path":"2022/11/09/RabbitMQ/"},{"title":"SQL，jdbc，MybatisPlus","path":"2022/10/22/SQL/"},{"title":"SpringMVC+SpringBoot学习","cover":"imgs/cover3.webp","path":"2022/10/15/SpringMSV学习/"},{"title":"Spring Franework","cover":"imgs/cover3.webp","path":"2022/10/13/Spring学习/"},{"title":"Vue入门","path":"2022/12/09/Vue入门/"},{"title":"Git学习","path":"2022/10/16/git学习/"},{"title":"Zookeeper","cover":"imgs/cover5.webp","path":"2022/11/09/zookeeper/"},{"title":"个人对于前端岗位的理解","path":"2022/02/27/个人对于前端岗位的理解/"},{"title":"数据库系统概论","cover":"imgs/cover3.webp","path":"2022/11/05/数据库系统概论/"},{"title":"小知识","path":"2022/10/26/杂文/"},{"title":"计算机网络(一)","cover":"imgs/cover1.webp","path":"2022/10/30/计算机网络-一/"},{"title":"计算机网络(二)","cover":"imgs/cover1.webp","path":"2022/10/30/计算机网络-二/"},{"title":"Mango学习(二)","cover":"imgs/cover2.webp","path":"2022/10/30/Mango学习-二/"},{"title":"Mango学习(一)","cover":"imgs/cover2.webp","path":"2022/10/30/MongoDB/"},{"title":"Redis学习","path":"2022/10/26/Redis学习/"},{"title":"Tomcat核心原理","cover":"imgs/cover4.webp","path":"2022/11/06/Tomcat核心原理/"},{"title":"JVM","path":"2022/12/05/JVM/"},{"title":"微服务技术栈(一)","path":"2022/11/20/微服务技术栈(一)/"},{"title":"设计模式(一)","path":"2022/12/02/设计模式(一)/"},{"title":"微服务技术栈(二)","path":"2022/12/02/微服务技术栈-二/"},{"title":"设计模式(二)","path":"2022/12/03/设计模式-二/"}]`)
+  ipt.addEventListener('keyup', e => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  })
+  btn.addEventListener('click', () => {
+    handleSearch()
+  })
+
+  document.querySelector('#close-layer-btn').addEventListener('click', () => {
+    layer.classList.toggle('hidden')
+  })
+
+  function handleSearch() {
+    if (ipt.value.trim() === '') {
+      return
+    }
+    let html = ''
+    const targetPosts = posts.filter(post => post.title.includes(ipt.value))
+    targetPosts.forEach(post => {
+      html += `
+        <li>
+          <div>
+            <a href="/${post.path}">${post.title.replace(new RegExp(ipt.value), `<span>${ipt.value}</span>`)}</a>
+          </div>
+          <img src="${post.cover || '/imgs/default-cover.webp' }" />
+        </li>
+      `
+    })
+    if (html.trim () === '') {
+      html += '<p class="empty">没有搜索到内容</p>'
+    }
+    layer.querySelector('ul').innerHTML = html
+    layer.classList.remove('hidden')
+  }
+</script> 
+    <section id="main" class="main">
+      <div class="main-left-wrapper">
+<div class="main-left">
+  <div class="main-left--block">
+    <div class="main-left--info">
+      <img src="/imgs/avatar.jpg"" class="main-left--avatar" />
+      <div class="main-left--intro">
+        <p class="main-left--name">Nirvana</p>
+        <div class="main-left--tags">
+          <span class="main-left--tag">学习</span>
+          <span class="main-left--tag">摆烂</span>
+        </div>
+      </div>
+    </div>
+  
+    <div>
+      <div class="main-left--motto">
+        <p>“花有重开日，人无再少年”</p>
+        <p>“一个简单普通的男孩”</p>
+      </div>
+      <div class="main-left--github">
+        <span class="line"></span>
+        <a href=""><i class="logo iconfont icon-github-fill"></i></a>
+        <span class="line"></span>
+      </div>
+      <div class="main-left--statics">
+        <a href="/categories">
+          <div>
+            <span>16</span>
+            <span>分类</span>
+          </div>
+        </a>
+        <a href="/tags">
+          <div>
+            <span>11</span>
+            <span>标签</span>
+          </div>
+        </a>
+        <a href="/archives">
+          <div>
+            <span>5 </span>
+            <span>归档</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-left--block">
+    <ul class="main-left--menu">
+      
+        <li>
+          <a href="/">
+            <span class="header-menu--span">小站首页</span>
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/log">
+            <span class="header-menu--span">个人日志</span>
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/about">
+            <span class="header-menu--span">关于自己</span>
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/tools">
+            <span class="header-menu--span">我的工具</span>
+            <i class="header-menu--icon iconfont icon-gongju"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="main-left--block">
+    <div class="main-left--site">
+      <h5 class="main-left--title">
+        <span>站点信息</span>
+        <i class="iconfont icon-zhandian"></i>
+      </h5>
+      <p class="main-left--subtitle">
+        <span>文章数目：</span>
+        <span>29 篇</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>最近动态：</span>
+        <span>今天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>上线时间：</span>
+        <span>274天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>当前版本：</span>
+        <span>v1.0.2</span>
+      </p>
+    </div>
+  </div>
+</div></div>
+      <div id="main-container" class="main-container">
+
+
+  <style>
+pre::-webkit-scrollbar {
+  width: 5px;
+  height: 10px;
+  background-color:#F5F5F5;
+}
+/*定义滚动条轨道
+内阴影+圆角*/
+pre::-webkit-scrollbar-track {
+  background-color:#F5F5F5;
+}
+/*定义滑块
+内阴影+圆角*/
+pre::-webkit-scrollbar-thumb {
+  background-color: rgb(69, 83, 100);
+}
+
+pre:active {
+  background-color: rgb(81, 95, 116);
+}
+</style>
+
+<div class="article-container">
+  <div class="article">
+    <h1 class="article-title">计算机网络(二)</h1>
+    <div class="article-info">
+      <div class="article-info--item">
+        <div class="article-info--info">
+          
+          <div class="article-info--categories">
+            <span>分类：</span>
+            <a class="category-link" href="/categories/%E8%AE%A1%E7%BD%91/">计网</a>
+          </div>
+          
+          
+          <div class="article-info--tags">
+            <span>标签：</span>
+            
+          </div>
+          
+          <p class="article-info--date">日期：2022-10-30 17:35:51</p>
+        </div>
+        <img src="/imgs/cover1.webp" alt="" class="article-cover">
+      </div>
+    </div>
+    <article class="article-content">
+      <h1 id="计算机网络-二"><a href="#计算机网络-二" class="headerlink" title="计算机网络(二)"></a>计算机网络(二)</h1><h1 id="数据链路层"><a href="#数据链路层" class="headerlink" title="数据链路层"></a>数据链路层</h1><h2 id="数据链路层基本概念"><a href="#数据链路层基本概念" class="headerlink" title="数据链路层基本概念"></a>数据链路层基本概念</h2><p>节点:主机、路由</p>
+<p>链路：网络中两个节点之间的物理通道，链路的传输介质主要是有双绞线、光纤和微波。分为有线链路和无线链路</p>
+<p>数据链路：网络中两个节点之间的逻辑通道，把现实控制数据传输协议的硬件和软件加到链路上就构成数据链路。</p>
+<p>数据链路层在物理层提供服务的基础上向<strong>网络层提供服务</strong>，其最基本的服务是将来源于网络层的数据可靠的传输到相邻节点的目标机网络层。<strong>主要作用是加强物理层传输原始比特流的功能</strong>，将物理层提供的可能出错的物理连接改造称为逻辑上无差错的数据链路。</p>
+<h5 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h5><ol>
+<li>为网络层提供服务。</li>
+<li> 链路管理，即连接的建立、维持、释放</li>
+<li>组帧</li>
+<li>流量控制</li>
+<li>差错控制</li>
+</ol>
+<h2 id="封装成帧和透明传输"><a href="#封装成帧和透明传输" class="headerlink" title="封装成帧和透明传输"></a>封装成帧和透明传输</h2><p>封装成帧：在一段数据的前后添加首部和尾部。可以根据比特流上的首部和尾部标记识别帧的开始和结束。</p>
+<p>帧同步：首部和尾部包含许多的控制信息，起到了帧定界的作用（确定帧的界限）</p>
+<p><img src="/images/image-20221211201935833.png" alt="image-20221211201935833"></p>
+<h3 id="透明传输"><a href="#透明传输" class="headerlink" title="透明传输"></a>透明传输</h3><p>不管所传输的数据是什么样的比特组合，都应当能在链路上传输</p>
+<h3 id="组帧方式"><a href="#组帧方式" class="headerlink" title="组帧方式"></a>组帧方式</h3><ol>
+<li><p>字符计数法</p>
+<p>用一个计数字段（第一个字节）来表明帧内字符数</p>
+</li>
+<li><p>字符填充法 </p>
+</li>
+<li><p>零比特填充法</p>
+</li>
+<li><p>违规编码法</p>
+</li>
+</ol>
+<h2 id="差错控制"><a href="#差错控制" class="headerlink" title="差错控制"></a>差错控制</h2><p>传输中差错由于噪声引起的</p>
+<p><img src="/images/image-20221211203441421.png" alt="image-20221211203441421"></p>
+<h4 id="比特错"><a href="#比特错" class="headerlink" title="比特错"></a>比特错</h4><ul>
+<li>检错编码<ul>
+<li>奇偶校验码</li>
+<li>循环冗余码CRC</li>
+</ul>
+</li>
+<li>纠错编码<ul>
+<li>海明码</li>
+</ul>
+</li>
+</ul>
+<h2 id="流量控制与可靠传输机制"><a href="#流量控制与可靠传输机制" class="headerlink" title="流量控制与可靠传输机制"></a>流量控制与可靠传输机制</h2><p>较高的发送速度和较低的接受能力不匹配，会造成传输除左</p>
+<p>数据链路层的流量控制是点对点的，而传输层的流量控制是端到端的</p>
+<p>数据链路层流量控制手段：接收方收不下就不回复确认 </p>
+<p>传输层流量控制手段：接收端给发送端一个窗口公告</p>
+<h4 id="流量控制方法"><a href="#流量控制方法" class="headerlink" title="流量控制方法"></a>流量控制方法</h4><ol>
+<li><p>停止-等待协议</p>
+<p>效率较低</p>
+<p><img src="/images/image-20221211210819340.png" alt="image-20221211210819340"></p>
+</li>
+<li><p>滑动窗口协议</p>
+</li>
+</ol>
+<p><img src="/images/image-20221211211815391.png" alt="image-20221211211815391"></p>
+<ul>
+<li>可靠传输：发送端发啥，接收端收啥</li>
+<li>流量控制：控制发送速率，使接收方有足够的缓冲空间来接收每一个帧</li>
+<li>滑动窗口解决：<ul>
+<li>流量控制</li>
+<li>可靠传输</li>
+</ul>
+</li>
+</ul>
+<h4 id="停止-等待协议"><a href="#停止-等待协议" class="headerlink" title="停止-等待协议"></a>停止-等待协议</h4><ol>
+<li>为什么要有停止等待协议<ul>
+<li>除了比特出差错，底层信道还会出现丢包问题</li>
+<li>为了实现流量控制 </li>
+</ul>
+</li>
+<li>有几种应用情况<ul>
+<li>无差错情况</li>
+<li>有差错情况</li>
+</ul>
+</li>
+</ol>
+<h5 id="有差错情况"><a href="#有差错情况" class="headerlink" title="有差错情况"></a>有差错情况</h5><p><img src="/images/image-20221211213211765.png" alt="image-20221211213211765"></p>
+<p><img src="/images/image-20221211213307380.png" alt="image-20221211213307380"></p>
+<p><img src="/images/image-20221211213505086.png" alt="image-20221211213505086"></p>
+<h5 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h5><p>信道利用率太低</p>
+<h4 id="GBN协议的弊端"><a href="#GBN协议的弊端" class="headerlink" title="GBN协议的弊端"></a>GBN协议的弊端</h4><p>累计确认 -&gt; 导致出错需要批量重传</p>
+<h3 id="选择重传协议"><a href="#选择重传协议" class="headerlink" title="选择重传协议"></a>选择重传协议</h3><h4 id="滑动窗口"><a href="#滑动窗口" class="headerlink" title="滑动窗口"></a>滑动窗口</h4><p><img src="/images/image-20221211231946512.png" alt="image-20221211231946512"></p>
+<h4 id="SR发送方必须响应的事"><a href="#SR发送方必须响应的事" class="headerlink" title="SR发送方必须响应的事"></a>SR发送方必须响应的事</h4><ol>
+<li>上层的调用</li>
+<li>收到一个ACK(确认帧 )</li>
+</ol>
+<h4 id="重点总结"><a href="#重点总结" class="headerlink" title="重点总结"></a>重点总结</h4><ol>
+<li>对数据帧逐一确认,收一个确认一个</li>
+<li>只重传出错帧</li>
+<li>接收方有缓存</li>
+</ol>
+<h2 id="后退N帧协议-GBN"><a href="#后退N帧协议-GBN" class="headerlink" title="后退N帧协议(GBN)"></a>后退N帧协议(GBN)</h2><h3 id="GBN中的滑动窗口"><a href="#GBN中的滑动窗口" class="headerlink" title="GBN中的滑动窗口"></a>GBN中的滑动窗口</h3><p> <img src="/images/image-20221212162429956.png" alt="image-20221212162429956"></p>
+<h3 id="GBN发送方"><a href="#GBN发送方" class="headerlink" title="GBN发送方"></a>GBN发送方</h3><ol>
+<li><p>上层的调用 </p>
+</li>
+<li><p>收到了一个ACK</p>
+<p>​    GBN协议中，对n号帧的确认采用累计确认的方式，标明接收方已经收到n号帧和它之前的全部帧</p>
+</li>
+<li><p>超时时间</p>
+<p>协议的名字为后退N帧，来源于出现丢失和时延过长时发送方的行为。如果出现超时，发送方重传所有已发送但未被确认的帧。  </p>
+</li>
+</ol>
+<h3 id="GBN接收方"><a href="#GBN接收方" class="headerlink" title="GBN接收方"></a>GBN接收方</h3><ul>
+<li>如果n号帧正确收到，并且按序，那么接收方为n帧发送一个ACK，并将该帧中的数据部分交付给上层</li>
+<li>其余情况都丢弃帧，并为最近按序接收的帧重新发送ACK。接收方无需缓存任何失序帧，只需要维护一个信息：expectedseqnum（下一个按序接受的帧序号）</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><img src="/images/image-20221212164750603.png" alt="image-20221212164750603"></p>
+<h2 id="信道划分介质访问控制"><a href="#信道划分介质访问控制" class="headerlink" title="信道划分介质访问控制"></a>信道划分介质访问控制</h2><h3 id="传输时使用的链路"><a href="#传输时使用的链路" class="headerlink" title="传输时使用的链路"></a>传输时使用的链路</h3><ul>
+<li>点对点链路：常用于广域网</li>
+<li>广播式链路：常用于局域网 </li>
+</ul>
+<h2 id="介质访问控制"><a href="#介质访问控制" class="headerlink" title="介质访问控制"></a>介质访问控制</h2><p>采取一定的措施，使得两对节点之间的通信不会发生互相干扰的情况</p>
+<h3 id="介质访问控制-1"><a href="#介质访问控制-1" class="headerlink" title="介质访问控制"></a>介质访问控制</h3><ul>
+<li>静态划分信道<ul>
+<li>信道划分介质访问控制</li>
+</ul>
+</li>
+<li>动态分配信道<ul>
+<li>轮询访问介质访问控制</li>
+<li>随机访问介质访问控制</li>
+</ul>
+</li>
+</ul>
+<h3 id="信道划分介质访问控制-1"><a href="#信道划分介质访问控制-1" class="headerlink" title="信道划分介质访问控制"></a>信道划分介质访问控制</h3><ul>
+<li>基于多路复用技术划分资源</li>
+<li>网络负载重时，共享信道效率高，且公平</li>
+<li>网络负载轻时，效率低</li>
+</ul>
+<p>将使用介质的每个设备与来自同一信道上的其他设备的通信隔离开，把时域和频域资源合理地分配给网络上的设备</p>
+<p><img src="/images/image-20221212183347944.png" alt="image-20221212183347944"></p>
+<p>包括</p>
+<ul>
+<li>频分多路复用FDM</li>
+<li>时分多路复用TDM</li>
+<li>统计时分复用STDM</li>
+<li>波分多路复用WDM</li>
+<li>码分多路复用CDM</li>
+</ul>
+<h3 id="随机访问介质访问控制"><a href="#随机访问介质访问控制" class="headerlink" title="随机访问介质访问控制"></a>随机访问介质访问控制</h3><ul>
+<li>用户根据意愿随机发送信息，发送信息时可以独占信道带宽</li>
+<li>网络负载重时：产生冲突开销</li>
+<li>网络负载重时：共享信道效率高，单个节点可利用信道全部带宽</li>
+</ul>
+<h4 id="ALOHA协议"><a href="#ALOHA协议" class="headerlink" title="ALOHA协议"></a>ALOHA协议</h4><ul>
+<li><p>纯ALOHA协议</p>
+<p>不监听信道，不安时间槽发送，随机重发。（想发就发）</p>
+<p><img src="/images/image-20221212183925202.png" alt="image-20221212183925202"></p>
+</li>
+<li><p>时隙ALOHA协议</p>
+<ul>
+<li>把时间分成若干个相同的时间片，所有用户在时间片开始时刻同步接入网络信道。若发生冲突，则必须等到下一个时间片开始时刻再发送。 </li>
+</ul>
+</li>
+<li><p>纯ALOHA比时隙ALOHA吞吐量更低，效率更低</p>
+</li>
+<li><p>纯ALOHA想发就发，时隙需要等待有时间片</p>
+</li>
+</ul>
+<h4 id="CSMA协议"><a href="#CSMA协议" class="headerlink" title="CSMA协议"></a>CSMA协议</h4><p><img src="/images/image-20221212185848507.png" alt="image-20221212185848507"></p>
+<h3 id="轮询访问介质访问控制"><a href="#轮询访问介质访问控制" class="headerlink" title="轮询访问介质访问控制"></a>轮询访问介质访问控制</h3><p>既不产生冲突，又占全部带宽</p>
+<h4 id="轮询协议"><a href="#轮询协议" class="headerlink" title="轮询协议"></a>轮询协议</h4><p><img src="/images/image-20221212190822579.png" alt="image-20221212190822579"></p>
+<h4 id="令牌传递协议"><a href="#令牌传递协议" class="headerlink" title="令牌传递协议"></a>令牌传递协议</h4><p>令牌：一个特殊格式的MAC控制帧，不含任何信息。</p>
+<p>控制信道的作用，确保同一时刻只有一个节点独占信道  </p>
+<p>每个节点都可以在一定的时间内获得发送数据的权力，并不是无限制地持有令牌 </p>
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p><img src="/images/image-20221212191647488.png" alt="image-20221212191647488"></p>
+<h2 id="局域网基本概念和体系结构"><a href="#局域网基本概念和体系结构" class="headerlink" title="局域网基本概念和体系结构"></a>局域网基本概念和体系结构</h2><p><img src="/images/image-20221212192108858.png" alt="image-20221212192108858"></p>
+<h3 id="局域网介质访问控制方法"><a href="#局域网介质访问控制方法" class="headerlink" title="局域网介质访问控制方法"></a>局域网介质访问控制方法</h3><ol>
+<li>CSMA/CD 常用于总线型局域网，也用于树形</li>
+<li>令牌总线 常用于总线型局域网，也用于树形</li>
+<li>令牌环 用于环形局域网</li>
+</ol>
+<h3 id="局域网分类"><a href="#局域网分类" class="headerlink" title="局域网分类"></a>局域网分类</h3><p><img src="/images/image-20221212194857515.png" alt="image-20221212194857515"></p>
+<h3 id="以太网"><a href="#以太网" class="headerlink" title="以太网"></a>以太网</h3><ul>
+<li>造价低廉</li>
+<li>是应用最广泛的局域网技术</li>
+<li>比令牌环网、ATM网便宜，简单</li>
+</ul>
+<h5 id="以太网提供无连接、不可靠的服务"><a href="#以太网提供无连接、不可靠的服务" class="headerlink" title="以太网提供无连接、不可靠的服务"></a>以太网提供无连接、不可靠的服务</h5><p>无连接：发送方和接收方之间无“握手过程”</p>
+<p>不可靠：不对发送方的数据帧编号，接收方不向发送方进行确认，差错帧直接丢弃，差错纠正由高层负责</p>
+<h3 id="无线局域网"><a href="#无线局域网" class="headerlink" title="无线局域网"></a>无线局域网</h3><p>通用标准使用IEEE 802.11</p>
+<h1 id="网络层"><a href="#网络层" class="headerlink" title="网络层"></a>网络层</h1><p>主要任务是把分组从源端传到目的端，为分组交换网上不同主机提供服务。网络层传输单位是数据报。</p>
+<h5 id="功能-1"><a href="#功能-1" class="headerlink" title="功能"></a>功能</h5><ol>
+<li>路由选择与分组转发</li>
+<li>异构网络互联</li>
+<li>拥塞控制</li>
+</ol>
+<h3 id="数据交换方式"><a href="#数据交换方式" class="headerlink" title="数据交换方式"></a>数据交换方式</h3><h4 id="电路交换"><a href="#电路交换" class="headerlink" title="电路交换"></a>电路交换</h4><ol>
+<li>建立连接</li>
+<li>通信</li>
+<li>释放连接</li>
+</ol>
+<h5 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h5><ul>
+<li>通信延时小</li>
+<li>有序传输</li>
+<li>没有冲突</li>
+<li>实时性强</li>
+</ul>
+<h5 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h5><ul>
+<li>建立连接时间长</li>
+<li>线路独占</li>
+<li>灵活性差</li>
+<li>无差错控制能力</li>
+</ul>
+<h4 id="报文交换"><a href="#报文交换" class="headerlink" title="报文交换"></a>报文交换</h4><p><img src="/images/image-20221212204616503.png" alt="image-20221212204616503"></p>
+<h5 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h5><ul>
+<li>无需建立连接</li>
+<li>存储转发，动态分配线路</li>
+<li>线路可靠性较高</li>
+<li>线路利用率较高</li>
+<li>多目标服务</li>
+</ul>
+<h5 id="缺点-2"><a href="#缺点-2" class="headerlink" title="缺点"></a>缺点</h5><ul>
+<li>由存储转发时延</li>
+<li>报文大小不缺定，需要网络节点有较大缓存空间</li>
+</ul>
+<h4 id="分组交换"><a href="#分组交换" class="headerlink" title="分组交换"></a>分组交换</h4><p>分组：把大的数据分割成小块</p>
+<p><img src="/images/image-20221212204922706.png" alt="image-20221212204922706"></p>
+<h5 id="优点-2"><a href="#优点-2" class="headerlink" title="优点"></a>优点</h5><ul>
+<li>无需建立连接</li>
+<li>存储转发，动态分配线路</li>
+<li>线路可靠性较高</li>
+<li>线路利用率较高</li>
+<li>存储管理更容易</li>
+</ul>
+<h5 id="缺点-3"><a href="#缺点-3" class="headerlink" title="缺点"></a>缺点</h5><ul>
+<li>有存储转发时延</li>
+<li>需要传输额外的信息量</li>
+<li>乱序到达主机时，需要分组排序重组</li>
+</ul>
+<h5 id="包括"><a href="#包括" class="headerlink" title="包括"></a>包括</h5><ul>
+<li>数据包方式：为网络层提供无连接服务</li>
+<li>虚电路方式：为网络层提供连接服务 </li>
+</ul>
+<h4 id="数据报"><a href="#数据报" class="headerlink" title="数据报"></a>数据报</h4><ul>
+<li>无连接</li>
+<li>每个分组携带源和目的地址</li>
+<li>路由器根据分组的目的地址转发分组</li>
+</ul>
+<h4 id="虚电路"><a href="#虚电路" class="headerlink" title="虚电路"></a>虚电路</h4><ul>
+<li>建立连接</li>
+<li>数据传输</li>
+<li>释放连接</li>
+</ul>
+<h3 id="路由算法以及相关协议概述"><a href="#路由算法以及相关协议概述" class="headerlink" title="路由算法以及相关协议概述"></a>路由算法以及相关协议概述</h3><p>路由算法</p>
+<ol>
+<li>静态路由算法（非自适应路由算法）管理员手工配置路由信息</li>
+<li>动态路由（自适应路由算法）路由器之间彼此交换信息，按照路由算法优化出路由表项</li>
+</ol>
+<p>动态路由算法</p>
+<ol>
+<li>全局性</li>
+<li>分散性</li>
+</ol>
+<p>路由选择协议</p>
+<ol>
+<li>内部网关协议</li>
+<li>外部网关协议</li>
+</ol>
+<h3 id="IP数据报格式"><a href="#IP数据报格式" class="headerlink" title="IP数据报格式"></a>IP数据报格式</h3><p><img src="/images/image-20221212234100835.png" alt="image-20221212234100835"></p>
+<p><img src="/images/image-20221212235927665.png" alt="image-20221212235927665"></p>
+<p><img src="/images/image-20221213001214954.png" alt="image-20221213001214954"></p>
+<h3 id="IP地址"><a href="#IP地址" class="headerlink" title="IP地址"></a>IP地址</h3><h4 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h4><p><img src="/images/image-20221213002654453.png" alt="image-20221213002654453"></p>
+<h3 id="网络地址转换"><a href="#网络地址转换" class="headerlink" title="网络地址转换"></a>网络地址转换</h3><p>NAT：在专用网连接到因特网的路由器上安装NAT软件，安装了NAT软件的路由器叫NAT路由器，至少有一个有效的外部全球IP地址</p>
+<h3 id="子网划分"><a href="#子网划分" class="headerlink" title="子网划分"></a>子网划分</h3><ol>
+<li>IP地址空间的利用率有时很低</li>
+<li>两级IP地址不够灵活           </li>
+</ol>
+<p><img src="/images/image-20221213004952109.png" alt="image-20221213004952109"></p>
+<h3 id="ARP协议"><a href="#ARP协议" class="headerlink" title="ARP协议"></a>ARP协议</h3><h4 id="发送数据的过程"><a href="#发送数据的过程" class="headerlink" title="发送数据的过程"></a>发送数据的过程</h4><p><img src="/images/image-20221213013504495.png" alt="image-20221213013504495"></p>
+<h3 id="主机如何获得IP地址"><a href="#主机如何获得IP地址" class="headerlink" title="主机如何获得IP地址"></a>主机如何获得IP地址</h3><ul>
+<li>静态配置</li>
+<li>动态配置</li>
+</ul>
+<h4 id="DHCP协议"><a href="#DHCP协议" class="headerlink" title="DHCP协议"></a>DHCP协议</h4><p>动态主机配置协议DHCP是应用层协议,使用客户/服务器方式,客户端和服务端广播方式进行交互,基于UDP</p>
+<p>DHCP提供即插即用联网的机制，主机可以从服务器动态获取IP地址、子网掩码、默认网关、DNS服务器名称与IP地址，允许地址重用，支持移动用户加入网络，支持在用地址续租。</p>
+<ol>
+<li>1.主机广播DHCP发现报文</li>
+<li>2.DHCP服务器广播DHCP提供报文</li>
+<li>主机广播DHCP请求报文</li>
+<li>4.DHCP服务器广播DHCP确认报文</li>
+</ol>
+<h3 id="ICMP协议"><a href="#ICMP协议" class="headerlink" title="ICMP协议"></a>ICMP协议</h3><p>实现差错或异常的报告以及网络探寻</p>
+<h3 id="RIP协议"><a href="#RIP协议" class="headerlink" title="RIP协议"></a>RIP协议</h3><p> RIP是一种分布式的基于距离向量的路由选择协议，是因特网的协议标准，最大优点是简单。</p>
+<p>RIP协议要求网络中每一个路由器都维护从它自己到其他每一个目的网络的唯一最佳距离记录（即一组距离）。</p>
+<p>距离:通常为“跳数”，即从源端口到目的端口所经过的路由器个数，经过一个路由器跳数+1。特别的，从一路由器到直接连接的网络距离为1。RIP允许一条路由最多只能包含15个路由器，因此距离为16表示网络不可达</p>
+<p>所以RIP协议只适用于小互联网</p>
+<p><img src="/images/image-20221213014401837.png" alt="image-20221213014401837"></p>
+<h3 id="距离向量算法"><a href="#距离向量算法" class="headerlink" title="距离向量算法"></a>距离向量算法</h3><p><img src="/images/image-20221213014652436.png" alt="image-20221213014652436"></p>
+<h3 id="OSPF协议"><a href="#OSPF协议" class="headerlink" title="OSPF协议"></a>OSPF协议</h3><p>开放最短路径优先OSPF协议:“开放”标明oSPF协议不是受某一家厂商控制，而是公开发表的;“最短路径优先是因为使用了Dijkstra提出的最短路径算法SPF。</p>
+<p>OSPF最主要的特征就是使用分布式的链路状态协议。</p>
+<p><img src="/images/image-20221213014811930.png" alt="image-20221213014811930"></p>
+<h3 id="链路状态算法"><a href="#链路状态算法" class="headerlink" title="链路状态算法"></a>链路状态算法</h3><p><img src="/images/image-20221213014845629.png" alt="image-20221213014845629"></p>
+<h3 id="IP数据报的三种传输方式"><a href="#IP数据报的三种传输方式" class="headerlink" title="IP数据报的三种传输方式"></a>IP数据报的三种传输方式</h3><ol>
+<li><p>单播</p>
+<p>点对点</p>
+</li>
+<li><p>广播</p>
+<p>点对多点</p>
+</li>
+<li><p>组播(多播)</p>
+<p>点对多点  </p>
+</li>
+</ol>
+
+    </article>
+    
+    <div class="read-nums">
+      <!-- id 将作为查询条件 -->
+      <span id="2022/10/30/计算机网络-二/" class="leancloud_visitors" data-flag-title="Your Article Title">
+        <em class="post-meta-item-text">浏览量</em>
+        <i class="leancloud-visitors-count"></i>
+      </span>
+    </div>
+    <div class="comments-intro">
+      <h2>评论区</h2>
+      <p>欢迎你留下宝贵的意见，昵称输入QQ号会显示QQ头像哦~</p>
+    </div>
+    <div id="vcomments" class="vcomments"></div>
+    
+  </div>
+  <div class="article-catelogue">
+    <div class="article-catelogue--wrapper">
+      <div class="catelogue catelogue-1">
+        <h3>目录</h3>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-%E4%BA%8C"><span class="toc-number">1.</span> <span class="toc-text">计算机网络(二)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82"><span class="toc-number">2.</span> <span class="toc-text">数据链路层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">2.1.</span> <span class="toc-text">数据链路层基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD"><span class="toc-number">2.1.0.0.1.</span> <span class="toc-text">功能</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%81%E8%A3%85%E6%88%90%E5%B8%A7%E5%92%8C%E9%80%8F%E6%98%8E%E4%BC%A0%E8%BE%93"><span class="toc-number">2.2.</span> <span class="toc-text">封装成帧和透明传输</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%8F%E6%98%8E%E4%BC%A0%E8%BE%93"><span class="toc-number">2.2.1.</span> <span class="toc-text">透明传输</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%84%E5%B8%A7%E6%96%B9%E5%BC%8F"><span class="toc-number">2.2.2.</span> <span class="toc-text">组帧方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%AE%E9%94%99%E6%8E%A7%E5%88%B6"><span class="toc-number">2.3.</span> <span class="toc-text">差错控制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AF%94%E7%89%B9%E9%94%99"><span class="toc-number">2.3.0.1.</span> <span class="toc-text">比特错</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E6%9C%BA%E5%88%B6"><span class="toc-number">2.4.</span> <span class="toc-text">流量控制与可靠传输机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E6%96%B9%E6%B3%95"><span class="toc-number">2.4.0.1.</span> <span class="toc-text">流量控制方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%81%9C%E6%AD%A2-%E7%AD%89%E5%BE%85%E5%8D%8F%E8%AE%AE"><span class="toc-number">2.4.0.2.</span> <span class="toc-text">停止-等待协议</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9C%89%E5%B7%AE%E9%94%99%E6%83%85%E5%86%B5"><span class="toc-number">2.4.0.2.1.</span> <span class="toc-text">有差错情况</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9"><span class="toc-number">2.4.0.2.2.</span> <span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GBN%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%BC%8A%E7%AB%AF"><span class="toc-number">2.4.0.3.</span> <span class="toc-text">GBN协议的弊端</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%89%E6%8B%A9%E9%87%8D%E4%BC%A0%E5%8D%8F%E8%AE%AE"><span class="toc-number">2.4.1.</span> <span class="toc-text">选择重传协议</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3"><span class="toc-number">2.4.1.1.</span> <span class="toc-text">滑动窗口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SR%E5%8F%91%E9%80%81%E6%96%B9%E5%BF%85%E9%A1%BB%E5%93%8D%E5%BA%94%E7%9A%84%E4%BA%8B"><span class="toc-number">2.4.1.2.</span> <span class="toc-text">SR发送方必须响应的事</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E7%82%B9%E6%80%BB%E7%BB%93"><span class="toc-number">2.4.1.3.</span> <span class="toc-text">重点总结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E9%80%80N%E5%B8%A7%E5%8D%8F%E8%AE%AE-GBN"><span class="toc-number">2.5.</span> <span class="toc-text">后退N帧协议(GBN)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#GBN%E4%B8%AD%E7%9A%84%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3"><span class="toc-number">2.5.1.</span> <span class="toc-text">GBN中的滑动窗口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GBN%E5%8F%91%E9%80%81%E6%96%B9"><span class="toc-number">2.5.2.</span> <span class="toc-text">GBN发送方</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GBN%E6%8E%A5%E6%94%B6%E6%96%B9"><span class="toc-number">2.5.3.</span> <span class="toc-text">GBN接收方</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.6.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%A1%E9%81%93%E5%88%92%E5%88%86%E4%BB%8B%E8%B4%A8%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6"><span class="toc-number">2.7.</span> <span class="toc-text">信道划分介质访问控制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%A0%E8%BE%93%E6%97%B6%E4%BD%BF%E7%94%A8%E7%9A%84%E9%93%BE%E8%B7%AF"><span class="toc-number">2.7.1.</span> <span class="toc-text">传输时使用的链路</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E8%B4%A8%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6"><span class="toc-number">2.8.</span> <span class="toc-text">介质访问控制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E8%B4%A8%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6-1"><span class="toc-number">2.8.1.</span> <span class="toc-text">介质访问控制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%A1%E9%81%93%E5%88%92%E5%88%86%E4%BB%8B%E8%B4%A8%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6-1"><span class="toc-number">2.8.2.</span> <span class="toc-text">信道划分介质访问控制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%8F%E6%9C%BA%E8%AE%BF%E9%97%AE%E4%BB%8B%E8%B4%A8%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6"><span class="toc-number">2.8.3.</span> <span class="toc-text">随机访问介质访问控制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ALOHA%E5%8D%8F%E8%AE%AE"><span class="toc-number">2.8.3.1.</span> <span class="toc-text">ALOHA协议</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CSMA%E5%8D%8F%E8%AE%AE"><span class="toc-number">2.8.3.2.</span> <span class="toc-text">CSMA协议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AE%E8%AF%A2%E8%AE%BF%E9%97%AE%E4%BB%8B%E8%B4%A8%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6"><span class="toc-number">2.8.4.</span> <span class="toc-text">轮询访问介质访问控制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BD%AE%E8%AF%A2%E5%8D%8F%E8%AE%AE"><span class="toc-number">2.8.4.1.</span> <span class="toc-text">轮询协议</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%A4%E7%89%8C%E4%BC%A0%E9%80%92%E5%8D%8F%E8%AE%AE"><span class="toc-number">2.8.4.2.</span> <span class="toc-text">令牌传递协议</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-number">2.9.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B1%80%E5%9F%9F%E7%BD%91%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E5%92%8C%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84"><span class="toc-number">2.10.</span> <span class="toc-text">局域网基本概念和体系结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BB%8B%E8%B4%A8%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E6%96%B9%E6%B3%95"><span class="toc-number">2.10.1.</span> <span class="toc-text">局域网介质访问控制方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B1%80%E5%9F%9F%E7%BD%91%E5%88%86%E7%B1%BB"><span class="toc-number">2.10.2.</span> <span class="toc-text">局域网分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A5%E5%A4%AA%E7%BD%91"><span class="toc-number">2.10.3.</span> <span class="toc-text">以太网</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%A5%E5%A4%AA%E7%BD%91%E6%8F%90%E4%BE%9B%E6%97%A0%E8%BF%9E%E6%8E%A5%E3%80%81%E4%B8%8D%E5%8F%AF%E9%9D%A0%E7%9A%84%E6%9C%8D%E5%8A%A1"><span class="toc-number">2.10.3.0.1.</span> <span class="toc-text">以太网提供无连接、不可靠的服务</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E7%BA%BF%E5%B1%80%E5%9F%9F%E7%BD%91"><span class="toc-number">2.10.4.</span> <span class="toc-text">无线局域网</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E5%B1%82"><span class="toc-number">3.</span> <span class="toc-text">网络层</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD-1"><span class="toc-number">3.0.0.0.1.</span> <span class="toc-text">功能</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E4%BA%A4%E6%8D%A2%E6%96%B9%E5%BC%8F"><span class="toc-number">3.0.1.</span> <span class="toc-text">数据交换方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%B5%E8%B7%AF%E4%BA%A4%E6%8D%A2"><span class="toc-number">3.0.1.1.</span> <span class="toc-text">电路交换</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BC%98%E7%82%B9"><span class="toc-number">3.0.1.1.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9-1"><span class="toc-number">3.0.1.1.2.</span> <span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8A%A5%E6%96%87%E4%BA%A4%E6%8D%A2"><span class="toc-number">3.0.1.2.</span> <span class="toc-text">报文交换</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BC%98%E7%82%B9-1"><span class="toc-number">3.0.1.2.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9-2"><span class="toc-number">3.0.1.2.2.</span> <span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E7%BB%84%E4%BA%A4%E6%8D%A2"><span class="toc-number">3.0.1.3.</span> <span class="toc-text">分组交换</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BC%98%E7%82%B9-2"><span class="toc-number">3.0.1.3.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9-3"><span class="toc-number">3.0.1.3.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8C%85%E6%8B%AC"><span class="toc-number">3.0.1.3.3.</span> <span class="toc-text">包括</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%8A%A5"><span class="toc-number">3.0.1.4.</span> <span class="toc-text">数据报</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%99%9A%E7%94%B5%E8%B7%AF"><span class="toc-number">3.0.1.5.</span> <span class="toc-text">虚电路</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%AF%E7%94%B1%E7%AE%97%E6%B3%95%E4%BB%A5%E5%8F%8A%E7%9B%B8%E5%85%B3%E5%8D%8F%E8%AE%AE%E6%A6%82%E8%BF%B0"><span class="toc-number">3.0.2.</span> <span class="toc-text">路由算法以及相关协议概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IP%E6%95%B0%E6%8D%AE%E6%8A%A5%E6%A0%BC%E5%BC%8F"><span class="toc-number">3.0.3.</span> <span class="toc-text">IP数据报格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IP%E5%9C%B0%E5%9D%80"><span class="toc-number">3.0.4.</span> <span class="toc-text">IP地址</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E7%B1%BB"><span class="toc-number">3.0.4.1.</span> <span class="toc-text">分类</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2"><span class="toc-number">3.0.5.</span> <span class="toc-text">网络地址转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%90%E7%BD%91%E5%88%92%E5%88%86"><span class="toc-number">3.0.6.</span> <span class="toc-text">子网划分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ARP%E5%8D%8F%E8%AE%AE"><span class="toc-number">3.0.7.</span> <span class="toc-text">ARP协议</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%91%E9%80%81%E6%95%B0%E6%8D%AE%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-number">3.0.7.1.</span> <span class="toc-text">发送数据的过程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%A6%82%E4%BD%95%E8%8E%B7%E5%BE%97IP%E5%9C%B0%E5%9D%80"><span class="toc-number">3.0.8.</span> <span class="toc-text">主机如何获得IP地址</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DHCP%E5%8D%8F%E8%AE%AE"><span class="toc-number">3.0.8.1.</span> <span class="toc-text">DHCP协议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ICMP%E5%8D%8F%E8%AE%AE"><span class="toc-number">3.0.9.</span> <span class="toc-text">ICMP协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RIP%E5%8D%8F%E8%AE%AE"><span class="toc-number">3.0.10.</span> <span class="toc-text">RIP协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%9D%E7%A6%BB%E5%90%91%E9%87%8F%E7%AE%97%E6%B3%95"><span class="toc-number">3.0.11.</span> <span class="toc-text">距离向量算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OSPF%E5%8D%8F%E8%AE%AE"><span class="toc-number">3.0.12.</span> <span class="toc-text">OSPF协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E7%AE%97%E6%B3%95"><span class="toc-number">3.0.13.</span> <span class="toc-text">链路状态算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IP%E6%95%B0%E6%8D%AE%E6%8A%A5%E7%9A%84%E4%B8%89%E7%A7%8D%E4%BC%A0%E8%BE%93%E6%96%B9%E5%BC%8F"><span class="toc-number">3.0.14.</span> <span class="toc-text">IP数据报的三种传输方式</span></a></li></ol></li></ol></li></ol>
+      </div>
+      
+        <div class="catelogue catelogue-2">
+          
+            <p>
+              <span>上一篇：</span>
+              <a href="/2022/10/30/计算机网络-一/">计算机网络(一)</a>
+            </p>
+           
+          
+            <p>
+              <span>下一篇</span>
+              <a href="/2022/10/30/Mango学习-二/">Mango学习(二)</a>
+            </p>
+          
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+<script src="/js/prism.js"></script>
+
+<script>
+  // var定义，避免pjax重新进来造成的重复声明错误
+  var config = JSON.parse('{"enable":true,"appId":"Pf8zCXGEH1qsprnWfikVVujL-gzGzoHsz","appKey":"qOqoiUHhH1TGtLRUYURkLRQX","placeholder":"请留下你宝贵的意见吧~","meta":["nick"],"recordIP":true,"visitor":true,"enableQQ":true}')
+  new Valine({
+    el: '#vcomments',
+    appId: config.appId,
+    appKey: config.appKey,
+    placeholder: config.placeholder,
+    meta: config.meta,
+    recordIP: config.recordIP,
+    visitor: config.visitor,
+    enableQQ: config.enableQQ,
+    path: '2022/10/30/计算机网络-二/'
+  })
+</script>
+
+
+<script>
+  $(document).on('pjax:complete', function() {
+    const tocs = document.querySelector('.toc')
+    const as = tocs ? tocs.querySelectorAll('a') : []
+    as.forEach(a => {
+      a.addEventListener('click', e => {
+        const href = decodeURIComponent(a.href)
+        href.search(/#(.*)/)
+        const id = RegExp.$1
+        const target = document.querySelector('#' + id)
+        const top = target.offsetTop
+        document.documentElement.scrollTo({
+          top: top - 100,
+          behavior: 'smooth'
+        })
+        e.preventDefault()
+      })
+    })
+  })
+</script> 
+
+</div>
+      <div class="main-right-wrapper"><div class="main-right">
+  <div class="main-right--board">
+    <div class="main-right--title">
+      <h5>公告栏</h5>
+      <i class="iconfont icon-gonggao"></i>
+    </div>
+    <div class="main-right--content">
+      欢迎来到我的博客捏，记录着一些自己学习的知识内容，期待和大家的交流 
+    </div>
+  </div>
+
+  <div id="aplayer" class="main-right--music"></div>
+
+  <div class="operate-items">
+    <div class="operate-item backtop">
+      <i class="iconfont icon-huidaodingbu"></i>
+      <span>回到顶部</span>
+    </div>
+    
+    <div class="operate-item turn-comment hidden">
+      <i class="iconfont icon-pinglun"></i>
+      <span>查看评论</span>
+    </div>
+    
+  </div>
+
+  <div class="main-right--site">
+    <div class="main-right--power">
+      <p>Power By <a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">Hexo</a>.</p>
+      <p>Theme：<a target="_blank" rel="noopener" href="https://github.com/Aizener/hexo-theme-cola">Cola.</a></p>
+    </div>
+    <p class="main-right--refer">By Nirvana. </p>
+  </div>
+</div>
+
+<script>
+  function setOperateItem () {
+    const reg = /\d{4}\/\d{2}\/\d{2}\/.+/
+    const path = location.pathname
+    const commentDom = document.querySelector('.turn-comment')
+    if (commentDom) {
+      if (reg.test(path) || path.match(/\/log\/.+/)) {
+        commentDom.classList.remove('hidden')
+      } else {
+        commentDom.classList.add('hidden')
+      }
+    }
+  }
+
+  setOperateItem()
+  const musics = JSON.parse(`[{"name":"卡","artist":"布","url":"达","cover":"/"},{"name":"暂","artist":"无","cover":"/"},{"name":"/","artist":"m","url":"u","cover":"/s"},{"name":"h","artist":"t","url":"t","cover":"/p"}]`)
+  const ap = new APlayer({
+    container: document.querySelector('#aplayer'),
+    audio: musics,
+  })
+
+  $(document).on('pjax:complete', function() {
+    setOperateItem()
+  })
+
+  document.querySelector('.backtop').addEventListener('click', () => {
+    document.documentElement.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  })
+  const dom = document.querySelector('.turn-comment')
+  dom && dom.addEventListener('click', () => {
+    const commentDom = document.querySelector('.comments-intro')
+    if (!commentDom) return
+    const top = commentDom.offsetTop, height = commentDom.offsetHeight
+    document.documentElement.scrollTo({
+      top: top - 2 * height,
+      behavior: 'smooth'
+    })
+  })
+</script></div>
+    </section>
+  </div>
+  <div id="progress" class="progress"></div>
+
+  <script>
+    function initScroll () {
+      document.addEventListener('scroll', () => {
+        const doc = document.documentElement
+        const scrollTop = doc.scrollTop
+        const pageHeight = doc.offsetHeight
+        const clientHeight = doc.clientHeight
+        const ratio = scrollTop / (pageHeight - clientHeight)
+        const progress = document.querySelector('#progress')
+        const avatarImg = document.querySelector('.main-left--avatar')
+        progress.style.width = (100 * ratio) + '%'
+        avatarImg.style.transform = `rotate(${360 * ratio}deg)`
+      })
+    }
+
+
+    window.onload = function () {
+      setTimeout(() => {
+        $('#load').slideUp()
+        $('#container').slideToggle()
+        setTimeout(() => {
+          initScroll()
+          if (['/', '/log/', '/link/', '/about/', '/tools/'].includes(location.pathname) && window.innerWidth > 1200) {
+            init && init('container') // 水波纹动画
+          }
+        }, 500)
+      }, 500)
+    }
+    
+    // 对所有链接跳转事件绑定pjax容器container
+    $(document).pjax('a[target!=_blank]', '#main-container', {fragment:'#main-container', timeout:8000})
+
+    $(document).on('pjax:start', function() {
+      // $('.main-container').hide()
+    })
+    $(document).on('pjax:complete', function() {
+      $('.main-container').addClass('to-up').on('animationend', function() {
+        $(this).removeClass('to-up')
+      })
+    })
+    $(document).on('pjax:popstate', function() {
+      // $('.main-container').fadeIn()
+    })
+  </script>
+  
+</body>
+</html>
