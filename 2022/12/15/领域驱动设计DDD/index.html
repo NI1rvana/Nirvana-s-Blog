@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Hexo | 领域驱动设计DDD | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/imgs/shortcut-icon.ico" type="image/x-icon">
+
+  
+    <link rel="stylesheet" href="/css/public.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/iconfont.css" />
+    <link rel="stylesheet" href="/css/APlayer.min.css" />
+    <script src="/js/APlayer.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.pjax.min.js"></script>
+  
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+  <script>
+    document.title = `Hexo | 领域驱动设计DDD`
+  </script>
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+<style>
+  .load {
+    width: 100%;
+    height: 100vh;
+    background-color: rgb(37, 35, 40);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 9999;
+  }
+  .load-circle {
+    width: 80px;
+    height: 80px;
+    border: 8px solid orange;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: rotate 1s linear infinite;
+    filter: drop-shadow(0 0 3px orange);
+  }
+  .load-circle-inner {
+    width: 40px;
+    height: 40px;
+    border: 8px solid orange;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: rotate-reverse .5s linear infinite;
+  }
+  .load-text {
+    margin-top: 20px;
+    font-size: 24px;
+    color: orange;
+    display: flex;
+  }
+  .load-text span {
+    margin: 0 5px;
+    text-shadow: 5px 5px 5px orange;
+    animation: move 1s linear infinite;
+  }
+  .load-text span:nth-child(1) {
+    animation-delay: -0.6s;
+  }
+  .load-text span:nth-child(2) {
+    animation-delay: -0.5s;
+  }
+  .load-text span:nth-child(3) {
+    animation-delay: -0.4s;
+  }
+  .load-text span:nth-child(4) {
+    animation-delay: -0.3s;
+  }
+  .load-text span:nth-child(5) {
+    animation-delay: -0.2s;
+  }
+  .load-text span:nth-child(6) {
+    animation-delay: -0.1s;
+  }
+  @keyframes rotate {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes rotate-reverse {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(-360deg); }
+  }
+  @keyframes move {
+    0% { transform: translateY(0%) rotate(0) scale(1); }
+    20% { transform: translateY(20%) rotate(10deg) scale(1.2); }
+    80% { transform: translateY(-10%) rotate(-20deg) scale(.8);}
+    100% { transform: translateY(0) rotate(0) scale(1); }
+  }
+
+  .progress {
+    position: fixed;
+    left: 0; top: 0;
+    width: 0;
+    height: 3px;
+    background-color: green;
+    transition: all cubic-bezier(0.215, 0.610, 0.355, 1) .1s;
+    z-index: 9999;
+  }
+
+  .to-up {
+    animation: toUp .5s 1;
+  }
+  @keyframes toUp {
+    from { transform: translateY(15px); opacity: 0; }
+    to { transform: translateY(0) ; opacity: 1; }
+  }
+</style>
+<body>
+  <div id="load" class="load">
+    <div class="load-circle">
+      <div class="load-circle-inner"></div>
+    </div>
+    <p class="load-text">
+      <span>L</span>
+      <span>O</span>
+      <span>A</span>
+      <span>D</span>
+      <span>I</span>
+      <span>N</span>
+      <span>G</span>
+    </p>
+  </div>
+  <div id="container" class="container w-100 vh-100" style="display: none;">
+    <header class="header">
+  <div class="header-wrapper">
+    <div class="header-left">
+      <div class="header-search">
+        <input id="search-input" type="text" class="header-search--input" placeholder="请输入要检索的文章标题" />
+        <span id="search-btn" class="header-search--icon"><i class="iconfont icon-sousuo"></i></span>
+      </div>
+      <div id="search-layer" class="header-search--layer hidden">
+        <p class="title">
+          <span>以下是搜索内容：</span>
+          <span id="close-layer-btn">关闭</span>
+        </p>
+        <ul>
+        </ul>
+      </div>
+    </div>
+    <div class="header-right">
+      <ul class="header-menu">
+        <li>
+          <a href="/">
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+            <span class="header-menu--span">首页</span>
+          </a>
+        </li>
+        <li>
+          <a href="/log">
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+            <span class="header-menu--span">日志</span>
+          </a>
+        </li>
+        <li>
+          <a href="/link">
+            <i class="header-menu--icon iconfont icon-youqinglianjie"></i>
+            <span class="header-menu--span">友情链接</span>
+          </a>
+        </li>
+        <li>
+          <a href="/about">
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+            <span class="header-menu--span">关于我</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<script>
+  const ipt = document.querySelector('#search-input')
+  const btn = document.querySelector('#search-btn')
+  const layer = document.querySelector('#search-layer')
+  const posts = JSON.parse(`[{"title":"CSS学习(一)","path":"2022/03/20/CSS学习-一/"},{"title":"CSS学习(二)","path":"2022/03/27/CSS学习-二/"},{"title":"Docker","path":"2022/11/09/Docker/"},{"title":"HTML学习(一)","path":"2022/03/14/HTML学习-一/"},{"title":"Dubbo","cover":"imgs/cover5.webp","path":"2022/11/08/Dubbo/"},{"title":"HTML学习(二)","path":"2022/03/14/HTML学习-二/"},{"title":"Linux Nginx学习","path":"2022/10/25/Linux Nginx/"},{"title":"Maven学习","path":"2022/10/14/Maven学习/"},{"title":"RabbitMQ","path":"2022/11/09/RabbitMQ/"},{"title":"SQL，jdbc，MybatisPlus","path":"2022/10/22/SQL/"},{"title":"SpringMVC+SpringBoot学习","cover":"imgs/cover3.webp","path":"2022/10/15/SpringMSV学习/"},{"title":"Spring Franework","cover":"imgs/cover3.webp","path":"2022/10/13/Spring学习/"},{"title":"Vue入门","path":"2022/12/09/Vue入门/"},{"title":"Git学习","path":"2022/10/16/git学习/"},{"title":"Zookeeper","cover":"imgs/cover5.webp","path":"2022/11/09/zookeeper/"},{"title":"个人对于前端岗位的理解","path":"2022/02/27/个人对于前端岗位的理解/"},{"title":"数据库系统概论","cover":"imgs/cover3.webp","path":"2022/11/05/数据库系统概论/"},{"title":"小知识","path":"2022/10/26/杂文/"},{"title":"计算机网络(一)","cover":"imgs/cover1.webp","path":"2022/10/30/计算机网络-一/"},{"title":"计算机网络(二)","cover":"imgs/cover1.webp","path":"2022/12/12/计算机网络-二/"},{"title":"Mango学习(二)","cover":"imgs/cover2.webp","path":"2022/10/30/Mango学习-二/"},{"title":"Mango学习(一)","cover":"imgs/cover2.webp","path":"2022/10/30/MongoDB/"},{"title":"Redis学习","path":"2022/10/26/Redis学习/"},{"title":"Tomcat核心原理","cover":"imgs/cover4.webp","path":"2022/11/06/Tomcat核心原理/"},{"title":"JVM","path":"2022/12/05/JVM/"},{"title":"微服务技术栈(一)","path":"2022/11/20/微服务技术栈(一)/"},{"title":"设计模式(一)","path":"2022/12/02/设计模式(一)/"},{"title":"微服务技术栈(二)","path":"2022/12/02/微服务技术栈-二/"},{"title":"设计模式(二)","path":"2022/12/03/设计模式-二/"},{"title":"并发教程","path":"2022/12/19/并发教程/"},{"title":"领域驱动设计DDD","path":"2022/12/15/领域驱动设计DDD/"}]`)
+  ipt.addEventListener('keyup', e => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  })
+  btn.addEventListener('click', () => {
+    handleSearch()
+  })
+
+  document.querySelector('#close-layer-btn').addEventListener('click', () => {
+    layer.classList.toggle('hidden')
+  })
+
+  function handleSearch() {
+    if (ipt.value.trim() === '') {
+      return
+    }
+    let html = ''
+    const targetPosts = posts.filter(post => post.title.includes(ipt.value))
+    targetPosts.forEach(post => {
+      html += `
+        <li>
+          <div>
+            <a href="/${post.path}">${post.title.replace(new RegExp(ipt.value), `<span>${ipt.value}</span>`)}</a>
+          </div>
+          <img src="${post.cover || '/imgs/default-cover.webp' }" />
+        </li>
+      `
+    })
+    if (html.trim () === '') {
+      html += '<p class="empty">没有搜索到内容</p>'
+    }
+    layer.querySelector('ul').innerHTML = html
+    layer.classList.remove('hidden')
+  }
+</script> 
+    <section id="main" class="main">
+      <div class="main-left-wrapper">
+<div class="main-left">
+  <div class="main-left--block">
+    <div class="main-left--info">
+      <img src="/imgs/avatar.jpg"" class="main-left--avatar" />
+      <div class="main-left--intro">
+        <p class="main-left--name">Nirvana</p>
+        <div class="main-left--tags">
+          <span class="main-left--tag">学习</span>
+          <span class="main-left--tag">摆烂</span>
+        </div>
+      </div>
+    </div>
+  
+    <div>
+      <div class="main-left--motto">
+        <p>“花有重开日，人无再少年”</p>
+        <p>“一个简单普通的男孩”</p>
+      </div>
+      <div class="main-left--github">
+        <span class="line"></span>
+        <a href=""><i class="logo iconfont icon-github-fill"></i></a>
+        <span class="line"></span>
+      </div>
+      <div class="main-left--statics">
+        <a href="/categories">
+          <div>
+            <span>16</span>
+            <span>分类</span>
+          </div>
+        </a>
+        <a href="/tags">
+          <div>
+            <span>12</span>
+            <span>标签</span>
+          </div>
+        </a>
+        <a href="/archives">
+          <div>
+            <span>5 </span>
+            <span>归档</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-left--block">
+    <ul class="main-left--menu">
+      
+        <li>
+          <a href="/">
+            <span class="header-menu--span">小站首页</span>
+            <i class="header-menu--icon iconfont icon-shouye"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/log">
+            <span class="header-menu--span">个人日志</span>
+            <i class="header-menu--icon iconfont icon-rizhi"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/about">
+            <span class="header-menu--span">关于自己</span>
+            <i class="header-menu--icon iconfont icon-guanyuwomen"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a href="/tools">
+            <span class="header-menu--span">我的工具</span>
+            <i class="header-menu--icon iconfont icon-gongju"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="main-left--block">
+    <div class="main-left--site">
+      <h5 class="main-left--title">
+        <span>站点信息</span>
+        <i class="iconfont icon-zhandian"></i>
+      </h5>
+      <p class="main-left--subtitle">
+        <span>文章数目：</span>
+        <span>31 篇</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>最近动态：</span>
+        <span>今天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>上线时间：</span>
+        <span>293天</span>
+      </p>
+      <p class="main-left--subtitle">
+        <span>当前版本：</span>
+        <span>v1.0.2</span>
+      </p>
+    </div>
+  </div>
+</div></div>
+      <div id="main-container" class="main-container">
+
+
+  <style>
+pre::-webkit-scrollbar {
+  width: 5px;
+  height: 10px;
+  background-color:#F5F5F5;
+}
+/*定义滚动条轨道
+内阴影+圆角*/
+pre::-webkit-scrollbar-track {
+  background-color:#F5F5F5;
+}
+/*定义滑块
+内阴影+圆角*/
+pre::-webkit-scrollbar-thumb {
+  background-color: rgb(69, 83, 100);
+}
+
+pre:active {
+  background-color: rgb(81, 95, 116);
+}
+</style>
+
+<div class="article-container">
+  <div class="article">
+    <h1 class="article-title">领域驱动设计DDD</h1>
+    <div class="article-info">
+      <div class="article-info--item">
+        <div class="article-info--info">
+          
+          <div class="article-info--categories">
+            <span>分类：</span>
+            
+          </div>
+          
+          
+          <div class="article-info--tags">
+            <span>标签：</span>
+            <a class="tag-link" href="/tags/%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/" rel="tag">领域驱动设计</a>
+          </div>
+          
+          <p class="article-info--date">日期：2022-12-15 13:04:22</p>
+        </div>
+        <img src="/imgs/default-cover.webp" alt="" class="article-cover">
+      </div>
+    </div>
+    <article class="article-content">
+      <h1 id="领域驱动设计"><a href="#领域驱动设计" class="headerlink" title="领域驱动设计"></a>领域驱动设计</h1><h5 id="什么是领域驱动设计？"><a href="#什么是领域驱动设计？" class="headerlink" title="什么是领域驱动设计？"></a><strong>什么是领域驱动设计</strong>？</h5><p>领域驱动设计是一种由<strong>域模型</strong>来驱动着系统设计的思想，不是通过存储数据词典(DB表字段、ES Mapper字段等等)来驱动系统设计。领域模型是对业务模型的抽象，DDD是把业务模型翻译成系统架构设计的一种方式。</p>
+<h5 id="DDD与其他架构有什么区别"><a href="#DDD与其他架构有什么区别" class="headerlink" title="DDD与其他架构有什么区别?"></a><strong>DDD与其他架构有什么区别?</strong></h5><h2 id="案例引入"><a href="#案例引入" class="headerlink" title="案例引入"></a>案例引入</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//Version 1.0</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RegistrationServiceImpl</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token keyword">private</span> <span class="token class-name">UserRepository</span> userrepo<span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token class-name">SalesRepRepository</span> salseRepRepo<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">User</span> register <span class="token punctuation">(</span><span class="token class-name">String</span> name<span class="token punctuation">,</span><span class="token class-name">String</span> phone<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">ValidationException</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">//参数校验</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>name <span class="token operator">==</span> <span class="token keyword">null</span> <span class="token operator">||</span> name<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ValidationException</span><span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>phone <span class="token operator">==</span> <span class="token keyword">null</span> <span class="token operator">||</span> phone<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ValidationException</span><span class="token punctuation">(</span><span class="token string">"phone"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+
+        <span class="token comment">//获取 归属地areaCode 和 运营商编号operationCode 然后找到SalseRep</span>
+        <span class="token class-name">String</span> areaCode <span class="token operator">=</span> <span class="token function">getAreaCode</span><span class="token punctuation">(</span>phone<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">String</span> operationCode <span class="token operator">=</span> <span class="token function">getOperationCode</span><span class="token punctuation">(</span>phone<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">SelesRep</span> rep <span class="token operator">=</span> salseRepRepo<span class="token punctuation">.</span><span class="token function">findRep</span><span class="token punctuation">(</span>areaCode<span class="token punctuation">,</span>operationCode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//进行用户注册 创建用户并返回</span>
+        <span class="token class-name">User</span> user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        user<span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+        user<span class="token punctuation">.</span>phone <span class="token operator">=</span> phone<span class="token punctuation">;</span>
+        user<span class="token punctuation">.</span>repId <span class="token operator">=</span> rep<span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> userRepo<span class="token punctuation">.</span><span class="token function">save</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">private</span> <span class="token class-name">String</span> <span class="token function">getAreaCode</span><span class="token punctuation">(</span><span class="token class-name">String</span> phone<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">//...</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">private</span> <span class="token class-name">String</span> <span class="token function">getOperationCode</span><span class="token punctuation">(</span><span class="token class-name">String</span> phone<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">//...</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>可拓展性差<ul>
+<li>若后期对注册方法进行拓展，添加其他多种注册方式<ul>
+<li>每种方法内都需要进行多次校验，存在大量重复代码。</li>
+</ul>
+</li>
+<li>若某一种类型的参数需要修改<ul>
+<li>需要针对多种方法进行修改，明显不符合开闭原则</li>
+</ul>
+</li>
+<li>若将校验函数统一封装在一个工具类内<ul>
+<li>检验过程仍在注册方法类内，检验过程中的异常和注册的业务逻辑异常耦合在一起</li>
+<li>未来参数越来越多，校验逻辑不断膨胀导致后续维护性从差</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown"><span class="token title important"><span class="token punctuation">#</span> 修改目标</span>
+	1.增强可拓展性，最好带有自检性
+	2.参数校验逻辑可复用
+	3.参数校验异常和业务逻辑异常解耦<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//Version 2.0</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> phoneNumber <span class="token punctuation">&#123;</span>
+    <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">String</span> number<span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">String</span> pattern <span class="token operator">=</span> <span class="token string">"xxx"</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">getNumber</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> number<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token function">phoneNumber</span><span class="token punctuation">(</span><span class="token class-name">String</span> number<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>number <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ValidationException</span><span class="token punctuation">(</span><span class="token string">"number"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isValid</span><span class="token punctuation">(</span>number<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ValidationException</span><span class="token punctuation">(</span><span class="token string">"格式错误"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>number <span class="token operator">=</span> number<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">boolean</span> <span class="token function">isValid</span><span class="token punctuation">(</span><span class="token class-name">String</span> number<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> number<span class="token punctuation">.</span><span class="token function">matches</span><span class="token punctuation">(</span>pattern<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RegistrationServiceImpl</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token keyword">private</span> <span class="token class-name">UserRepository</span> userrepo<span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token class-name">SalesRepRepository</span> salseRepRepo<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">User</span> register <span class="token punctuation">(</span><span class="token class-name">String</span> name<span class="token punctuation">,</span>phoneNumber phone<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">ValidationException</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">//获取 归属地areaCode 和 运营商编号operationCode 然后找到SalseRep</span>
+        <span class="token class-name">String</span> areaCode <span class="token operator">=</span> <span class="token function">getAreaCode</span><span class="token punctuation">(</span>phone<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">String</span> operationCode <span class="token operator">=</span> <span class="token function">getOperationCode</span><span class="token punctuation">(</span>phone<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">SelesRep</span> rep <span class="token operator">=</span> salseRepRepo<span class="token punctuation">.</span><span class="token function">findRep</span><span class="token punctuation">(</span>areaCode<span class="token punctuation">,</span>operationCode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//进行用户注册 创建用户并返回</span>
+        <span class="token class-name">User</span> user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        user<span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+        user<span class="token punctuation">.</span>phone <span class="token operator">=</span> phone<span class="token punctuation">;</span>
+        user<span class="token punctuation">.</span>repId <span class="token operator">=</span> rep<span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> userRepo<span class="token punctuation">.</span><span class="token function">save</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">private</span> <span class="token class-name">String</span> <span class="token function">getAreaCode</span><span class="token punctuation">(</span><span class="token class-name">String</span> phone<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">//...</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">private</span> <span class="token class-name">String</span> <span class="token function">getOperationCode</span><span class="token punctuation">(</span><span class="token class-name">String</span> phone<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">//...</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>思考</strong>:</p>
+<ul>
+<li><p>获取归属地和运营商编号是否属于注册业务内？</p>
+<p>不属于。</p>
+</li>
+<li><p>为什么要在注册方法内获取归属地和运营商编号</p>
+<p>为了对适配接口，对参数进行处理拼接</p>
+</li>
+</ul>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//Version 3.0</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RegistrationServiceImpl</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token keyword">private</span> <span class="token class-name">UserRepository</span> userrepo<span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token class-name">SalesRepRepository</span> salseRepRepo<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">User</span> register <span class="token punctuation">(</span><span class="token class-name">String</span> name<span class="token punctuation">,</span>phoneNumber phone<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">ValidationException</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">//获取 归属地areaCode 和 运营商编号operationCode 然后找到SalseRep</span>
+        <span class="token class-name">SelesRep</span> rep <span class="token operator">=</span> salseRepRepo<span class="token punctuation">.</span><span class="token function">findRep</span><span class="token punctuation">(</span>phone<span class="token punctuation">.</span><span class="token function">getAreaCodeareaCode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                                            phone<span class="token punctuation">.</span><span class="token function">getOperationCodeoperationCode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//进行用户注册 创建用户并返回</span>
+        <span class="token class-name">User</span> user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        user<span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+        user<span class="token punctuation">.</span>phone <span class="token operator">=</span> phone<span class="token punctuation">;</span>
+        user<span class="token punctuation">.</span>repId <span class="token operator">=</span> rep<span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> userRepo<span class="token punctuation">.</span><span class="token function">save</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="DDD与其他架构有什么区别-1"><a href="#DDD与其他架构有什么区别-1" class="headerlink" title="DDD与其他架构有什么区别?"></a><strong>DDD与其他架构有什么区别?</strong></h5><p>在传统mvc架构中M 表示 Model，V 表示 View，C 表示 Controller。它将整个项目分为三层：数据层、展示层、逻辑层。这就导致很多的数据层的类只包含数据，但是不包含业务逻辑。属于贫血模型</p>
+<p>而作为DDD中的phoneNumber类，既包含了数据，又包含了数据校验，还有其相关属性的职责。属于充血模型。</p>
+<h2 id="贫血模型"><a href="#贫血模型" class="headerlink" title="贫血模型"></a>贫血模型</h2><ul>
+<li>贫血模型是一种领域模型，其中领域对象包含很少或没有业务逻辑。是一种面向过程的编程模式，将数据和过程结合在一起。</li>
+<li>因为贫血模型没有逻辑实现，所以逻辑基本上会放到调用贫血模型的service中，这些service类会转换领域对象的状态。</li>
+</ul>
+<h4 id="贫血模型的优点"><a href="#贫血模型的优点" class="headerlink" title="贫血模型的优点"></a>贫血模型的优点</h4><ul>
+<li>贫血模型的系统层次结构清楚，各层之间单向依赖</li>
+<li>领域对象几乎只作传输介质之用，不会影响到层次的划分</li>
+</ul>
+<h4 id="贫血模型的缺点"><a href="#贫血模型的缺点" class="headerlink" title="贫血模型的缺点"></a>贫血模型的缺点</h4><ul>
+<li>对象状态和行为分离(贫血模型中，对象只有属性，get/set方法，业务逻辑在不在对象类内部)，所以一个完整的业务逻辑描述不能在一个类中完成，而是一组相互协作的类共同完成的。</li>
+<li>不够面向对象，领域对象只是作为保存状态或者传递状态使用。只有数据没有行为的对象不是真正的对象。</li>
+<li>可复性很差，业务逻辑的描述能力较差。一个稍微复杂的业务逻辑，就需要太多类和太多代码去表达。</li>
+</ul>
+<h2 id="充血模型"><a href="#充血模型" class="headerlink" title="充血模型"></a>充血模型</h2><ul>
+<li>数据和对应的业务逻辑被封装到同一个类中。因此，这种充血模型满足面向对象的封装特性，是典型的面向对象编程风格。</li>
+<li>业务逻辑集中在 Service 类中。基于充血模型，Service 层包含 Service 类和 Domain 类两部分。Domain 是基于充血模型开发的，既包含数据，也包含业务逻辑。而 Service 类变得非常单薄。</li>
+<li>充血模型中，绝大多业务逻辑都应该被放在domain里面，包括持久化逻辑，而Service层是很薄的一层，仅仅封装事务和少量逻辑。</li>
+</ul>
+<h4 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h4><ul>
+<li>面向对象，符合单一职责，不像在贫血模型里面那样包含所有的业务逻辑太过沉重</li>
+<li>适合于复杂的企业业务逻辑实现，可复用程度高。</li>
+</ul>
+<h4 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h4><ul>
+<li>如何划分业务逻辑，什么样的逻辑应该放在Domain中，什么样的业务逻辑应该放在Service 中，这是很含糊的。</li>
+<li>对象自治度高的结果就是不利于大规模团队分工协作。</li>
+</ul>
+<h2 id="领域驱动架构"><a href="#领域驱动架构" class="headerlink" title="领域驱动架构"></a>领域驱动架构</h2><p>领域驱动设计没有特定的架构风格，它的核心是域模型驱动业务的思想，常见的领域驱动设计架构有经典的三层架构、REST架构、事件驱动架构、CQRS架构、六边形架构等。</p>
+<h2 id="领域和子域"><a href="#领域和子域" class="headerlink" title="领域和子域"></a>领域和子域</h2><p>在研究和解决业务问题时，DDD 会按照一定的规则将业务领域进行细分，当领域细分到一定的程度后，DDD 会将问题范围限定在特定的边界内，在这个边界内建立领域模型，进而用代码实现该领域模型，解决相应的业务问题。简言之，DDD 的领域就是这个边界内要解决的业务问题域。</p>
+<p>领域可以进一步划分为子领域。我们把划分出来的多个子领域称为子域，每个子域对应一个更小的问题域或更小的业务范围。</p>
+<p>领域的核心思想就是将问题域逐级细分，来降低业务理解和系统实现的复杂度。通过领域细分，逐步缩小服务需要解决的问题域，构建合适的领域模型。</p>
+<h4 id="子域划分"><a href="#子域划分" class="headerlink" title="子域划分"></a>子域划分</h4><ul>
+<li>核心域：决定产品和公司核心竞争力的子域，它是业务成功的主要因素和公司的核心竞争力。</li>
+<li>通用域：没有太多个性化的诉求，同时被多个子域使用的通用功能的子域。</li>
+<li>支撑域：但既不包含决定产品和公司核心竞争力的功能，也不包含通用功能的子域。</li>
+</ul>
+<h3 id="DDD中的模型"><a href="#DDD中的模型" class="headerlink" title="DDD中的模型"></a>DDD中的模型</h3><p>Model与传统的POJO类等对比，都是一个类中有属性、属性有Get/Set方法，并且做传输对象。</p>
+<p>Model与传统MVC三层架构层的业务逻辑层中的Service对比，都是处理业务行为(Action)层。</p>
+<p><strong>模型（Model）承载着业务的属性和具体的行为，是业务表达的方式、是DDD的内核。是一个类中有属性、属性有Get/Set方法，并且业务的行为（Action）操作也是在模型类中（充血模型）即做业务逻辑处理，又做数据传输对象，模型分为Entity、Value Object、Service这三种类型。</strong></p>
+<ol>
+<li><p>Entity (实体)</p>
+</li>
+<li><ol>
+<li>有特定的标识，标识着这个Model在系统中全局唯一</li>
+<li>内部值可以是变化的，可能存在生命周期 (比如订单对象，状态值是连续变化的)</li>
+<li>有状态的Value Object</li>
+</ol>
+</li>
+<li><p>Value Object （值对象）</p>
+</li>
+<li><ol>
+<li>内部值是不变的，不存在生命周期 (比如地址对象不存在生命周期)</li>
+<li>无状态对象</li>
+</ol>
+</li>
+<li><p>Service （服务）</p>
+</li>
+<li><ol>
+<li>无状态对象</li>
+<li>当一个属性或行为放在Entity、Value Object中模棱两可或不合适的时候就需要以Service的形式来呈现</li>
+</ol>
+</li>
+</ol>
+<h3 id="领域驱动三层架构"><a href="#领域驱动三层架构" class="headerlink" title="领域驱动三层架构"></a>领域驱动三层架构</h3><h4 id="API层"><a href="#API层" class="headerlink" title="API层"></a>API层</h4><p>API层是作为对外打包、前端接口调用使用。</p>
+<h4 id="Domain层"><a href="#Domain层" class="headerlink" title="Domain层"></a>Domain层</h4><p>Domian层是整个域模型，不能直接把它打包成maven给别人使用，也不能直接把它作为接口给前端使用，有些需要API层作为进行转换后调用Domain，对调用Domain返回的数据进行包装筛选后再返回出去。系统的核心层，所有具体的业务逻辑处理、事件处理等都在这层域模型中处理</p>
+<h4 id="Repository-层"><a href="#Repository-层" class="headerlink" title="Repository 层"></a>Repository 层</h4><p>数据源代理层，Repository 层类似一个网关代理，它本身没有数据，数据都是通过它的代理来被Domain层访问，被代理的数据源不仅仅可以是DB、ES还可以是HTTP、RPC任何与Domain层进行数据交互的都叫Repository</p>
+<p><img src="/images/v2-3904b52986b120ea91a499b55ecf1619_720w.webp" alt="img"></p>
+<h2 id="DP"><a href="#DP" class="headerlink" title="DP"></a><strong>DP</strong></h2><p>在DDD里，DP可以说是一切模型、方法、架构的基础。它是在特定领域内、拥有精准定义、可以自我验证、拥有行为的对象。可以认为是领域的最小组成部分。</p>
+<p>DP三条原则</p>
+<ul>
+<li>让隐性的概念显性化</li>
+<li>让隐性的上下文显性化</li>
+<li>封装多对象行为</li>
+</ul>
+
+    </article>
+    
+    <div class="read-nums">
+      <!-- id 将作为查询条件 -->
+      <span id="2022/12/15/领域驱动设计DDD/" class="leancloud_visitors" data-flag-title="Your Article Title">
+        <em class="post-meta-item-text">浏览量</em>
+        <i class="leancloud-visitors-count"></i>
+      </span>
+    </div>
+    <div class="comments-intro">
+      <h2>评论区</h2>
+      <p>欢迎你留下宝贵的意见，昵称输入QQ号会显示QQ头像哦~</p>
+    </div>
+    <div id="vcomments" class="vcomments"></div>
+    
+  </div>
+  <div class="article-catelogue">
+    <div class="article-catelogue--wrapper">
+      <div class="catelogue catelogue-1">
+        <h3>目录</h3>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1"><span class="toc-number">1.</span> <span class="toc-text">领域驱动设计</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%EF%BC%9F"><span class="toc-number">1.0.0.0.1.</span> <span class="toc-text">什么是领域驱动设计？</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#DDD%E4%B8%8E%E5%85%B6%E4%BB%96%E6%9E%B6%E6%9E%84%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"><span class="toc-number">1.0.0.0.2.</span> <span class="toc-text">DDD与其他架构有什么区别?</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E5%BC%95%E5%85%A5"><span class="toc-number">1.1.</span> <span class="toc-text">案例引入</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#DDD%E4%B8%8E%E5%85%B6%E4%BB%96%E6%9E%B6%E6%9E%84%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB-1"><span class="toc-number">1.1.0.0.1.</span> <span class="toc-text">DDD与其他架构有什么区别?</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B4%AB%E8%A1%80%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.2.</span> <span class="toc-text">贫血模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B4%AB%E8%A1%80%E6%A8%A1%E5%9E%8B%E7%9A%84%E4%BC%98%E7%82%B9"><span class="toc-number">1.2.0.1.</span> <span class="toc-text">贫血模型的优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B4%AB%E8%A1%80%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="toc-number">1.2.0.2.</span> <span class="toc-text">贫血模型的缺点</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%85%E8%A1%80%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.3.</span> <span class="toc-text">充血模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E7%82%B9"><span class="toc-number">1.3.0.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9"><span class="toc-number">1.3.0.2.</span> <span class="toc-text">缺点</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E6%9E%B6%E6%9E%84"><span class="toc-number">1.4.</span> <span class="toc-text">领域驱动架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%86%E5%9F%9F%E5%92%8C%E5%AD%90%E5%9F%9F"><span class="toc-number">1.5.</span> <span class="toc-text">领域和子域</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%90%E5%9F%9F%E5%88%92%E5%88%86"><span class="toc-number">1.5.0.1.</span> <span class="toc-text">子域划分</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DDD%E4%B8%AD%E7%9A%84%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.5.1.</span> <span class="toc-text">DDD中的模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E4%B8%89%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="toc-number">1.5.2.</span> <span class="toc-text">领域驱动三层架构</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#API%E5%B1%82"><span class="toc-number">1.5.2.1.</span> <span class="toc-text">API层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Domain%E5%B1%82"><span class="toc-number">1.5.2.2.</span> <span class="toc-text">Domain层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Repository-%E5%B1%82"><span class="toc-number">1.5.2.3.</span> <span class="toc-text">Repository 层</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DP"><span class="toc-number">1.6.</span> <span class="toc-text">DP</span></a></li></ol></li></ol>
+      </div>
+      
+        <div class="catelogue catelogue-2">
+          
+            <p>
+              <span>上一篇：</span>
+              <a href="/2022/12/19/并发教程/">并发教程</a>
+            </p>
+           
+          
+            <p>
+              <span>下一篇</span>
+              <a href="/2022/12/12/计算机网络-二/">计算机网络(二)</a>
+            </p>
+          
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+<script src="/js/prism.js"></script>
+
+<script>
+  // var定义，避免pjax重新进来造成的重复声明错误
+  var config = JSON.parse('{"enable":true,"appId":"Pf8zCXGEH1qsprnWfikVVujL-gzGzoHsz","appKey":"qOqoiUHhH1TGtLRUYURkLRQX","placeholder":"请留下你宝贵的意见吧~","meta":["nick"],"recordIP":true,"visitor":true,"enableQQ":true}')
+  new Valine({
+    el: '#vcomments',
+    appId: config.appId,
+    appKey: config.appKey,
+    placeholder: config.placeholder,
+    meta: config.meta,
+    recordIP: config.recordIP,
+    visitor: config.visitor,
+    enableQQ: config.enableQQ,
+    path: '2022/12/15/领域驱动设计DDD/'
+  })
+</script>
+
+
+<script>
+  $(document).on('pjax:complete', function() {
+    const tocs = document.querySelector('.toc')
+    const as = tocs ? tocs.querySelectorAll('a') : []
+    as.forEach(a => {
+      a.addEventListener('click', e => {
+        const href = decodeURIComponent(a.href)
+        href.search(/#(.*)/)
+        const id = RegExp.$1
+        const target = document.querySelector('#' + id)
+        const top = target.offsetTop
+        document.documentElement.scrollTo({
+          top: top - 100,
+          behavior: 'smooth'
+        })
+        e.preventDefault()
+      })
+    })
+  })
+</script> 
+
+</div>
+      <div class="main-right-wrapper"><div class="main-right">
+  <div class="main-right--board">
+    <div class="main-right--title">
+      <h5>公告栏</h5>
+      <i class="iconfont icon-gonggao"></i>
+    </div>
+    <div class="main-right--content">
+      欢迎来到我的博客捏，记录着一些自己学习的知识内容，期待和大家的交流 
+    </div>
+  </div>
+
+  <div id="aplayer" class="main-right--music"></div>
+
+  <div class="operate-items">
+    <div class="operate-item backtop">
+      <i class="iconfont icon-huidaodingbu"></i>
+      <span>回到顶部</span>
+    </div>
+    
+    <div class="operate-item turn-comment hidden">
+      <i class="iconfont icon-pinglun"></i>
+      <span>查看评论</span>
+    </div>
+    
+  </div>
+
+  <div class="main-right--site">
+    <div class="main-right--power">
+      <p>Power By <a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">Hexo</a>.</p>
+      <p>Theme：<a target="_blank" rel="noopener" href="https://github.com/Aizener/hexo-theme-cola">Cola.</a></p>
+    </div>
+    <p class="main-right--refer">By Nirvana. </p>
+  </div>
+</div>
+
+<script>
+  function setOperateItem () {
+    const reg = /\d{4}\/\d{2}\/\d{2}\/.+/
+    const path = location.pathname
+    const commentDom = document.querySelector('.turn-comment')
+    if (commentDom) {
+      if (reg.test(path) || path.match(/\/log\/.+/)) {
+        commentDom.classList.remove('hidden')
+      } else {
+        commentDom.classList.add('hidden')
+      }
+    }
+  }
+
+  setOperateItem()
+  const musics = JSON.parse(`[{"name":"卡","artist":"布","url":"达","cover":"/"},{"name":"暂","artist":"无","cover":"/"},{"name":"/","artist":"m","url":"u","cover":"/s"},{"name":"h","artist":"t","url":"t","cover":"/p"}]`)
+  const ap = new APlayer({
+    container: document.querySelector('#aplayer'),
+    audio: musics,
+  })
+
+  $(document).on('pjax:complete', function() {
+    setOperateItem()
+  })
+
+  document.querySelector('.backtop').addEventListener('click', () => {
+    document.documentElement.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  })
+  const dom = document.querySelector('.turn-comment')
+  dom && dom.addEventListener('click', () => {
+    const commentDom = document.querySelector('.comments-intro')
+    if (!commentDom) return
+    const top = commentDom.offsetTop, height = commentDom.offsetHeight
+    document.documentElement.scrollTo({
+      top: top - 2 * height,
+      behavior: 'smooth'
+    })
+  })
+</script></div>
+    </section>
+  </div>
+  <div id="progress" class="progress"></div>
+
+  <script>
+    function initScroll () {
+      document.addEventListener('scroll', () => {
+        const doc = document.documentElement
+        const scrollTop = doc.scrollTop
+        const pageHeight = doc.offsetHeight
+        const clientHeight = doc.clientHeight
+        const ratio = scrollTop / (pageHeight - clientHeight)
+        const progress = document.querySelector('#progress')
+        const avatarImg = document.querySelector('.main-left--avatar')
+        progress.style.width = (100 * ratio) + '%'
+        avatarImg.style.transform = `rotate(${360 * ratio}deg)`
+      })
+    }
+
+
+    window.onload = function () {
+      setTimeout(() => {
+        $('#load').slideUp()
+        $('#container').slideToggle()
+        setTimeout(() => {
+          initScroll()
+          if (['/', '/log/', '/link/', '/about/', '/tools/'].includes(location.pathname) && window.innerWidth > 1200) {
+            init && init('container') // 水波纹动画
+          }
+        }, 500)
+      }, 500)
+    }
+    
+    // 对所有链接跳转事件绑定pjax容器container
+    $(document).pjax('a[target!=_blank]', '#main-container', {fragment:'#main-container', timeout:8000})
+
+    $(document).on('pjax:start', function() {
+      // $('.main-container').hide()
+    })
+    $(document).on('pjax:complete', function() {
+      $('.main-container').addClass('to-up').on('animationend', function() {
+        $(this).removeClass('to-up')
+      })
+    })
+    $(document).on('pjax:popstate', function() {
+      // $('.main-container').fadeIn()
+    })
+  </script>
+  
+</body>
+</html>
