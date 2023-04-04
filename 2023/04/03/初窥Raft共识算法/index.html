@@ -376,8 +376,8 @@ pre:active {
       </div>
     </div>
     <article class="article-content">
-      <h1 id="初窥Raft共识算法"><a href="#初窥Raft共识算法" class="headerlink" title="初窥Raft共识算法"></a>初窥Raft共识算法</h1><p>​        之前做技术分享的同学已经介绍过Raft共识算法了，关于算法的概述以及MIT6.824 2A的实现方法可以看他的博客<a target="_blank" rel="noopener" href="https://www.jiuyou2020.cn/articles/63">Raft共识算法&amp;MIT6.824 lab2A (jiuyou2020.cn)</a>，这里就不过多赘述了。本文主要涉及的是详解一下领导者选举的流程以及Raft算法是如何进行日志复制的。</p>
-<h2 id="1-领导者选举"><a href="#1-领导者选举" class="headerlink" title="1.领导者选举"></a>1.领导者选举</h2><blockquote>
+      <p>​        之前做技术分享的同学已经介绍过Raft共识算法了，关于算法的概述以及MIT6.824 2A的实现方法可以看他的博客<a target="_blank" rel="noopener" href="https://www.jiuyou2020.cn/articles/63">Raft共识算法&amp;MIT6.824 lab2A (jiuyou2020.cn)</a>，这里就不过多赘述了。本文主要涉及的是详解一下领导者选举的流程以及Raft算法是如何进行日志复制的。</p>
+<h2 id="领导者选举"><a href="#领导者选举" class="headerlink" title="领导者选举"></a>领导者选举</h2><blockquote>
 <ul>
 <li><strong>Leader</strong>：正常情况下，每个集群只有一个Leader。负责处理客户端的写请求、日志复制、向Follower定期发送心跳信息。也就是说，数据是从 Leader向其他节点单向流动的。</li>
 <li><strong>Candidate</strong>：Candidate节点向其他节点发送请求投票的RPC消息，如果赢得了大多数选票，就成为 Leader。</li>
@@ -386,9 +386,9 @@ pre:active {
 </blockquote>
 <p><img src="/images/%E9%A2%86%E5%AF%BC%E8%80%85%E9%80%89%E4%B8%BE.jpg" alt="领导者选举"></p>
 <p>想要了解raft领导者选举的具体过程，有几个重要的概念需要知道</p>
-<h3 id="1-1-任期"><a href="#1-1-任期" class="headerlink" title="1.1 任期"></a>1.1 任期</h3><p>Raft将集群时间划分为一个个连续的任期(Term)。每个任期内只选举一个leader，当该leader节点发生故障之后，其他节点会在新的任期内选举出新的leader，该leader的任期在之前的leader基础上加一。</p>
+<h3 id="任期"><a href="#任期" class="headerlink" title="任期"></a>任期</h3><p>Raft将集群时间划分为一个个连续的任期(Term)。每个任期内只选举一个leader，当该leader节点发生故障之后，其他节点会在新的任期内选举出新的leader，该leader的任期在之前的leader基础上加一。</p>
 <p>Raft系统中，任期是一个及其重要的概念，每个节点都维护着当前任期的值，每次节点间的通信都包含任期信息，每个节点在检测到自己的任期值低于其他节点，都会更新自己的任期值，设置为检测到的较高的值。当Leader和Candidate发现自己的任期低于别的节点，则立即把自己转换为Follower。</p>
-<h3 id="1-2-选举流程"><a href="#1-2-选举流程" class="headerlink" title="1.2 选举流程"></a>1.2 选举流程</h3><ul>
+<h3 id="选举流程"><a href="#选举流程" class="headerlink" title="选举流程"></a>选举流程</h3><ul>
 <li>所有的节点初始状态都是follower，并被设定一个超时时间。每当超过这个选举时间，follower就会转变为candidate进行选举。Raft算法将每个节点的超时时间设为随机值（在一定范围内），尽可能保证同一时间不会有多个follewer进行选举。这个超时时间会被由leader发出的心跳重置，当follower长时间接收不到节点时，就会重复选举过程。</li>
 <li>在follower变成candidate之后，要完成如下事件<ul>
 <li>增加自己的任期数</li>
@@ -402,14 +402,14 @@ pre:active {
 <li>每个Follower在一个任期内只能投一票，采取先到先得的策略。每个Follower有一个计时器，在计时器超时时仍然没有接受到来自Leader的心跳RPC, 则转换为Candidate, 开始请求投票。也就是在当期Leader当掉后，就会有Follower开始转换为Candidate开始投票。</li>
 </ul>
 <p>可以通过这个网站来模拟这个过程<a target="_blank" rel="noopener" href="https://raft.github.io/">Raft Consensus Algorithm</a></p>
-<h2 id="2-日志复制"><a href="#2-日志复制" class="headerlink" title="2.日志复制"></a>2.日志复制</h2><h3 id="2-1-日志组成"><a href="#2-1-日志组成" class="headerlink" title="2.1 日志组成"></a>2.1 日志组成</h3><pre class="line-numbers language-go" data-language="go"><code class="language-go"><span class="token keyword">type</span> Log <span class="token keyword">struct</span> <span class="token punctuation">&#123;</span>
+<h2 id="日志复制"><a href="#日志复制" class="headerlink" title="日志复制"></a>日志复制</h2><h3 id="日志组成"><a href="#日志组成" class="headerlink" title="日志组成"></a>日志组成</h3><pre class="line-numbers language-go" data-language="go"><code class="language-go"><span class="token keyword">type</span> Log <span class="token keyword">struct</span> <span class="token punctuation">&#123;</span>
 	LogTerm  <span class="token builtin">int</span>
 	LogIndex <span class="token builtin">int</span>
 	Cmd      <span class="token keyword">interface</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>Log由任期号，Log索引号以及具体的操作内容组成。</p>
-<h3 id="2-2-具体过程"><a href="#2-2-具体过程" class="headerlink" title="2.2 具体过程"></a>2.2 具体过程</h3><p>在一个节点选举成功成为leader之后，它就可以收到服务器的请求，leader将服务器的请求作为新的内容添加到日志中。任期号为当前Leader所处的任期号，索引号为当前Leader本地存储的日志集合中的日志的最高索引号加1。</p>
+<h3 id="具体过程"><a href="#具体过程" class="headerlink" title="具体过程"></a>具体过程</h3><p>在一个节点选举成功成为leader之后，它就可以收到服务器的请求，leader将服务器的请求作为新的内容添加到日志中。任期号为当前Leader所处的任期号，索引号为当前Leader本地存储的日志集合中的日志的最高索引号加1。</p>
 <p>之后，leader将日志复制的请求同心跳发送给其他节点（follower）。在收到大部分follower的复制成功的消息后，leader将该日志提交，具体过程分为三步。</p>
 <ol>
 <li>将改日志在本地磁盘持久化</li>
@@ -418,13 +418,13 @@ pre:active {
 </ol>
 <p>在此过程中，若有的follower没有返回消息，则leader将会重复发送直到成功</p>
 <p>依然可以通过这个网站来模拟这个过程<a target="_blank" rel="noopener" href="https://raft.github.io/">Raft Consensus Algorithm</a></p>
-<h2 id="2-3-在出现一致性问题时的解决方案"><a href="#2-3-在出现一致性问题时的解决方案" class="headerlink" title="2.3 在出现一致性问题时的解决方案"></a>2.3 在出现一致性问题时的解决方案</h2><h4 id="2-3-1-日志不一致的三种情况"><a href="#2-3-1-日志不一致的三种情况" class="headerlink" title="2.3.1 日志不一致的三种情况"></a>2.3.1 日志不一致的三种情况</h4><p>网络不可能一直处于正常情况，因为Leader或者某个Follower有可能会崩溃，从而导致日志不能一直保持一致，因此存在以下三种情况：</p>
+<h2 id="在出现一致性问题时的解决方案"><a href="#在出现一致性问题时的解决方案" class="headerlink" title="在出现一致性问题时的解决方案"></a>在出现一致性问题时的解决方案</h2><h4 id="日志不一致的三种情况"><a href="#日志不一致的三种情况" class="headerlink" title="日志不一致的三种情况"></a>日志不一致的三种情况</h4><p>网络不可能一直处于正常情况，因为Leader或者某个Follower有可能会崩溃，从而导致日志不能一直保持一致，因此存在以下三种情况：</p>
 <ol>
 <li>Follower缺失当前Leader上存在的日志条目。</li>
 <li>Follower存在当前Leader不存在的日志条目。</li>
 <li>Follower即缺失当前Leader上存在的日志条目，也存在当前Leader不存在的日志条目。</li>
 </ol>
-<h4 id="2-3-2-日志不一致的解决方案"><a href="#2-3-2-日志不一致的解决方案" class="headerlink" title="2.3.2 日志不一致的解决方案"></a>2.3.2 日志不一致的解决方案</h4><p>Leader通过强迫Follower的日志重复自己的日志来处理不一致之处，这意味着Follower日志中的冲突日志将被Leader日志中的条目覆盖。这个过程如下：</p>
+<h4 id="日志不一致的解决方案"><a href="#日志不一致的解决方案" class="headerlink" title="日志不一致的解决方案"></a>日志不一致的解决方案</h4><p>Leader通过强迫Follower的日志重复自己的日志来处理不一致之处，这意味着Follower日志中的冲突日志将被Leader日志中的条目覆盖。这个过程如下：</p>
 <ol>
 <li>首先，Leader找到与Follower最开始日志发生冲突的位置，然后删除掉Follower上所有与Leader发生冲突的日志，最后将自己的日志发送给Follower以解决冲突。需要注意的是：Leader不会删除或覆盖自己本地的日志条目。</li>
 <li>当发生日志冲突时，Follower将会拒绝由Leader发送的AppendEntries RPC消息，并返回一个响应消息告知Leader日志发生了冲突。</li>
@@ -432,7 +432,7 @@ pre:active {
 <li>当Leader了解到日志发生冲突之后，便递减nextIndex值，并重新发送AppendEntries RPC到该Follower，不断重复这个过程，一直到Follower接受该消息。</li>
 <li>一旦Follower接受了AppendEntries RPC消息，Leader则根据nextIndex值可以确定发生冲突的位置，从而强迫Follower的日志重复自己的日志以解决冲突问题。</li>
 </ol>
-<h2 id="3-Lab2B具体实现"><a href="#3-Lab2B具体实现" class="headerlink" title="3. Lab2B具体实现"></a>3. Lab2B具体实现</h2><p><strong>关键代码</strong></p>
+<h2 id="Lab2B具体实现"><a href="#Lab2B具体实现" class="headerlink" title="Lab2B具体实现"></a>Lab2B具体实现</h2><p><strong>关键代码</strong></p>
 <p>Raft定义</p>
 <pre class="line-numbers language-go" data-language="go"><code class="language-go"><span class="token keyword">type</span> Raft <span class="token keyword">struct</span> <span class="token punctuation">&#123;</span>
 	mu                  sync<span class="token punctuation">.</span>Mutex          
@@ -584,7 +584,7 @@ pre:active {
     <div class="article-catelogue--wrapper">
       <div class="catelogue catelogue-1">
         <h3>目录</h3>
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%9D%E7%AA%A5Raft%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">初窥Raft共识算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%A2%86%E5%AF%BC%E8%80%85%E9%80%89%E4%B8%BE"><span class="toc-number">1.1.</span> <span class="toc-text">1.领导者选举</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E4%BB%BB%E6%9C%9F"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 任期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E9%80%89%E4%B8%BE%E6%B5%81%E7%A8%8B"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 选举流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6"><span class="toc-number">1.2.</span> <span class="toc-text">2.日志复制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E6%97%A5%E5%BF%97%E7%BB%84%E6%88%90"><span class="toc-number">1.2.1.</span> <span class="toc-text">2.1 日志组成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E5%85%B7%E4%BD%93%E8%BF%87%E7%A8%8B"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.2 具体过程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E5%9C%A8%E5%87%BA%E7%8E%B0%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E6%97%B6%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">1.3.</span> <span class="toc-text">2.3 在出现一致性问题时的解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-1-%E6%97%A5%E5%BF%97%E4%B8%8D%E4%B8%80%E8%87%B4%E7%9A%84%E4%B8%89%E7%A7%8D%E6%83%85%E5%86%B5"><span class="toc-number">1.3.0.1.</span> <span class="toc-text">2.3.1 日志不一致的三种情况</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-2-%E6%97%A5%E5%BF%97%E4%B8%8D%E4%B8%80%E8%87%B4%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">1.3.0.2.</span> <span class="toc-text">2.3.2 日志不一致的解决方案</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Lab2B%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.4.</span> <span class="toc-text">3. Lab2B具体实现</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%86%E5%AF%BC%E8%80%85%E9%80%89%E4%B8%BE"><span class="toc-number">1.</span> <span class="toc-text">领导者选举</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%BB%E6%9C%9F"><span class="toc-number">1.1.</span> <span class="toc-text">任期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%89%E4%B8%BE%E6%B5%81%E7%A8%8B"><span class="toc-number">1.2.</span> <span class="toc-text">选举流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6"><span class="toc-number">2.</span> <span class="toc-text">日志复制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E7%BB%84%E6%88%90"><span class="toc-number">2.1.</span> <span class="toc-text">日志组成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E8%BF%87%E7%A8%8B"><span class="toc-number">2.2.</span> <span class="toc-text">具体过程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%A8%E5%87%BA%E7%8E%B0%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E6%97%B6%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">3.</span> <span class="toc-text">在出现一致性问题时的解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E4%B8%8D%E4%B8%80%E8%87%B4%E7%9A%84%E4%B8%89%E7%A7%8D%E6%83%85%E5%86%B5"><span class="toc-number">3.0.1.</span> <span class="toc-text">日志不一致的三种情况</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E4%B8%8D%E4%B8%80%E8%87%B4%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">3.0.2.</span> <span class="toc-text">日志不一致的解决方案</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lab2B%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="toc-number">4.</span> <span class="toc-text">Lab2B具体实现</span></a></li></ol>
       </div>
       
         <div class="catelogue catelogue-2">
